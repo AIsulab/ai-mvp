@@ -1,4 +1,4 @@
-# 🤖 AI Automation Pipeline
+# 🤖 AI Automation Pipeline (ai-mvp)
 
 [![Python](https://img.shields.io/badge/Python-3.x-blue.svg)](https://www.python.org/)
 [![Vercel](https://img.shields.io/badge/Vercel-Deployed-black)](https://vercel.com/)
@@ -26,27 +26,29 @@
 ### Prerequisites
 프로젝트를 실행하기 위해 다음 환경 변수가 필요합니다. `.env` 파일을 최상위 디렉토리에 생성하고 각 API 키를 입력해주세요.
 
-```bash
+```text
 OPENAI_API_KEY="your_openai_api_key"
 ANTHROPIC_API_KEY="your_claude_api_key"
 GEMINI_API_KEY="your_gemini_api_key"
+```
 
+### Installation
 
-Installation
-Bash
+1. 저장소 클론
+```bash
+git clone [https://github.com/Alsulab/ai-mvp.git](https://github.com/Alsulab/ai-mvp.git)
+```
 
+2. 디렉토리 이동
+```bash
+cd ai-mvp
+```
 
-# 1. 저장소 클론
-git clone [https://github.com/Alsulab/ai-automation.git](https://github.com/Alsulab/ai-automation.git)
-
-# 2. 디렉토리 이동
-cd ai-automation
-
-# 3. 패키지 설치
+3. 패키지 설치
+```bash
 pip install -r requirements.txt
+```
 
-
-📬 Contact
-Organization: SULAB (수랩)
-
-GitHub: Alsulab
+## 📬 Contact
+- **Organization:** SULAB (수랩)
+- **GitHub:** [Alsulab](https://github.com/Alsulab)
