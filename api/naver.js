@@ -2,7 +2,7 @@
 export default async function handler(request, response) {
   response.setHeader('Access-Control-Allow-Credentials', true);
   response.setHeader('Access-Control-Allow-Origin', '*');
-  response.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  response.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
   
   if (request.method === 'OPTIONS') {
     response.status(200).end();
@@ -19,7 +19,20 @@ export default async function handler(request, response) {
   const clientSecret = process.env.NAVER_CLIENT_SECRET;
 
   if (!clientId || !clientSecret) {
-    return response.status(500).json({ error: "네이버 API 키가 설정되지 않았습니다." });
+    // Return mock data when no API key
+    return response.status(200).json({
+      items: [
+        {
+          title: `<b>${query}</b> 관련 블로그`,
+          link: "#",
+          description: `${query}에 대한 유용한 정보를 공유합니다.`,
+          bloggerName: "전주 맛집 블로거",
+          postDate: "20260625",
+        }
+      ],
+      total: 1,
+      isMock: true,
+    });
   }
 
   try {
