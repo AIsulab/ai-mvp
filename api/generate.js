@@ -13,7 +13,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const apiKey = process.env.MIMO_API_KEY;
+  const apiKey = process.env.MIMO_API;
   if (!apiKey) {
     return res.status(500).json({ error: "MiMo API 키가 설정되지 않았습니다." });
   }
