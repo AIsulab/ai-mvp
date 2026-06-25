@@ -1,0 +1,5 @@
+{
+  "buildCommand": "echo 'No build step required for static HTML'",
+  "outputDirectory": ".",
+  "framework": null
+}
