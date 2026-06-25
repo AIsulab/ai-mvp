@@ -11,7 +11,7 @@ export default async function handler(request, response) {
   }
 
   const { nx = "63", ny = "89" } = request.query;
-  const serviceKey = process.env.POTAL_API;
+  const serviceKey = process.env.WEATHER_API_KEY;
 
   if (!serviceKey) {
     return response.status(200).json({
