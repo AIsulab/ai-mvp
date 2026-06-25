@@ -2,6 +2,7 @@
   "buildCommand": "cd apps/web && npm install && npm run build",
   "outputDirectory": "apps/web/dist",
   "installCommand": "echo 'handled in buildCommand'",
+  "framework": "vite",
   "rewrites": [
     {
       "source": "/api/(.*)",
