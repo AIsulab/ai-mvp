@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ThemeProvider } from './contexts/ThemeContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import './app/global.css';
 
@@ -27,19 +28,21 @@ const queryClient = new QueryClient({
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/dashboard" element={<DashboardLayout />}>
-            <Route index element={<DashboardPage />} />
-            <Route path="weather-marketing" element={<WeatherMarketingPage />} />
-            <Route path="sns-content" element={<SnsContentPage />} />
-            <Route path="review-reply" element={<ReviewReplyPage />} />
-            <Route path="market-analysis" element={<MarketAnalysisPage />} />
-            <Route path="support-fund" element={<SupportFundPage />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+      <ThemeProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/dashboard" element={<DashboardLayout />}>
+              <Route index element={<DashboardPage />} />
+              <Route path="weather-marketing" element={<WeatherMarketingPage />} />
+              <Route path="sns-content" element={<SnsContentPage />} />
+              <Route path="review-reply" element={<ReviewReplyPage />} />
+              <Route path="market-analysis" element={<MarketAnalysisPage />} />
+              <Route path="support-fund" element={<SupportFundPage />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

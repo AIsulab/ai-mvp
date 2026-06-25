@@ -2,8 +2,8 @@ import { Loader2 } from "lucide-react";
 
 const variants = {
   primary: "bg-primary text-white hover:bg-primary-dark focus-visible:ring-primary",
-  secondary: "bg-white border border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50 focus-visible:ring-gray-300",
-  ghost: "text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus-visible:ring-gray-300",
+  secondary: "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700 focus-visible:ring-gray-300",
+  ghost: "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white focus-visible:ring-gray-300",
   danger: "bg-red-500 text-white hover:bg-red-600 focus-visible:ring-red-500",
   accent: "bg-accent text-white hover:bg-orange-600 focus-visible:ring-accent",
 };

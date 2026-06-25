@@ -8,7 +8,7 @@ export default function Card({
   return (
     <div
       className={`
-        bg-white rounded-xl border border-gray-200
+        bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700
         ${shadow ? "shadow-sm" : ""}
         ${padding}
         ${className}
