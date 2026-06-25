@@ -252,66 +252,73 @@ export default function LandingPage() {
 
       {/* Weather-Driven Engine Highlight */}
       <section id="engine" className="bg-gray-50 border-y border-gray-200">
-        <div className="max-w-5xl mx-auto px-6 py-20">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        <div className="max-w-5xl mx-auto px-6 py-24">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
+            {/* Left Column */}
             <div>
-              <div className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-600 rounded-full px-3 py-1.5 text-sm font-medium mb-5">
-                <Zap size={13} />
+              <div className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-600 rounded-full px-3 py-1.5 text-sm font-semibold mb-6">
+                <Zap size={14} className="fill-blue-600" />
                 Weather-Driven Engine
               </div>
-              <h2 className="text-2xl font-semibold text-gray-900 tracking-tight mb-4">
+              <h2 className="text-3xl font-bold text-gray-900 tracking-tight mb-5 leading-snug">
                 날씨가 바뀌면
                 <br />
                 마케팅도 자동으로 바뀝니다
               </h2>
-              <p className="text-gray-500 text-sm leading-relaxed mb-6">
+              <p className="text-gray-600 text-[15px] leading-relaxed mb-8">
                 기상청 단기예보 API와 GPT-4를 결합한 독자적인 Weather-Driven
                 엔진. 맑음, 비, 눈, 폭염, 한파 등 날씨 조건을 실시간 감지해
                 업종별로 최적화된 마케팅 문구를 자동 생성합니다.
               </p>
-              <div className="space-y-3">
+              
+              <div className="space-y-4">
                 {[
                   {
-                    weather: "🌧️ 비",
+                    icon: <Cloud className="text-gray-500" size={14} />,
+                    weather: "비",
                     example: '"오늘처럼 비 오는 날엔 따뜻한 순대국 한 그릇"',
                     type: "국밥집",
                   },
                   {
-                    weather: "🌞 폭염",
+                    icon: <Zap className="text-orange-500 fill-orange-500" size={14} />,
+                    weather: "폭염",
                     example: '"이 더위엔 시원한 냉면으로 열기를 식혀요"',
                     type: "식당",
                   },
                   {
-                    weather: "❄️ 눈",
+                    icon: <Cloud className="text-blue-400" size={14} />,
+                    weather: "눈",
                     example: '"눈 오는 날의 낭만을 따뜻한 커피 한 잔과 함께"',
                     type: "카페",
                   },
                 ].map((ex, i) => (
                   <div
                     key={i}
-                    className="bg-white border border-gray-200 rounded-lg p-4"
+                    className="bg-white border border-gray-200/80 rounded-xl p-5 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] transition-all hover:shadow-md"
                   >
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-xs border border-gray-200 text-gray-700 px-2 py-0.5 rounded-full">
-                        {ex.weather}
+                    <div className="flex items-center gap-2.5 mb-3">
+                      <span className="flex items-center gap-1.5 text-xs border border-gray-200 text-gray-700 px-2.5 py-1 rounded-full bg-gray-50 font-medium">
+                        {ex.icon} {ex.weather}
                       </span>
-                      <span className="text-gray-300">+</span>
-                      <span className="text-xs border border-gray-200 text-gray-700 px-2 py-0.5 rounded-full">
+                      <span className="text-gray-300 text-sm font-light">+</span>
+                      <span className="text-xs border border-gray-200 text-gray-700 px-2.5 py-1 rounded-full bg-gray-50 font-medium">
                         {ex.type}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-700 font-medium">
+                    <p className="text-[15px] text-gray-700 tracking-tight">
                       {ex.example}
                     </p>
                   </div>
                 ))}
               </div>
             </div>
-            <div className="border border-gray-200 rounded-xl p-6 bg-white">
-              <h3 className="text-sm font-semibold text-gray-900 mb-4">
+            
+            {/* Right Column */}
+            <div className="bg-white border border-gray-200/80 rounded-2xl p-8 shadow-[0_4px_20px_-8px_rgba(0,0,0,0.05)] md:mt-10">
+              <h3 className="text-[15px] font-bold text-gray-900 mb-6 flex items-center">
                 날씨 조건별 마케팅 방향
               </h3>
-              <div className="space-y-3">
+              <div className="space-y-5">
                 {[
                   {
                     icon: "☀️",
@@ -339,16 +346,23 @@ export default function LandingPage() {
                     tags: ["기분전환", "특별 할인", "에너지"],
                   },
                 ].map((row, i) => (
-                  <div key={i} className="flex items-center gap-3">
-                    <span className="text-lg w-7">{row.icon}</span>
-                    <span className="text-sm text-gray-600 w-20 shrink-0">
+                  <div key={i} className="flex items-center gap-4">
+                    {/* Icon column (fixed width) */}
+                    <div className="w-8 flex justify-center text-xl shrink-0">
+                      {row.icon}
+                    </div>
+                    
+                    {/* Label column (fixed width) */}
+                    <div className="w-24 text-[13px] font-medium text-gray-700 shrink-0">
                       {row.label}
-                    </span>
-                    <div className="flex gap-1.5 flex-wrap">
+                    </div>
+                    
+                    {/* Tags column */}
+                    <div className="flex gap-2 flex-wrap">
                       {row.tags.map((t, j) => (
                         <span
                           key={j}
-                          className="text-xs border border-gray-200 text-gray-600 px-2 py-0.5 rounded-full"
+                          className="text-[12px] border border-gray-200 text-gray-600 px-3 py-1 rounded-full bg-white hover:bg-gray-50 transition-colors"
                         >
                           {t}
                         </span>
