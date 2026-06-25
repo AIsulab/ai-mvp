@@ -1,6 +1,5 @@
-import { useState, useCallback } from "react";
-import { Zap, Copy, Check, AlertCircle, Hash, Instagram } from "lucide-react";
-import useHandleStreamResponse from "@/utils/useHandleStreamResponse";
+import { useState } from "react";
+import { Zap, Copy, Check, AlertCircle, Instagram } from "lucide-react";
 
 const businessTypes = [
   "카페",
@@ -20,27 +19,29 @@ const moods = [
   "유머/친근하게",
 ];
 
+const generateMockSns = (businessType, event, platform, mood) => {
+  return `📝 본문:
+오늘 ${businessType}에서 특별한 소식이 있어요! ✨
+${event} 준비했습니다 🎉
+${mood} 분위기로 여러분을 초대합니다. 
+지금 바로 방문해주세요! 💕
+
+#️⃣ 해시태그:
+#${businessType.replace("/", "")} #전주맛집 #전북맛집 #오늘의메뉴 #${event.replace(/\s/g, "")} #맛스타그램 #먹스타그램 #전주카페 #전북소상공인 #소상공인응원 #${platform} #일상 #맛집추천 #전주일상
+
+💡 스토리/릴스 아이디어:
+${event} 준비 과정을 타임랩스로 촬영 → "오늘의 정성" 자막 추가 → 완성된 메뉴 클로즈업으로 마무리`;
+};
+
 export default function SnsContentPage() {
   const [businessType, setBusinessType] = useState("");
   const [event, setEvent] = useState("");
   const [platform, setPlatform] = useState(platforms[0]);
   const [mood, setMood] = useState(moods[0]);
-  const [streaming, setStreaming] = useState("");
   const [result, setResult] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [copied, setCopied] = useState(null);
   const [error, setError] = useState(null);
-
-  const handleFinish = useCallback((msg) => {
-    setResult(msg);
-    setStreaming("");
-    setIsGenerating(false);
-  }, []);
-
-  const handleStreamResponse = useHandleStreamResponse({
-    onChunk: setStreaming,
-    onFinish: handleFinish,
-  });
 
   const generate = async () => {
     if (!businessType || !event) {
@@ -50,46 +51,11 @@ export default function SnsContentPage() {
     setError(null);
     setIsGenerating(true);
     setResult(null);
-    setStreaming("");
 
-    const systemPrompt = `당신은 소상공인 SNS 마케팅 전문가입니다. 전북 지역 소상공인의 SNS 게시글을 자동 생성합니다.
-형식:
-📝 본문:
-(게시글 본문 2~4문장)
-
-#️⃣ 해시태그:
-(관련 해시태그 10~15개)
-
-💡 스토리/릴스 아이디어:
-(짧은 아이디어 1~2줄)
-
-규칙: 이모지 활용, 전북/지역 특색 해시태그 포함, 플랫폼 특성에 맞는 길이 조절`;
-
-    const userPrompt = `업종: ${businessType}
-오늘의 이벤트/메뉴: ${event}
-플랫폼: ${platform}
-분위기: ${mood}
-
-위 조건에 맞는 SNS 콘텐츠를 작성해주세요.`;
-
-    try {
-      const res = await fetch("/integrations/chat-gpt/conversationgpt4", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: userPrompt },
-          ],
-          stream: true,
-        }),
-      });
-      handleStreamResponse(res);
-    } catch (err) {
-      console.error(err);
-      setError("생성 중 오류가 발생했습니다.");
-      setIsGenerating(false);
-    }
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    const text = generateMockSns(businessType, event, platform, mood);
+    setResult(text);
+    setIsGenerating(false);
   };
 
   const copy = (text, key) => {
@@ -199,7 +165,7 @@ export default function SnsContentPage() {
         >
           {isGenerating ? (
             <>
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>{" "}
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>{" "}
               생성 중...
             </>
           ) : (
@@ -211,7 +177,7 @@ export default function SnsContentPage() {
       </div>
 
       {/* Output */}
-      {(streaming || result) && (
+      {result && (
         <div className="bg-white border border-gray-200 rounded-xl p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
@@ -222,35 +188,25 @@ export default function SnsContentPage() {
                 {platform}
               </span>
             </div>
-            {result && (
-              <button
-                onClick={() => copy(result, "main")}
-                className="text-xs text-gray-500 hover:text-gray-700 transition-colors inline-flex items-center gap-1 border border-gray-200 px-2.5 py-1 rounded-full hover:border-gray-300"
-              >
-                {copied === "main" ? (
-                  <>
-                    <Check size={11} className="text-green-500" />
-                    복사됨
-                  </>
-                ) : (
-                  <>
-                    <Copy size={11} />
-                    전체 복사
-                  </>
-                )}
-              </button>
-            )}
+            <button
+              onClick={() => copy(result, "main")}
+              className="text-xs text-gray-500 hover:text-gray-700 transition-colors inline-flex items-center gap-1 border border-gray-200 px-2.5 py-1 rounded-full hover:border-gray-300"
+            >
+              {copied === "main" ? (
+                <>
+                  <Check size={11} className="text-green-500" />
+                  복사됨
+                </>
+              ) : (
+                <>
+                  <Copy size={11} />
+                  전체 복사
+                </>
+              )}
+            </button>
           </div>
-          {streaming && (
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-              <span className="text-xs text-blue-600 font-medium">
-                생성 중...
-              </span>
-            </div>
-          )}
           <pre className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
-            {streaming || result}
+            {result}
           </pre>
         </div>
       )}

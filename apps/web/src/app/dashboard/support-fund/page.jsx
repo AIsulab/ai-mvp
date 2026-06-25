@@ -270,7 +270,7 @@ export default function SupportFundPage() {
           <div className="bg-white border border-gray-200 rounded-xl p-10 text-center">
             <Gift size={28} className="text-gray-300 mx-auto mb-3" />
             <p className="text-sm text-gray-500">
-              조건에 맞는 지원사업이 없습니다.
+               조건에 맞는 지원사업이 없습니다.
             </p>
             <p className="text-xs text-gray-400 mt-1">
               업종 필터를 변경해보세요.

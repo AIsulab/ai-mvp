@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import {
   Cloud,
   Zap,
@@ -5,7 +6,6 @@ import {
   MapPin,
   Gift,
   ArrowRight,
-  TrendingUp,
   BarChart2,
 } from "lucide-react";
 
@@ -156,9 +156,9 @@ export default function DashboardPage() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {quickActions.map((action, i) => (
-            <a
+            <Link
               key={i}
-              href={action.href}
+              to={action.href}
               className="bg-white border border-gray-200 rounded-xl p-5 hover:border-gray-300 hover:bg-gray-50 transition-colors group flex flex-col gap-3"
             >
               <div className="flex items-center justify-between">
@@ -184,7 +184,7 @@ export default function DashboardPage() {
                   className="group-hover:translate-x-0.5 transition-transform"
                 />
               </div>
-            </a>
+            </Link>
           ))}
         </div>
       </div>
@@ -227,12 +227,12 @@ export default function DashboardPage() {
           ))}
         </div>
         <div className="px-6 py-4 border-t border-gray-200">
-          <a
-            href="/dashboard/weather-marketing"
+          <Link
+            to="/dashboard/weather-marketing"
             className="text-xs text-[#2563EB] font-medium inline-flex items-center gap-1 hover:underline"
           >
             새 콘텐츠 생성하기 <ArrowRight size={11} />
-          </a>
+          </Link>
         </div>
       </div>
     </div>

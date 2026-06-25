@@ -3,7 +3,35 @@
 @tailwind utilities;
 
 @layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    margin: 0;
+    padding: 0;
+  }
+
   input, textarea, select, button {
-    @apply outline-none focus:outline-none;
+    outline: none;
+    font-family: inherit;
+  }
+
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+  }
+}
+
+@layer utilities {
+  .animate-spin {
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
   }
 }

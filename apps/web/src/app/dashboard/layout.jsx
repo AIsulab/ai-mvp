@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { Link, useLocation, Outlet } from "react-router-dom";
 import {
   LayoutDashboard,
   Cloud,
@@ -6,7 +7,6 @@ import {
   Star,
   MapPin,
   Gift,
-  LogOut,
   ChevronRight,
   Menu,
   X,
@@ -26,17 +26,13 @@ const navItems = [
   { icon: Gift, label: "지원금 매칭", href: "/dashboard/support-fund" },
 ];
 
-export default function DashboardLayout({ children }) {
-  const [activePath, setActivePath] = useState("/dashboard");
+export default function DashboardLayout() {
+  const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  useEffect(() => {
-    setActivePath(window.location.pathname);
-  }, []);
-
   const isActive = (href) => {
-    if (href === "/dashboard") return activePath === "/dashboard";
-    return activePath.startsWith(href);
+    if (href === "/dashboard") return location.pathname === "/dashboard";
+    return location.pathname.startsWith(href);
   };
 
   return (
@@ -57,8 +53,8 @@ export default function DashboardLayout({ children }) {
       >
         {/* Logo */}
         <div className="px-5 py-5 border-b border-gray-200 flex items-center justify-between">
-          <a
-            href="/"
+          <Link
+            to="/"
             className="flex items-center gap-2 hover:opacity-80 transition-opacity"
           >
             <span className="text-base font-semibold text-gray-900 tracking-tight">
@@ -67,7 +63,7 @@ export default function DashboardLayout({ children }) {
             <span className="text-[10px] border border-gray-200 text-gray-600 px-1.5 py-0.5 rounded-full">
               와이
             </span>
-          </a>
+          </Link>
           <button className="md:hidden" onClick={() => setSidebarOpen(false)}>
             <X size={16} className="text-gray-400" />
           </button>
@@ -81,9 +77,9 @@ export default function DashboardLayout({ children }) {
           {navItems.map((item) => {
             const active = isActive(item.href);
             return (
-              <a
+              <Link
                 key={item.href}
-                href={item.href}
+                to={item.href}
                 className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-colors group ${
                   active
                     ? "bg-[#EFF6FF] text-[#2563EB] font-medium"
@@ -111,7 +107,7 @@ export default function DashboardLayout({ children }) {
                     <ChevronRight size={12} className="text-[#2563EB]" />
                   )}
                 </span>
-              </a>
+              </Link>
             );
           })}
         </nav>
@@ -150,8 +146,10 @@ export default function DashboardLayout({ children }) {
           </div>
         </header>
 
-        {/* Page content */}
-        <main className="flex-1 p-6">{children}</main>
+        {/* Page content - Outlet renders child routes */}
+        <main className="flex-1 p-6">
+          <Outlet />
+        </main>
       </div>
     </div>
   );

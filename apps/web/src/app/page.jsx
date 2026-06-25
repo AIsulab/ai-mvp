@@ -1,14 +1,12 @@
+import { Link } from 'react-router-dom';
 import {
   Cloud,
   BarChart2,
-  MessageSquare,
   Star,
   MapPin,
   Gift,
   ArrowRight,
   Zap,
-  TrendingUp,
-  Check,
 } from "lucide-react";
 
 const features = [
@@ -119,12 +117,12 @@ export default function LandingPage() {
           >
             날씨 엔진
           </a>
-          <a
-            href="/dashboard"
+          <Link
+            to="/dashboard"
             className="bg-[#2563EB] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors inline-flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
           >
             대시보드 시작하기 <ArrowRight size={14} />
-          </a>
+          </Link>
         </div>
       </nav>
 
@@ -146,12 +144,12 @@ export default function LandingPage() {
           마케팅 문구부터 경영 인사이트까지 버튼 하나로 완성
         </p>
         <div className="flex items-center justify-center gap-3 flex-wrap">
-          <a
-            href="/dashboard"
+          <Link
+            to="/dashboard"
             className="bg-[#2563EB] text-white px-7 py-3.5 rounded-lg font-medium hover:bg-blue-700 transition-colors inline-flex items-center gap-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
           >
             무료로 시작하기 <ArrowRight size={16} />
-          </a>
+          </Link>
           <a
             href="#features"
             className="border border-gray-200 text-gray-700 px-7 py-3.5 rounded-lg font-medium hover:border-gray-300 hover:bg-gray-50 transition-colors text-sm"
@@ -372,12 +370,12 @@ export default function LandingPage() {
         <p className="text-gray-500 text-sm mb-8">
           전북 소상공인이라면 무료로 사용할 수 있습니다.
         </p>
-        <a
-          href="/dashboard"
+        <Link
+          to="/dashboard"
           className="bg-[#2563EB] text-white px-8 py-4 rounded-lg font-medium hover:bg-blue-700 transition-colors inline-flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
         >
           W-AI 대시보드 시작하기 <ArrowRight size={16} />
-        </a>
+        </Link>
       </section>
 
       {/* Footer */}

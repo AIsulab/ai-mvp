@@ -1,7 +1,6 @@
 import { useState, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Cloud, Copy, Check, Zap, RefreshCw, AlertCircle } from "lucide-react";
-import useHandleStreamResponse from "@/utils/useHandleStreamResponse";
 
 const businessTypes = [
   "카페",
@@ -22,12 +21,30 @@ const tones = [
   "감성적이고 시적으로",
 ];
 
+// Mock AI 생성 함수 (실제 배포시 API 연동으로 교체)
+const generateMockMarketing = (weather, businessType, menuOrProduct, tone) => {
+  const toneStyles = {
+    "친근하고 따뜻하게": "따뜻하고 정감 있는",
+    "세련되고 프로페셔널하게": "깔끔하고 세련된",
+    "유머러스하고 재미있게": "재미있고 유쾌한",
+    "감성적이고 시적으로": "감성적이고 아름다운",
+  };
+  const style = toneStyles[tone] || "따뜻한";
+  const emoji = weather?.emoji || "☀️";
+  const condition = weather?.condition || "맑은";
+
+  return `1. ${emoji} 오늘 같은 ${condition} 날엔, ${menuOrProduct}(이)가 제격이죠! ${style} 한 끼로 하루를 완성하세요 ✨
+
+2. ${condition} 날씨에 딱 맞는 ${businessType}의 자신작 ${menuOrProduct}! 사장님이 정성껏 준비했습니다. 지금 바로 만나보세요 🙌
+
+3. "${condition}인 오늘, ${menuOrProduct} 한 입이면 기분까지 좋아집니다" — ${businessType} 사장님의 ${style} 추천 메뉴입니다 💛`;
+};
+
 export default function WeatherMarketingPage() {
   const [businessType, setBusinessType] = useState("");
   const [menuOrProduct, setMenuOrProduct] = useState("");
   const [tone, setTone] = useState(tones[0]);
   const [generated, setGenerated] = useState([]);
-  const [streaming, setStreaming] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [copied, setCopied] = useState(null);
   const [error, setError] = useState(null);
@@ -39,36 +56,24 @@ export default function WeatherMarketingPage() {
   } = useQuery({
     queryKey: ["weather"],
     queryFn: async () => {
-      const res = await fetch("/api/weather");
-      if (!res.ok) throw new Error("날씨 정보를 가져오지 못했습니다.");
-      return res.json();
+      try {
+        const res = await fetch("/api/weather");
+        if (!res.ok) throw new Error("날씨 정보를 가져오지 못했습니다.");
+        return res.json();
+      } catch {
+        // Fallback mock weather data
+        return {
+          condition: "맑음",
+          emoji: "☀️",
+          temperature: "24°C",
+          humidity: "52%",
+          windSpeed: "2.3m/s",
+          marketingTheme: "상쾌함,활기,기분 좋은 하루",
+          isMock: true,
+        };
+      }
     },
     staleTime: 1000 * 60 * 30,
-  });
-
-  const handleFinish = useCallback(
-    (msg) => {
-      setGenerated((prev) => [
-        {
-          text: msg,
-          time: new Date().toLocaleTimeString("ko-KR", {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
-          weather: weather?.condition,
-          emoji: weather?.emoji,
-        },
-        ...prev.slice(0, 4),
-      ]);
-      setStreaming("");
-      setIsGenerating(false);
-    },
-    [weather],
-  );
-
-  const handleStreamResponse = useHandleStreamResponse({
-    onChunk: setStreaming,
-    onFinish: handleFinish,
   });
 
   const generate = async () => {
@@ -78,42 +83,24 @@ export default function WeatherMarketingPage() {
     }
     setError(null);
     setIsGenerating(true);
-    setStreaming("");
 
-    const systemPrompt = `당신은 전북 소상공인을 위한 마케팅 전문가입니다. 날씨 데이터를 바탕으로 업종에 맞는 감성적이고 효과적인 마케팅 문구를 생성합니다. 
-규칙:
-- 문구는 3가지를 생성하세요 (각각 번호 1. 2. 3. 으로 구분)
-- 각 문구는 2~3문장 내외로 간결하게
-- 이모지를 적절히 활용
-- 지역 친화적이고 따뜻한 느낌
-- SNS, 카카오채널, 매장 안내문에 바로 사용 가능한 수준`;
+    // Simulate AI generation delay
+    await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    const userPrompt = `현재 날씨: ${weather?.emoji || "☀️"} ${weather?.condition || "맑음"} (기온 ${weather?.temperature || "-"}, 습도 ${weather?.humidity || "-"})
-날씨 마케팅 테마: ${weather?.marketingTheme || "상쾌함, 활기"}
-업종: ${businessType}
-메뉴/상품: ${menuOrProduct}
-원하는 톤: ${tone}
-
-위 조건에 맞는 마케팅 문구 3가지를 작성해주세요.`;
-
-    try {
-      const res = await fetch("/integrations/chat-gpt/conversationgpt4", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: userPrompt },
-          ],
-          stream: true,
+    const text = generateMockMarketing(weather, businessType, menuOrProduct, tone);
+    setGenerated((prev) => [
+      {
+        text,
+        time: new Date().toLocaleTimeString("ko-KR", {
+          hour: "2-digit",
+          minute: "2-digit",
         }),
-      });
-      handleStreamResponse(res);
-    } catch (err) {
-      console.error(err);
-      setError("생성 중 오류가 발생했습니다. 다시 시도해주세요.");
-      setIsGenerating(false);
-    }
+        weather: weather?.condition,
+        emoji: weather?.emoji,
+      },
+      ...prev.slice(0, 4),
+    ]);
+    setIsGenerating(false);
   };
 
   const copyText = (text, idx) => {
@@ -278,21 +265,6 @@ export default function WeatherMarketingPage() {
           )}
         </button>
       </div>
-
-      {/* Streaming output */}
-      {streaming && (
-        <div className="bg-white border border-blue-200 rounded-xl p-5 mb-4">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
-            <span className="text-xs font-medium text-blue-600">
-              AI 생성 중...
-            </span>
-          </div>
-          <pre className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
-            {streaming}
-          </pre>
-        </div>
-      )}
 
       {/* Generated results */}
       {generated.length > 0 && (
