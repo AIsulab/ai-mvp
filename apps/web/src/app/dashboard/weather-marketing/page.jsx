@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Cloud, Copy, Check, Zap, RefreshCw, AlertCircle } from "lucide-react";
+import { Cloud, Copy, Check, Zap, RefreshCw, AlertCircle, Loader2 } from "lucide-react";
+import { streamAIResponse } from "@/utils/ai";
 
 const businessTypes = [
   "카페",
@@ -21,30 +22,12 @@ const tones = [
   "감성적이고 시적으로",
 ];
 
-// Mock AI 생성 함수 (실제 배포시 API 연동으로 교체)
-const generateMockMarketing = (weather, businessType, menuOrProduct, tone) => {
-  const toneStyles = {
-    "친근하고 따뜻하게": "따뜻하고 정감 있는",
-    "세련되고 프로페셔널하게": "깔끔하고 세련된",
-    "유머러스하고 재미있게": "재미있고 유쾌한",
-    "감성적이고 시적으로": "감성적이고 아름다운",
-  };
-  const style = toneStyles[tone] || "따뜻한";
-  const emoji = weather?.emoji || "☀️";
-  const condition = weather?.condition || "맑은";
-
-  return `1. ${emoji} 오늘 같은 ${condition} 날엔, ${menuOrProduct}(이)가 제격이죠! ${style} 한 끼로 하루를 완성하세요 ✨
-
-2. ${condition} 날씨에 딱 맞는 ${businessType}의 자신작 ${menuOrProduct}! 사장님이 정성껏 준비했습니다. 지금 바로 만나보세요 🙌
-
-3. "${condition}인 오늘, ${menuOrProduct} 한 입이면 기분까지 좋아집니다" — ${businessType} 사장님의 ${style} 추천 메뉴입니다 💛`;
-};
-
 export default function WeatherMarketingPage() {
   const [businessType, setBusinessType] = useState("");
   const [menuOrProduct, setMenuOrProduct] = useState("");
   const [tone, setTone] = useState(tones[0]);
   const [generated, setGenerated] = useState([]);
+  const [streaming, setStreaming] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [copied, setCopied] = useState(null);
   const [error, setError] = useState(null);
@@ -61,7 +44,6 @@ export default function WeatherMarketingPage() {
         if (!res.ok) throw new Error("날씨 정보를 가져오지 못했습니다.");
         return res.json();
       } catch {
-        // Fallback mock weather data
         return {
           condition: "맑음",
           emoji: "☀️",
@@ -83,24 +65,53 @@ export default function WeatherMarketingPage() {
     }
     setError(null);
     setIsGenerating(true);
+    setStreaming("");
 
-    // Simulate AI generation delay
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    const systemPrompt = `당신은 전북 소상공인을 위한 마케팅 전문가입니다. 날씨 데이터를 바탕으로 업종에 맞는 감성적이고 효과적인 마케팅 문구를 생성합니다.
+규칙:
+- 문구는 3가지를 생성하세요 (각각 번호 1. 2. 3. 으로 구분)
+- 각 문구는 2~3문장 내외로 간결하게
+- 이모지를 적절히 활용
+- 지역 친화적이고 따뜻한 느낌
+- SNS, 카카오채널, 매장 안내문에 바로 사용 가능한 수준`;
 
-    const text = generateMockMarketing(weather, businessType, menuOrProduct, tone);
-    setGenerated((prev) => [
-      {
-        text,
-        time: new Date().toLocaleTimeString("ko-KR", {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-        weather: weather?.condition,
-        emoji: weather?.emoji,
-      },
-      ...prev.slice(0, 4),
-    ]);
-    setIsGenerating(false);
+    const userPrompt = `현재 날씨: ${weather?.emoji || "☀️"} ${weather?.condition || "맑음"} (기온 ${weather?.temperature || "-"}, 습도 ${weather?.humidity || "-"})
+날씨 마케팅 테마: ${weather?.marketingTheme || "상쾌함, 활기"}
+업종: ${businessType}
+메뉴/상품: ${menuOrProduct}
+원하는 톤: ${tone}
+
+위 조건에 맞는 마케팅 문구 3가지를 작성해주세요.`;
+
+    try {
+      let fullText = "";
+      for await (const chunk of streamAIResponse([
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ])) {
+        fullText += chunk;
+        setStreaming(fullText);
+      }
+
+      setGenerated((prev) => [
+        {
+          text: fullText,
+          time: new Date().toLocaleTimeString("ko-KR", {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          weather: weather?.condition,
+          emoji: weather?.emoji,
+        },
+        ...prev.slice(0, 4),
+      ]);
+      setStreaming("");
+    } catch (err) {
+      console.error(err);
+      setError("생성 중 오류가 발생했습니다. 다시 시도해주세요.");
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const copyText = (text, idx) => {
@@ -111,7 +122,6 @@ export default function WeatherMarketingPage() {
 
   return (
     <div className="max-w-3xl mx-auto">
-      {/* Header */}
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-2">
           <h1 className="text-xl font-semibold text-gray-900 tracking-tight">
@@ -122,17 +132,13 @@ export default function WeatherMarketingPage() {
           </span>
         </div>
         <p className="text-sm text-gray-500">
-          기상청 실시간 날씨 데이터를 기반으로 업종에 맞는 마케팅 문구를 즉시
-          생성합니다.
+          기상청 실시간 날씨 데이터를 기반으로 업종에 맞는 마케팅 문구를 즉시 생성합니다.
         </p>
       </div>
 
-      {/* Weather Card */}
       <div className="bg-white border border-gray-200 rounded-xl p-5 mb-5">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-semibold text-gray-900">
-            현재 날씨 (전주)
-          </h2>
+          <h2 className="text-sm font-semibold text-gray-900">현재 날씨 (전주)</h2>
           <button
             onClick={() => refetch()}
             className="text-xs text-gray-400 hover:text-gray-600 transition-colors inline-flex items-center gap-1"
@@ -142,29 +148,21 @@ export default function WeatherMarketingPage() {
         </div>
         {weatherLoading ? (
           <div className="flex items-center gap-2 py-2">
-            <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-            <span className="text-sm text-gray-400">
-              날씨 정보 불러오는 중...
-            </span>
+            <Loader2 size={16} className="animate-spin text-blue-600" />
+            <span className="text-sm text-gray-400">날씨 정보 불러오는 중...</span>
           </div>
         ) : weather ? (
           <div className="flex flex-wrap items-center gap-3">
             <span className="text-3xl">{weather.emoji}</span>
             <div>
-              <div className="text-base font-semibold text-gray-900">
-                {weather.condition}
-              </div>
+              <div className="text-base font-semibold text-gray-900">{weather.condition}</div>
               <div className="text-xs text-gray-500">
-                {weather.temperature} · 습도 {weather.humidity} · 풍속{" "}
-                {weather.windSpeed}
+                {weather.temperature} · 습도 {weather.humidity} · 풍속 {weather.windSpeed}
               </div>
             </div>
             <div className="ml-auto flex flex-wrap gap-1.5">
               {(weather.marketingTheme || "").split(",").map((t, i) => (
-                <span
-                  key={i}
-                  className="text-xs border border-gray-200 text-gray-600 px-2 py-0.5 rounded-full"
-                >
+                <span key={i} className="text-xs border border-gray-200 text-gray-600 px-2 py-0.5 rounded-full">
                   {t.trim()}
                 </span>
               ))}
@@ -182,16 +180,11 @@ export default function WeatherMarketingPage() {
         )}
       </div>
 
-      {/* Form */}
       <div className="bg-white border border-gray-200 rounded-xl p-6 mb-5">
-        <h2 className="text-sm font-semibold text-gray-900 mb-4">
-          내 가게 정보 입력
-        </h2>
+        <h2 className="text-sm font-semibold text-gray-900 mb-4">내 가게 정보 입력</h2>
         <div className="space-y-4">
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-2 block">
-              업종 선택
-            </label>
+            <label className="text-xs font-medium text-gray-500 mb-2 block">업종 선택</label>
             <div className="flex flex-wrap gap-2">
               {businessTypes.map((b) => (
                 <button
@@ -209,9 +202,7 @@ export default function WeatherMarketingPage() {
             </div>
           </div>
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-2 block">
-              오늘의 메뉴 또는 상품
-            </label>
+            <label className="text-xs font-medium text-gray-500 mb-2 block">오늘의 메뉴 또는 상품</label>
             <input
               type="text"
               value={menuOrProduct}
@@ -221,9 +212,7 @@ export default function WeatherMarketingPage() {
             />
           </div>
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-2 block">
-              문구 톤 선택
-            </label>
+            <label className="text-xs font-medium text-gray-500 mb-2 block">문구 톤 선택</label>
             <div className="flex flex-wrap gap-2">
               {tones.map((t) => (
                 <button
@@ -255,8 +244,7 @@ export default function WeatherMarketingPage() {
         >
           {isGenerating ? (
             <>
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>{" "}
-              생성 중...
+              <Loader2 size={15} className="animate-spin" /> 생성 중...
             </>
           ) : (
             <>
@@ -266,18 +254,22 @@ export default function WeatherMarketingPage() {
         </button>
       </div>
 
-      {/* Generated results */}
+      {streaming && (
+        <div className="bg-white border border-blue-200 rounded-xl p-5 mb-4">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+            <span className="text-xs font-medium text-blue-600">AI 생성 중...</span>
+          </div>
+          <pre className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{streaming}</pre>
+        </div>
+      )}
+
       {generated.length > 0 && (
         <div>
-          <h2 className="text-sm font-semibold text-gray-900 mb-3">
-            생성된 마케팅 문구
-          </h2>
+          <h2 className="text-sm font-semibold text-gray-900 mb-3">생성된 마케팅 문구</h2>
           <div className="space-y-3">
             {generated.map((g, i) => (
-              <div
-                key={i}
-                className="bg-white border border-gray-200 rounded-xl p-5 hover:border-gray-300 transition-colors"
-              >
+              <div key={i} className="bg-white border border-gray-200 rounded-xl p-5 hover:border-gray-300 transition-colors">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <span className="text-xs border border-gray-200 text-gray-600 px-2 py-0.5 rounded-full">
@@ -290,19 +282,13 @@ export default function WeatherMarketingPage() {
                     className="text-xs text-gray-500 hover:text-gray-700 transition-colors inline-flex items-center gap-1 border border-gray-200 px-2.5 py-1 rounded-full hover:border-gray-300"
                   >
                     {copied === i ? (
-                      <>
-                        <Check size={11} className="text-green-500" /> 복사됨
-                      </>
+                      <><Check size={11} className="text-green-500" /> 복사됨</>
                     ) : (
-                      <>
-                        <Copy size={11} /> 복사
-                      </>
+                      <><Copy size={11} /> 복사</>
                     )}
                   </button>
                 </div>
-                <pre className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
-                  {g.text}
-                </pre>
+                <pre className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{g.text}</pre>
               </div>
             ))}
           </div>
