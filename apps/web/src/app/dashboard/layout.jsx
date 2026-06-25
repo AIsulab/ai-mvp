@@ -11,6 +11,7 @@ import {
   Menu,
   X,
 } from "lucide-react";
+import ChatWidget from "../../components/ChatWidget";
 
 const navItems = [
   { icon: LayoutDashboard, label: "대시보드", href: "/dashboard" },
@@ -128,28 +129,30 @@ export default function DashboardLayout() {
       {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top bar */}
-        <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between sticky top-0 z-10">
-          <button
-            className="md:hidden p-1 rounded-lg hover:bg-gray-50 transition-colors"
-            onClick={() => setSidebarOpen(true)}
-          >
-            <Menu size={18} className="text-gray-600" />
-          </button>
-          <div className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>
-            <span className="text-xs text-gray-500">기상청 API 연동 중</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs border border-gray-200 text-gray-600 px-2.5 py-1 rounded-full hidden sm:inline-flex items-center gap-1">
-              🌍 전북특별자치도 공공데이터
-            </span>
+        {/* Main Header */}
+        <header className="bg-white border-b border-gray-200 sticky top-0 z-10 shrink-0">
+          <div className="flex items-center justify-between px-6 py-4">
+            <h1 className="text-xl font-bold text-gray-900">
+              {navItems.find((i) => isActive(i.href))?.label || "W-AI"}
+            </h1>
+            <div className="flex items-center gap-4">
+              <button
+                className="md:hidden p-1 rounded-lg hover:bg-gray-50 transition-colors"
+                onClick={() => setSidebarOpen(true)}
+              >
+                <Menu size={18} className="text-gray-600" />
+              </button>
+            </div>
           </div>
         </header>
 
-        {/* Page content - Outlet renders child routes */}
-        <main className="flex-1 p-6">
+        {/* Main Content Area */}
+        <main className="flex-1 overflow-x-hidden overflow-y-auto">
           <Outlet />
         </main>
+        
+        {/* Global Chat Widget */}
+        <ChatWidget />
       </div>
     </div>
   );
