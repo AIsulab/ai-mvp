@@ -43,6 +43,26 @@ export default function ChatbotPage() {
     setIsLoading(true);
 
     try {
+      // 1. 네이버 검색 필요 여부 판단
+      let naverContext = "";
+      const searchKeywords = ["맛집", "트렌드", "추천", "리뷰", "블로그", "검색", "요즘"];
+      const needsSearch = searchKeywords.some(kw => userMessage.includes(kw));
+      
+      if (needsSearch) {
+        setMessages(prev => [...prev, { id: Date.now() + 1, role: "assistant", content: "🔍 실시간 네이버 데이터를 검색 중입니다...", isStatus: true }]);
+        try {
+          const naverRes = await fetch(`/api/naver?type=blog&query=${encodeURIComponent(userMessage)}&display=3`);
+          const naverData = await naverRes.json();
+          if (naverData && naverData.items) {
+            naverContext = naverData.items.map((item, idx) => `[${idx+1}] 제목: ${item.title.replace(/<[^>]*>?/gm, '')}\n내용: ${item.description.replace(/<[^>]*>?/gm, '')}`).join('\n\n');
+          }
+        } catch(e) {
+          console.error("Naver Search Error:", e);
+        }
+        // 상태 메시지 제거
+        setMessages(prev => prev.filter(m => !m.isStatus));
+      }
+
       // Format history for OpenAI
       const chatHistory = messages
         .filter(m => m.id !== 1) // 첫인사 제외
@@ -57,7 +77,8 @@ export default function ChatbotPage() {
         body: JSON.stringify({ 
           action: "chat", 
           chatMessage: userMessage,
-          chatHistory: chatHistory.slice(-5) // 최근 5개만 전송 (비용 절약)
+          chatHistory: chatHistory.slice(-5), // 최근 5개만 전송 (비용 절약)
+          naverContext: naverContext
         }),
       });
       
