@@ -33,21 +33,15 @@ export default defineConfig({
   },
   logLevel: 'info',
   plugins: [
+    reactRouter(),
     nextPublicProcessEnv(),
     restartEnvFileChange(),
-    reactRouterHonoServer({
-      serverEntryPoint: './__create/index.ts',
-      runtime: 'node',
-    }),
-    babel({
-      include: ['src/**/*.{js,jsx,ts,tsx}'], // or RegExp: /src\/.*\.[tj]sx?$/
-      exclude: /node_modules/, // skip everything else
-      babelConfig: {
-        babelrc: false, // don’t merge other Babel files
-        configFile: false,
-        plugins: ['styled-jsx/babel'],
-      },
-    }),
+    ...(process.env.VERCEL ? [] : [
+      reactRouterHonoServer({
+        serverEntryPoint: './__create/index.ts',
+        runtime: 'node',
+      })
+    ]),
     restart({
       restart: [
         'src/**/page.jsx',
@@ -61,7 +55,6 @@ export default defineConfig({
     consoleToParent(),
     loadFontsFromTailwindSource(),
     addRenderIds(),
-    reactRouter(),
     tsconfigPaths(),
     aliases(),
     layoutWrapperPlugin(),
@@ -78,6 +71,9 @@ export default defineConfig({
     dedupe: ['react', 'react-dom'],
   },
   clearScreen: false,
+  build: {
+    target: 'esnext',
+  },
   server: {
     allowedHosts: true,
     host: '0.0.0.0',
