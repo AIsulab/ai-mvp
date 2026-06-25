@@ -86,6 +86,27 @@ export default function ChatbotPage() {
         setMessages(prev => prev.filter(m => !m.isStatus));
       }
 
+      // 3. 전주시 무료 와이파이 공공데이터 필요 여부 판단
+      let wifiContext = "";
+      const wifiKeywords = ["와이파이", "인터넷", "무료", "wifi", "작업하기"];
+      const needsWifi = wifiKeywords.some(kw => userMessage.toLowerCase().includes(kw));
+
+      if (needsWifi) {
+        setMessages(prev => [...prev, { id: Date.now() + 3, role: "assistant", content: "📡 전주시 공공 와이파이존 위치를 검색 중입니다...", isStatus: true }]);
+        try {
+          const wifiRes = await fetch(`/api/wifi`);
+          const wifiData = await wifiRes.json();
+          if (wifiData && wifiData.data && wifiData.data.items) {
+            const items = wifiData.data.items;
+            const summary = items.slice(0, 5).map(item => `- 장소: ${item.instlPlace} (주소: ${item.addr})`).join('\n');
+            wifiContext = `전주시 무료 공공 와이파이 설치 장소 리스트 (일부):\n${summary}`;
+          }
+        } catch(e) {
+          console.error("WiFi Search Error:", e);
+        }
+        setMessages(prev => prev.filter(m => !m.isStatus));
+      }
+
       // Format history for OpenAI
       const chatHistory = messages
         .filter(m => m.id !== 1) // 첫인사 제외
@@ -102,7 +123,8 @@ export default function ChatbotPage() {
           chatMessage: userMessage,
           chatHistory: chatHistory.slice(-5), // 최근 5개만 전송 (비용 절약)
           naverContext: naverContext,
-          sgisContext: sgisContext
+          sgisContext: sgisContext,
+          wifiContext: wifiContext
         }),
       });
       

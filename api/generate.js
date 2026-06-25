@@ -19,7 +19,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "OpenAI API 키가 설정되지 않았습니다." });
   }
 
-  const { action, storeInfo, weather, reviewText, snsTab, snsEvent, chatMessage, chatHistory, naverContext, sgisContext } = req.body;
+  const { action, storeInfo, weather, reviewText, snsTab, snsEvent, chatMessage, chatHistory, naverContext, sgisContext, wifiContext } = req.body;
   let systemPrompt = "당신은 전북지역 소상공인을 돕는 훌륭한 AI 마케팅 비서 'W-AI'입니다. 언제나 친절하고 창의적이며, 고객의 이목을 끄는 문구를 작성합니다.";
   let userPrompt = "";
   let messages = [];
@@ -40,9 +40,10 @@ export default async function handler(req, res) {
     let contextStr = "";
     if (naverContext) contextStr += `[실시간 네이버 검색 트렌드 참고]\n${naverContext}\n\n`;
     if (sgisContext) contextStr += `[소상공인 공공 상권(SGIS) 팩트 통계 데이터 참고]\n${sgisContext}\n\n`;
+    if (wifiContext) contextStr += `[전주시 공공 와이파이 위치 데이터 참고]\n${wifiContext}\n\n`;
     
     if (contextStr) {
-      finalChatMessage = `${contextStr}위의 실제 데이터를 참고하여 사용자의 다음 질문에 전문가처럼 답변해 주세요. 상권 데이터가 있다면 숫자를 적극 인용하세요.\n사용자 질문: ${chatMessage}`;
+      finalChatMessage = `${contextStr}위의 실제 데이터를 참고하여 사용자의 다음 질문에 전문가처럼 답변해 주세요. 상권 데이터나 위치 데이터가 있다면 적극 인용하세요.\n사용자 질문: ${chatMessage}`;
     }
 
     // Construct messages array for chat history
