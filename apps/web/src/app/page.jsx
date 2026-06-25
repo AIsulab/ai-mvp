@@ -127,32 +127,32 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero */}
-      <section className="max-w-4xl mx-auto px-6 pt-24 pb-20 text-center">
-        <div className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-600 rounded-full px-3 py-1.5 text-sm font-medium mb-6">
-          <Cloud size={14} />
+      <section className="max-w-4xl mx-auto px-6 pt-32 pb-24 text-center">
+        <div className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-600 rounded-full px-4 py-1.5 text-sm font-semibold mb-8 shadow-sm">
+          <Cloud size={16} className="fill-blue-100" />
           기상청 공식 API · 전북 공공데이터 실시간 연동
         </div>
-        <h1 className="text-4xl md:text-5xl font-semibold text-gray-900 tracking-tight mb-5 leading-tight">
+        <h1 className="text-5xl md:text-6xl font-bold text-gray-900 tracking-tight mb-6 leading-[1.15]">
           사장님의 성공 이유,
           <br />
           <span className="text-[#2563EB]">W-AI</span>
         </h1>
-        <p className="text-gray-500 text-lg mb-3 max-w-xl mx-auto leading-relaxed">
+        <p className="text-gray-500 text-xl mb-3 max-w-2xl mx-auto leading-relaxed">
           날씨 · 상권 · 리뷰 데이터를 AI가 자동 분석해
         </p>
-        <p className="text-gray-700 text-lg font-medium mb-10 max-w-xl mx-auto">
+        <p className="text-gray-700 text-xl font-semibold mb-12 max-w-2xl mx-auto">
           마케팅 문구부터 경영 인사이트까지 버튼 하나로 완성
         </p>
-        <div className="flex items-center justify-center gap-3 flex-wrap">
+        <div className="flex items-center justify-center gap-4 flex-wrap">
           <Link
             to="/dashboard"
-            className="bg-[#2563EB] text-white px-7 py-3.5 rounded-lg font-medium hover:bg-blue-700 transition-colors inline-flex items-center gap-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+            className="bg-[#2563EB] text-white px-8 py-4 rounded-xl font-semibold hover:bg-blue-700 transition-all hover:shadow-lg hover:-translate-y-0.5 inline-flex items-center gap-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
           >
-            무료로 시작하기 <ArrowRight size={16} />
+            무료로 시작하기 <ArrowRight size={18} />
           </Link>
           <a
             href="#features"
-            className="border border-gray-200 text-gray-700 px-7 py-3.5 rounded-lg font-medium hover:border-gray-300 hover:bg-gray-50 transition-colors text-sm"
+            className="bg-white border border-gray-200 text-gray-700 px-8 py-4 rounded-xl font-semibold hover:border-gray-300 hover:bg-gray-50 transition-all text-base shadow-sm"
           >
             기능 살펴보기
           </a>
@@ -186,61 +186,61 @@ export default function LandingPage() {
       </section>
 
       {/* Stats bar */}
-      <div className="border-y border-gray-200 bg-gray-50">
-        <div className="max-w-4xl mx-auto px-6 py-6 grid grid-cols-2 md:grid-cols-4 gap-6">
+      <div className="border-y border-gray-200 bg-gray-50/50">
+        <div className="max-w-5xl mx-auto px-6 py-10 grid grid-cols-2 md:grid-cols-4 gap-8">
           {stats.map((s, i) => (
             <div key={i} className="text-center">
-              <div className="text-xl font-semibold text-gray-900">
+              <div className="text-3xl font-bold text-[#2563EB] mb-2 tracking-tight">
                 {s.value}
               </div>
-              <div className="text-xs text-gray-500 mt-1">{s.label}</div>
+              <div className="text-sm text-gray-600 font-medium">{s.label}</div>
             </div>
           ))}
         </div>
       </div>
 
       {/* Features */}
-      <section id="features" className="max-w-5xl mx-auto px-6 py-20">
-        <div className="mb-10">
-          <div className="inline-flex items-center gap-1.5 border border-gray-200 text-gray-700 rounded-full px-3 py-1 text-xs font-medium mb-4">
+      <section id="features" className="max-w-6xl mx-auto px-6 py-24">
+        <div className="mb-14 text-center">
+          <div className="inline-flex items-center gap-1.5 border border-gray-200 bg-white text-gray-700 rounded-full px-4 py-1.5 text-xs font-bold tracking-wide mb-5 shadow-sm">
             핵심 기능
           </div>
-          <h2 className="text-2xl font-semibold text-gray-900 tracking-tight">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight">
             소상공인을 위한 AI 올인원 플랫폼
           </h2>
-          <p className="text-gray-500 text-sm mt-2">
-            프롬프트 작성 능력이 없어도, AI 설정을 몰라도 괜찮습니다.
+          <p className="text-gray-500 text-lg mt-4 max-w-2xl mx-auto">
+            프롬프트 작성 능력이 없어도, AI 설정을 몰라도 괜찮습니다.<br/>오직 사장님의 비즈니스에만 집중하세요.
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {features.map((f, i) => (
             <div
               key={i}
-              className="bg-white rounded-xl border border-gray-200 p-6 hover:border-gray-300 hover:bg-gray-50 transition-colors cursor-pointer"
+              className="bg-white rounded-2xl border border-gray-200 p-8 hover:border-[#2563EB]/30 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group"
             >
-              <div className="flex items-start justify-between mb-4">
-                <div className="w-9 h-9 rounded-lg border border-gray-200 flex items-center justify-center">
-                  <f.icon size={18} className="text-gray-700" />
+              <div className="flex items-start justify-between mb-6">
+                <div className="w-12 h-12 rounded-xl border border-gray-100 bg-gray-50 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <f.icon size={22} className="text-gray-700 group-hover:text-[#2563EB] transition-colors" />
                 </div>
                 <span
-                  className={`text-xs px-2.5 py-1 rounded-full font-medium ${f.badgeColor}`}
+                  className={`text-xs px-3 py-1.5 rounded-full font-bold tracking-wide ${f.badgeColor}`}
                 >
                   {f.badge}
                 </span>
               </div>
-              <h3 className="text-base font-semibold text-gray-900 mb-2">
+              <h3 className="text-lg font-bold text-gray-900 mb-3 group-hover:text-[#2563EB] transition-colors">
                 {f.title}
               </h3>
-              <p className="text-sm text-gray-500 mb-4 leading-relaxed">
+              <p className="text-[15px] text-gray-500 mb-6 leading-relaxed">
                 {f.desc}
               </p>
-              <div className="space-y-1.5">
+              <div className="space-y-2.5">
                 {f.items.map((item, j) => (
                   <div
                     key={j}
-                    className="flex items-start gap-2 text-sm text-gray-600"
+                    className="flex items-start gap-2.5 text-sm text-gray-600 font-medium"
                   >
-                    <span className="text-gray-400 mt-0.5 shrink-0">-</span>
+                    <span className="text-[#2563EB] mt-0.5 shrink-0 opacity-70">✓</span>
                     <span>{item}</span>
                   </div>
                 ))}
@@ -377,18 +377,18 @@ export default function LandingPage() {
       </section>
 
       {/* CTA */}
-      <section className="max-w-3xl mx-auto px-6 py-20 text-center">
-        <h2 className="text-2xl font-semibold text-gray-900 tracking-tight mb-3">
+      <section className="max-w-4xl mx-auto px-6 py-24 text-center">
+        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight mb-4">
           지금 바로 시작해보세요
         </h2>
-        <p className="text-gray-500 text-sm mb-8">
-          전북 소상공인이라면 무료로 사용할 수 있습니다.
+        <p className="text-gray-500 text-lg mb-10">
+          전북 소상공인이라면 누구나 무료로 사용할 수 있습니다.
         </p>
         <Link
           to="/dashboard"
-          className="bg-[#2563EB] text-white px-8 py-4 rounded-lg font-medium hover:bg-blue-700 transition-colors inline-flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+          className="bg-[#2563EB] text-white px-10 py-5 rounded-xl font-semibold hover:bg-blue-700 transition-all hover:shadow-xl hover:-translate-y-1 inline-flex items-center gap-2 text-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
         >
-          W-AI 대시보드 시작하기 <ArrowRight size={16} />
+          W-AI 대시보드 시작하기 <ArrowRight size={20} />
         </Link>
       </section>
 
