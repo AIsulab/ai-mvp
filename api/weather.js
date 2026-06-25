@@ -31,25 +31,49 @@ export default async function handler(request, response) {
   const kstOffset = 9 * 60 * 60 * 1000;
   const kstNow = new Date(now.getTime() + kstOffset);
 
+  // 기상청 단기예보 업데이트 시간: 02:10, 05:10, 08:10, 11:10, 14:10, 17:10, 20:10, 23:10
+  let h = kstNow.getUTCHours();
+  let m = kstNow.getUTCMinutes();
+  let totalMinutes = h * 60 + m;
+  let baseHour = 2;
+
+  if (totalMinutes < 2 * 60 + 15) {
+    kstNow.setUTCDate(kstNow.getUTCDate() - 1);
+    baseHour = 23;
+  } else if (totalMinutes < 5 * 60 + 15) { baseHour = 2; }
+  else if (totalMinutes < 8 * 60 + 15) { baseHour = 5; }
+  else if (totalMinutes < 11 * 60 + 15) { baseHour = 8; }
+  else if (totalMinutes < 14 * 60 + 15) { baseHour = 11; }
+  else if (totalMinutes < 17 * 60 + 15) { baseHour = 14; }
+  else if (totalMinutes < 20 * 60 + 15) { baseHour = 17; }
+  else if (totalMinutes < 23 * 60 + 15) { baseHour = 20; }
+  else { baseHour = 23; }
+
   const pad = (n) => String(n).padStart(2, "0");
   const base_date = `${kstNow.getUTCFullYear()}${pad(kstNow.getUTCMonth() + 1)}${pad(kstNow.getUTCDate())}`;
-
-  const hour = kstNow.getUTCHours();
-  const baseTimes = [2, 5, 8, 11, 14, 17, 20, 23];
-  let baseHour = baseTimes[0];
-  for (const t of baseTimes) {
-    if (hour >= t) baseHour = t;
-  }
   const base_time = `${pad(baseHour)}00`;
 
-  const url = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${encodeURIComponent(serviceKey)}&pageNo=1&numOfRows=200&dataType=JSON&base_date=${base_date}&base_time=${base_time}&nx=${nx}&ny=${ny}`;
+  // API 키가 이미 인코딩되어 발급되는 경우가 많으므로 인코딩/디코딩 방어 로직 적용
+  const encodedKey = serviceKey.includes('%') ? serviceKey : encodeURIComponent(serviceKey);
+  const url = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${encodedKey}&pageNo=1&numOfRows=200&dataType=JSON&base_date=${base_date}&base_time=${base_time}&nx=${nx}&ny=${ny}`;
 
   try {
     const res = await fetch(url);
-    if (!res.ok) throw new Error(`기상청 API 오류: ${res.status}`);
-    const data = await res.json();
+    const textData = await res.text();
+    
+    // 기상청 API는 에러 시 XML을 반환하는 경우가 있음
+    if (textData.trim().startsWith('<')) {
+      throw new Error(`기상청 API XML 에러 반환: ${textData.substring(0, 100)}...`);
+    }
+
+    const data = JSON.parse(textData);
+    
+    if (data?.response?.header?.resultCode !== "00") {
+      throw new Error(`기상청 API 에러 코드: ${data?.response?.header?.resultCode}, Msg: ${data?.response?.header?.resultMsg}`);
+    }
 
     const items = data?.response?.body?.items?.item || [];
+    if (items.length === 0) throw new Error("예보 데이터가 없습니다.");
 
     const firstFcstTime = items[0]?.fcstTime || "";
     const nearest = items.filter((i) => i.fcstTime === firstFcstTime);
@@ -61,6 +85,7 @@ export default async function handler(request, response) {
     const tmp = getValue("TMP");
     const reh = getValue("REH");
     const wsd = getValue("WSD");
+    const pop = getValue("POP"); // 강수확률 추가
 
     let condition = "맑음";
     let emoji = "☀️";
@@ -111,6 +136,7 @@ export default async function handler(request, response) {
       temperature: tmp ? `${tmp}°C` : "-",
       humidity: reh ? `${reh}%` : "-",
       windSpeed: wsd ? `${wsd}m/s` : "-",
+      rainProb: pop ? `${pop}%` : "-",
       marketingTheme,
       base_date,
       base_time,
@@ -123,6 +149,7 @@ export default async function handler(request, response) {
       temperature: "22°C",
       humidity: "55%",
       windSpeed: "2.1m/s",
+      rainProb: "10%",
       marketingTheme: "상쾌함,활기,기분 좋은 하루",
       isMock: true,
       error: err.message,
