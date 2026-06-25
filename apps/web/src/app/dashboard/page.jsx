@@ -20,17 +20,6 @@ import { useQuery } from "@tanstack/react-query";
 const storeTypes = ["음식점", "카페", "뷰티/미용", "소매업", "기타"];
 const regions = ["전주", "군산", "익산", "정읍", "남원", "김제"];
 
-const mockMarketingGeneration = (storeName, menu) => {
-  return `✨ [${storeName}] 오늘의 추천 마케팅 문구 ✨\n\n날씨 분석 중 AI가 자동으로 상황을 판단하여 최적 마케팅 문구를 생성했습니다. 프롬프트를 직접 작성하실 필요가 없습니다.\n\n"오늘처럼 비오는 날씨에는 ${menu} 어떠신가요? 저희 매장에서 따뜻하고 든든하게 준비했습니다! 😊"`;
-};
-
-const mockReviewReply = (review) => {
-  return `고객님, 소중한 리뷰 남겨주셔서 진심으로 감사드립니다! 😊\n말씀해주신 내용을 바탕으로 더 발전하는 매장이 되겠습니다.\n다음에도 꼭 다시 찾아주세요! 항상 기다리고 있겠습니다 💕`;
-};
-
-const mockSnsGeneration = (platform, event) => {
-  return `[${platform} 추천 게시글]\n오늘 저희 매장에 특별한 소식이 있어요! ✨\n${event} 준비했습니다 🎉\n\n많이들 찾아와 주세요!\n\n#전주맛집 #특별이벤트 #오늘의메뉴 #${platform}추천`;
-};
 
 export default function DashboardPage() {
   // Store Info State
@@ -81,8 +70,18 @@ export default function DashboardPage() {
   const handleAnalyze = async () => {
     setIsAnalyzing(true);
     setMarketingResult("");
-    await new Promise((res) => setTimeout(res, 1200));
-    setMarketingResult(mockMarketingGeneration(storeInfo.name, storeInfo.menu));
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "marketing", storeInfo, weather }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "API Error");
+      setMarketingResult(data.result);
+    } catch (err) {
+      setMarketingResult("❌ AI 생성 중 오류가 발생했습니다.\n에러: " + err.message);
+    }
     setIsAnalyzing(false);
   };
 
@@ -90,8 +89,18 @@ export default function DashboardPage() {
     if (!reviewInput) return;
     setIsReplying(true);
     setReplyResult("");
-    await new Promise((res) => setTimeout(res, 1000));
-    setReplyResult(mockReviewReply(reviewInput));
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "review", reviewText: reviewInput }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "API Error");
+      setReplyResult(data.result);
+    } catch (err) {
+      setReplyResult("❌ 답변 생성 중 오류가 발생했습니다.\n에러: " + err.message);
+    }
     setIsReplying(false);
   };
 
@@ -99,8 +108,18 @@ export default function DashboardPage() {
     if (!snsEvent) return;
     setIsSnsGenerating(true);
     setSnsResult("");
-    await new Promise((res) => setTimeout(res, 1000));
-    setSnsResult(mockSnsGeneration(snsTab, snsEvent));
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "sns", snsTab, snsEvent, storeInfo }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "API Error");
+      setSnsResult(data.result);
+    } catch (err) {
+      setSnsResult("❌ 콘텐츠 생성 중 오류가 발생했습니다.\n에러: " + err.message);
+    }
     setIsSnsGenerating(false);
   };
 
