@@ -35,3 +35,16 @@
     to { transform: rotate(360deg); }
   }
 }
+
+/* Leaflet map container fixes */
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+  background: #f3f4f6;
+}
+
+/* Custom marker styles */
+.custom-marker {
+  background: transparent !important;
+  border: none !important;
+}

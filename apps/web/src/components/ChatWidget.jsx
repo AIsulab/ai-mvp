@@ -90,8 +90,8 @@ export default function ChatWidget() {
           const wifiData = await wifiRes.json();
           if (wifiData && wifiData.data && wifiData.data.items) {
             const items = wifiData.data.items;
-            const summary = items.slice(0, 5).map(item => `- 장소: ${item.instlPlace} (주소: ${item.addr})`).join('\n');
-            wifiContext = `전주시 무료 공공 와이파이 설치 장소 리스트 (일부):\n${summary}`;
+            const summary = items.slice(0, 8).map(item => `- ${item.instlPlace}: ${item.addr} (좌표: ${item.lat}, ${item.lon})`).join('\n');
+            wifiContext = `전주시 무료 공공 와이파이 설치 장소 리스트:\n${summary}`;
           }
         } catch(e) { console.error("WiFi Search Error:", e); }
         setMessages(prev => prev.filter(m => !m.isStatus));

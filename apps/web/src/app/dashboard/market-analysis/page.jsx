@@ -1,46 +1,30 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Store, Wifi, Loader2, MapPin } from "lucide-react";
 
-// Fix for default marker icons in Leaflet with Vite
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
-import markerIcon from 'leaflet/dist/images/marker-icon.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
-
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconUrl: markerIcon,
-  iconRetinaUrl: markerIcon2x,
-  shadowUrl: markerShadow,
+// Custom marker icons using divIcon (avoids image loading issues)
+const createIcon = (color) => L.divIcon({
+  className: 'custom-marker',
+  html: `<div style="background:${color};width:26px;height:26px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);"></div>`,
+  iconSize: [26, 26],
+  iconAnchor: [13, 13],
+  popupAnchor: [0, -15]
 });
 
-// Custom icons
-const storeIcon = new L.Icon({
-  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png",
-  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
+const storeIcon = createIcon('#2563EB');
+const wifiIcon = createIcon('#22C55E');
 
-const wifiIcon = new L.Icon({
-  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png",
-  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
-
-// Helper component to update map center
-function MapUpdater({ center }) {
+// Component to handle map resize
+function MapResizer() {
   const map = useMap();
   useEffect(() => {
-    map.setView(center);
-  }, [center, map]);
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [map]);
   return null;
 }
 
@@ -50,33 +34,24 @@ export default function MarketAnalysisPage() {
   const [stores, setStores] = useState([]);
   const [wifis, setWifis] = useState([]);
   const [loading, setLoading] = useState(true);
+  const mapRef = useRef(null);
   
-  // Default center: Jeonju (전주 객사 부근)
-  const [center, setCenter] = useState([35.818, 127.148]);
+  const center = [35.818, 127.148];
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Fetch SGIS Stores
         const sgisRes = await fetch(`/api/sgis?radius=1000`);
         const sgisData = await sgisRes.json();
-        if (sgisData && sgisData.body && sgisData.body.items) {
+        if (sgisData?.body?.items) {
           setStores(sgisData.body.items);
         }
 
-        // Fetch Jeonju WiFi
         const wifiRes = await fetch(`/api/wifi`);
         const wifiData = await wifiRes.json();
-        if (wifiData && wifiData.data && wifiData.data.items) {
-          // Add some mock coordinates to wifi since original mock didn't have lat/lng
-          // In a real scenario, the API would return lat/lng. For this MVP, we spread them near the center.
-          const itemsWithCoords = wifiData.data.items.map((item, idx) => ({
-            ...item,
-            lat: 35.818 + (Math.random() - 0.5) * 0.01,
-            lon: 127.148 + (Math.random() - 0.5) * 0.01
-          }));
-          setWifis(itemsWithCoords);
+        if (wifiData?.data?.items) {
+          setWifis(wifiData.data.items);
         }
       } catch(e) {
         console.error("Data fetch error", e);
@@ -88,7 +63,7 @@ export default function MarketAnalysisPage() {
   }, []);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-80px)] relative">
+    <div className="flex flex-col" style={{ height: 'calc(100vh - 80px)' }}>
       {/* Controls Overlay */}
       <div className="absolute top-4 left-4 z-[400] bg-white rounded-xl shadow-lg p-4 w-72 border border-gray-100">
         <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
@@ -147,32 +122,35 @@ export default function MarketAnalysisPage() {
       )}
 
       {/* Map */}
-      <div className="flex-1 w-full z-0">
+      <div className="flex-1 relative" style={{ minHeight: '500px' }}>
         <MapContainer 
           center={center} 
           zoom={15} 
           scrollWheelZoom={true} 
-          style={{ height: '100%', width: '100%', zIndex: 0 }}
+          style={{ height: '100%', width: '100%' }}
+          ref={mapRef}
         >
+          <MapResizer />
           <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
           />
-          <MapUpdater center={center} />
 
           {/* SGIS Stores */}
           {showStores && stores.map((store, i) => {
-            const lat = parseFloat(store.lat || store.y || center[0] + (Math.random()-0.5)*0.01);
-            const lng = parseFloat(store.lon || store.x || center[1] + (Math.random()-0.5)*0.01);
+            const lat = parseFloat(store.lat || store.y);
+            const lng = parseFloat(store.lon || store.x);
             if(isNaN(lat) || isNaN(lng)) return null;
 
             return (
               <Marker key={`store-${i}`} position={[lat, lng]} icon={storeIcon}>
                 <Popup>
-                  <div className="p-1">
-                    <strong className="block text-base mb-1">{store.bizesNm}</strong>
-                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">{store.indsSclsNm || store.indsMclsNm}</span>
-                    <p className="text-xs text-gray-600 mt-2">{store.ldongNm || store.adongNm}</p>
+                  <div style={{ padding: '4px' }}>
+                    <strong style={{ display: 'block', fontSize: '14px', marginBottom: '4px' }}>{store.bizesNm}</strong>
+                    <span style={{ fontSize: '11px', color: '#6B7280', background: '#F3F4F6', padding: '2px 6px', borderRadius: '4px' }}>
+                      {store.indsSclsNm || store.indsMclsNm}
+                    </span>
+                    <p style={{ fontSize: '11px', color: '#6B7280', marginTop: '6px' }}>{store.ldongNm || store.adongNm}</p>
                   </div>
                 </Popup>
               </Marker>
@@ -183,10 +161,12 @@ export default function MarketAnalysisPage() {
           {showWifi && wifis.map((wifi, i) => (
             <Marker key={`wifi-${i}`} position={[wifi.lat, wifi.lon]} icon={wifiIcon}>
               <Popup>
-                <div className="p-1">
-                  <strong className="block text-base mb-1 text-green-700">{wifi.instlPlace}</strong>
-                  <span className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded border border-green-200">무료 와이파이</span>
-                  <p className="text-xs text-gray-600 mt-2">{wifi.addr}</p>
+                <div style={{ padding: '4px' }}>
+                  <strong style={{ display: 'block', fontSize: '14px', marginBottom: '4px', color: '#15803D' }}>{wifi.instlPlace}</strong>
+                  <span style={{ fontSize: '11px', color: '#16A34A', background: '#F0FDF4', padding: '2px 6px', borderRadius: '4px', border: '1px solid #BBF7D0' }}>
+                    무료 와이파이
+                  </span>
+                  <p style={{ fontSize: '11px', color: '#6B7280', marginTop: '6px' }}>{wifi.addr}</p>
                 </div>
               </Popup>
             </Marker>
