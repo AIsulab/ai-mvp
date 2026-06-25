@@ -19,7 +19,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "OpenAI API 키가 설정되지 않았습니다." });
   }
 
-  const { action, storeInfo, weather, reviewText, snsTab, snsEvent, chatMessage, chatHistory, naverContext } = req.body;
+  const { action, storeInfo, weather, reviewText, snsTab, snsEvent, chatMessage, chatHistory, naverContext, sgisContext } = req.body;
   let systemPrompt = "당신은 전북지역 소상공인을 돕는 훌륭한 AI 마케팅 비서 'W-AI'입니다. 언제나 친절하고 창의적이며, 고객의 이목을 끄는 문구를 작성합니다.";
   let userPrompt = "";
   let messages = [];
@@ -37,8 +37,12 @@ export default async function handler(req, res) {
     systemPrompt = "당신은 소상공인을 위한 친절하고 유능한 AI 상권분석 챗봇입니다. 복잡한 데이터를 사장님들이 이해하기 쉽도록 친절하게 풀어서 설명해 주며, 질문에 전문적이면서도 따뜻한 어조로 답변합니다. 마크다운을 사용하여 가독성 있게 답변하세요.";
     
     let finalChatMessage = chatMessage;
-    if (naverContext) {
-      finalChatMessage = `[실시간 네이버 검색 데이터 참고]\n${naverContext}\n\n위의 네이버 검색 결과를 참고하여 사용자의 다음 질문에 답변해 주세요.\n사용자 질문: ${chatMessage}`;
+    let contextStr = "";
+    if (naverContext) contextStr += `[실시간 네이버 검색 트렌드 참고]\n${naverContext}\n\n`;
+    if (sgisContext) contextStr += `[소상공인 공공 상권(SGIS) 팩트 통계 데이터 참고]\n${sgisContext}\n\n`;
+    
+    if (contextStr) {
+      finalChatMessage = `${contextStr}위의 실제 데이터를 참고하여 사용자의 다음 질문에 전문가처럼 답변해 주세요. 상권 데이터가 있다면 숫자를 적극 인용하세요.\n사용자 질문: ${chatMessage}`;
     }
 
     // Construct messages array for chat history

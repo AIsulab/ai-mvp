@@ -63,6 +63,29 @@ export default function ChatbotPage() {
         setMessages(prev => prev.filter(m => !m.isStatus));
       }
 
+      // 2. SGIS 상권 공공데이터 필요 여부 판단
+      let sgisContext = "";
+      const sgisKeywords = ["상권", "점포", "경쟁", "개수", "밀집", "창업"];
+      const needsSgis = sgisKeywords.some(kw => userMessage.includes(kw));
+
+      if (needsSgis) {
+        setMessages(prev => [...prev, { id: Date.now() + 2, role: "assistant", content: "📊 공공데이터 상권 통계(SGIS)를 분석 중입니다...", isStatus: true }]);
+        try {
+          const sgisRes = await fetch(`/api/sgis?radius=500`);
+          const sgisData = await sgisRes.json();
+          if (sgisData && sgisData.body && sgisData.body.items) {
+            const items = sgisData.body.items;
+            const total = items.length;
+            // 간단하게 상권업소명과 업종소분류명을 추출
+            const summary = items.slice(0, 10).map(item => `- ${item.bizesNm} (${item.indsSclsNm})`).join('\n');
+            sgisContext = `검색 반경(500m) 내 주요 상가업소 리스트 (총 ${total}개 이상 중 일부):\n${summary}`;
+          }
+        } catch(e) {
+          console.error("SGIS Search Error:", e);
+        }
+        setMessages(prev => prev.filter(m => !m.isStatus));
+      }
+
       // Format history for OpenAI
       const chatHistory = messages
         .filter(m => m.id !== 1) // 첫인사 제외
@@ -78,7 +101,8 @@ export default function ChatbotPage() {
           action: "chat", 
           chatMessage: userMessage,
           chatHistory: chatHistory.slice(-5), // 최근 5개만 전송 (비용 절약)
-          naverContext: naverContext
+          naverContext: naverContext,
+          sgisContext: sgisContext
         }),
       });
       
