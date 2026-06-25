@@ -16,23 +16,7 @@
   }
 
   input, textarea, select, button {
-    outline: none;
     font-family: inherit;
-  }
-
-  input:focus, textarea:focus, select:focus {
-    outline: none;
-  }
-}
-
-@layer utilities {
-  .animate-spin {
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
   }
 }
 
@@ -47,4 +31,14 @@
 .custom-marker {
   background: transparent !important;
   border: none !important;
+}
+
+/* Page transition animation */
+.page-enter {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
