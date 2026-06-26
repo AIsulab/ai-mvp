@@ -31,7 +31,7 @@ export default function DashboardLayout() {
 
       {/* Sidebar */}
       <aside className={`fixed md:sticky top-0 left-0 h-screen w-56 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col z-30 transition-transform duration-200 ${sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
-        <div className="px-5 py-5 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+        <div className="px-5 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <span className="text-base font-bold text-gray-900 dark:text-white tracking-tight">W-AI</span>
             <span className="text-[10px] border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400 px-1.5 py-0.5 rounded-full">와이</span>
@@ -41,8 +41,7 @@ export default function DashboardLayout() {
           </button>
         </div>
 
-        <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-          <p className="text-[10px] font-medium text-gray-400 uppercase tracking-wider px-2 mb-3">메뉴</p>
+        <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto">
           {navItems.map((item) => {
             const active = isActive(item.href);
             return (
@@ -61,7 +60,11 @@ export default function DashboardLayout() {
           })}
         </nav>
 
-        <div className="px-3 py-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="px-3 py-3 border-t border-gray-200 dark:border-gray-700 space-y-2">
+          <button onClick={toggleTheme} className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            {isDark ? <Sun size={15} className="text-yellow-500" /> : <Moon size={15} />}
+            <span>{isDark ? "라이트 모드" : "다크 모드"}</span>
+          </button>
           <div className="flex items-center gap-2 px-3 py-2 rounded-lg">
             <div className="w-6 h-6 rounded-full bg-primary-light dark:bg-primary/20 flex items-center justify-center">
               <span className="text-xs font-semibold text-primary">사</span>
@@ -73,18 +76,10 @@ export default function DashboardLayout() {
 
       {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10 shrink-0">
-          <div className="flex items-center justify-end px-4 py-2">
-            <div className="flex items-center gap-2">
-              <button onClick={toggleTheme} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" aria-label="테마 전환">
-                {isDark ? <Sun size={16} className="text-yellow-500" /> : <Moon size={16} className="text-gray-500" />}
-              </button>
-              <button className="md:hidden p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" onClick={() => setSidebarOpen(true)}>
-                <Menu size={16} className="text-gray-600 dark:text-gray-400" />
-              </button>
-            </div>
-          </div>
-        </header>
+        {/* Mobile menu button - floating */}
+        <button className="md:hidden fixed top-3 right-3 z-50 p-2 bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700" onClick={() => setSidebarOpen(true)}>
+          <Menu size={18} className="text-gray-600 dark:text-gray-400" />
+        </button>
 
         <main className="flex-1 overflow-x-hidden overflow-y-auto">
           <Outlet />
