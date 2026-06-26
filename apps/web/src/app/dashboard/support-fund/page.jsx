@@ -91,16 +91,22 @@ export default function SupportFundPage() {
                   {fund.tags.map((tag, i) => (<Badge key={i} color="gray">{tag}</Badge>))}
                   <Badge color="gray">마감 {fund.deadline}</Badge>
                 </div>
-                <Button 
-                  variant="primary" 
-                  size="sm"
-                  onClick={() => {
-                    if (fund.url) window.open(fund.url, '_blank');
-                    else alert('현재 해당 기관의 접수 페이지를 준비 중입니다. 잠시 후 다시 시도해주세요.');
+                <a 
+                  href={fund.url || "#"} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  onClick={(e) => {
+                    if (!fund.url) {
+                      e.preventDefault();
+                      alert('현재 해당 기관의 접수 페이지를 준비 중입니다. 잠시 후 다시 시도해주세요.');
+                    }
                   }}
+                  className="inline-block"
                 >
-                  <ExternalLink size={10} /> 신청하기
-                </Button>
+                  <Button variant="primary" size="sm" className="pointer-events-none">
+                    <ExternalLink size={10} /> 신청하기
+                  </Button>
+                </a>
               </div>
             </Card>
           ))}
