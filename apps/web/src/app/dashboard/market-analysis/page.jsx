@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Store, Wifi, MapPin, RefreshCw, Info, Search } from "lucide-react";
-import { Card, Badge, Spinner, Button, Input } from "../../../components/ui";
+import { Store, Wifi, MapPin, RefreshCw, Search, BarChart2, Map } from "lucide-react";
+import { Card, Badge, Spinner, Button } from "../../../components/ui";
 import { useTheme } from "../../../contexts/ThemeContext";
 
 const NAVER_MAPS_CLIENT_ID = process.env.NAVER_MAP_ID || "lu0ryww0wc";
+const SBIZ_GIS_URL = "https://bigdata.sbiz.or.kr/#/hotplace/gis";
 const DEFAULT_CENTER = { lat: 35.818, lng: 127.148 };
 
 function getInitialPosition() {
@@ -13,13 +14,12 @@ function getInitialPosition() {
   const lng = parseFloat(params.get("lng"));
   if (!isNaN(lat) && !isNaN(lng)) return { lat, lng };
   const saved = localStorage.getItem("mapCenter");
-  if (saved) {
-    try { return JSON.parse(saved); } catch {}
-  }
+  if (saved) { try { return JSON.parse(saved); } catch {} }
   return DEFAULT_CENTER;
 }
 
 export default function MarketAnalysisPage() {
+  const [activeTab, setActiveTab] = useState("naver");
   const [showStores, setShowStores] = useState(true);
   const [showWifi, setShowWifi] = useState(true);
   const [stores, setStores] = useState([]);
@@ -36,10 +36,7 @@ export default function MarketAnalysisPage() {
 
   const loadNaverMap = useCallback(() => {
     return new Promise((resolve) => {
-      if (window.naver && window.naver.maps) {
-        resolve(window.naver.maps);
-        return;
-      }
+      if (window.naver && window.naver.maps) { resolve(window.naver.maps); return; }
       const script = document.createElement("script");
       script.src = `https://openapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${NAVER_MAPS_CLIENT_ID}`;
       script.async = true;
@@ -50,37 +47,23 @@ export default function MarketAnalysisPage() {
   }, []);
 
   const initMap = useCallback(async (center) => {
+    if (activeTab !== "naver") return;
     const naver = await loadNaverMap();
     if (!naver || !mapContainerRef.current) return;
-
-    if (mapRef.current) {
-      mapRef.current.setCenter(new naver.LatLng(center.lat, center.lng));
-      return;
-    }
-
+    if (mapRef.current) { mapRef.current.setCenter(new naver.LatLng(center.lat, center.lng)); return; }
     const map = new naver.Map(mapContainerRef.current, {
       center: new naver.LatLng(center.lat, center.lng),
-      zoom: 15,
-      scaleControl: true,
-      logoControl: false,
-      mapDataControl: false,
+      zoom: 15, scaleControl: true, logoControl: false, mapDataControl: false,
     });
-
     naver.maps.Event.addListener(map, "idle", () => {
       const c = map.getCenter();
       const newCenter = { lat: c.lat(), lng: c.lng() };
       setMapCenter(newCenter);
       localStorage.setItem("mapCenter", JSON.stringify(newCenter));
     });
-
     mapRef.current = map;
     setMapLoaded(true);
-  }, [loadNaverMap]);
-
-  const createMarkerIcon = (color) => {
-    if (!window.naver) return undefined;
-    return new window.naver.maps.Size(28, 28);
-  };
+  }, [loadNaverMap, activeTab]);
 
   const clearMarkers = useCallback(() => {
     markersRef.current.forEach((m) => m.setMap(null));
@@ -92,7 +75,6 @@ export default function MarketAnalysisPage() {
   const renderMarkers = useCallback(() => {
     if (!mapRef.current || !window.naver) return;
     clearMarkers();
-
     const naver = window.naver;
 
     if (showStores) {
@@ -100,31 +82,13 @@ export default function MarketAnalysisPage() {
         const lat = parseFloat(store.lat || store.y);
         const lng = parseFloat(store.lon || store.x);
         if (isNaN(lat) || isNaN(lng)) return;
-
         const marker = new naver.maps.Marker({
-          position: new naver.maps.LatLng(lat, lng),
-          map: mapRef.current,
-          icon: {
-            content: `<div style="background:#2563EB;width:28px;height:28px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;"><div style="width:8px;height:8px;background:white;border-radius:50%;"></div></div>`,
-            size: new naver.maps.Size(28, 28),
-            anchor: new naver.maps.Point(14, 14),
-          },
+          position: new naver.maps.LatLng(lat, lng), map: mapRef.current,
+          icon: { content: `<div style="background:#2563EB;width:28px;height:28px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;"><div style="width:8px;height:8px;background:white;border-radius:50%;"></div></div>`, size: new naver.maps.Size(28, 28), anchor: new naver.maps.Point(14, 14) },
         });
-
-        const content = `
-          <div style="padding:8px;min-width:180px;font-family:Inter,system-ui,sans-serif;">
-            <strong style="display:block;font-size:14px;margin-bottom:4px;color:#111827;">${store.bizesNm}</strong>
-            <span style="font-size:11px;color:#2563EB;background:#EFF6FF;padding:2px 8px;border-radius:12px;">${store.indsSclsNm || store.indsMclsNm || "상가"}</span>
-            <p style="font-size:11px;color:#6B7280;margin-top:6px;margin-bottom:0;">${store.ldongNm || store.adongNm || ""}</p>
-            ${store.telno ? `<p style="font-size:11px;color:#9CA3AF;margin-top:4px;margin-bottom:0;">📞 ${store.telno}</p>` : ""}
-          </div>
-        `;
-
+        const content = `<div style="padding:8px;min-width:180px;font-family:Inter,system-ui,sans-serif;"><strong style="display:block;font-size:14px;margin-bottom:4px;color:#111827;">${store.bizesNm}</strong><span style="font-size:11px;color:#2563EB;background:#EFF6FF;padding:2px 8px;border-radius:12px;">${store.indsSclsNm || store.indsMclsNm || "상가"}</span><p style="font-size:11px;color:#6B7280;margin-top:6px;margin-bottom:0;">${store.ldongNm || store.adongNm || ""}</p>${store.telno ? `<p style="font-size:11px;color:#9CA3AF;margin-top:4px;margin-bottom:0;">📞 ${store.telno}</p>` : ""}</div>`;
         const infoWindow = new naver.maps.InfoWindow({ content });
-        naver.maps.Event.addListener(marker, "click", () => {
-          infoWindowsRef.current.forEach((iw) => iw.close());
-          infoWindow.open(mapRef.current, marker);
-        });
+        naver.maps.Event.addListener(marker, "click", () => { infoWindowsRef.current.forEach((iw) => iw.close()); infoWindow.open(mapRef.current, marker); });
         markersRef.current.push(marker);
         infoWindowsRef.current.push(infoWindow);
       });
@@ -133,31 +97,13 @@ export default function MarketAnalysisPage() {
     if (showWifi) {
       wifis.forEach((wifi) => {
         if (!wifi.lat || !wifi.lon) return;
-
         const marker = new naver.maps.Marker({
-          position: new naver.maps.LatLng(wifi.lat, wifi.lon),
-          map: mapRef.current,
-          icon: {
-            content: `<div style="background:#22C55E;width:28px;height:28px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;"><div style="width:8px;height:8px;background:white;border-radius:50%;"></div></div>`,
-            size: new naver.maps.Size(28, 28),
-            anchor: new naver.maps.Point(14, 14),
-          },
+          position: new naver.maps.LatLng(wifi.lat, wifi.lon), map: mapRef.current,
+          icon: { content: `<div style="background:#22C55E;width:28px;height:28px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;"><div style="width:8px;height:8px;background:white;border-radius:50%;"></div></div>`, size: new naver.maps.Size(28, 28), anchor: new naver.maps.Point(14, 14) },
         });
-
-        const content = `
-          <div style="padding:8px;min-width:180px;font-family:Inter,system-ui,sans-serif;">
-            <strong style="display:block;font-size:14px;margin-bottom:4px;color:#15803D;">${wifi.instlPlace}</strong>
-            <span style="font-size:11px;color:#16A34A;background:#F0FDF4;padding:2px 8px;border-radius:12px;border:1px solid #BBF7D0;">무료 와이파이</span>
-            <p style="font-size:11px;color:#6B7280;margin-top:6px;margin-bottom:0;">${wifi.addr || ""}</p>
-            ${wifi.wifiSsid ? `<p style="font-size:11px;color:#9CA3AF;margin-top:4px;margin-bottom:0;">📡 ${wifi.wifiSsid}</p>` : ""}
-          </div>
-        `;
-
+        const content = `<div style="padding:8px;min-width:180px;font-family:Inter,system-ui,sans-serif;"><strong style="display:block;font-size:14px;margin-bottom:4px;color:#15803D;">${wifi.instlPlace}</strong><span style="font-size:11px;color:#16A34A;background:#F0FDF4;padding:2px 8px;border-radius:12px;border:1px solid #BBF7D0;">무료 와이파이</span><p style="font-size:11px;color:#6B7280;margin-top:6px;margin-bottom:0;">${wifi.addr || ""}</p>${wifi.wifiSsid ? `<p style="font-size:11px;color:#9CA3AF;margin-top:4px;margin-bottom:0;">📡 ${wifi.wifiSsid}</p>` : ""}</div>`;
         const infoWindow = new naver.maps.InfoWindow({ content });
-        naver.maps.Event.addListener(marker, "click", () => {
-          infoWindowsRef.current.forEach((iw) => iw.close());
-          infoWindow.open(mapRef.current, marker);
-        });
+        naver.maps.Event.addListener(marker, "click", () => { infoWindowsRef.current.forEach((iw) => iw.close()); infoWindow.open(mapRef.current, marker); });
         markersRef.current.push(marker);
         infoWindowsRef.current.push(infoWindow);
       });
@@ -170,32 +116,21 @@ export default function MarketAnalysisPage() {
       const sgisRes = await fetch(`/api/sgis?radius=1000&cx=${center.lng}&cy=${center.lat}`);
       const sgisData = await sgisRes.json();
       if (sgisData?.body?.items) setStores(sgisData.body.items);
-
       const wifiRes = await fetch(`/api/wifi`);
       const wifiData = await wifiRes.json();
       if (wifiData?.data?.items) setWifis(wifiData.data.items);
-    } catch(e) {
-      console.error("Data fetch error", e);
-    } finally {
-      setLoading(false);
-    }
+    } catch(e) { console.error("Data fetch error", e); }
+    finally { setLoading(false); }
   }, []);
 
-  useEffect(() => {
-    initMap(mapCenter);
-  }, []);
+  useEffect(() => { if (activeTab === "naver") initMap(mapCenter); }, [activeTab]);
 
-  useEffect(() => {
-    if (mapLoaded) {
-      renderMarkers();
-    }
-  }, [mapLoaded, stores, wifis, showStores, showWifi, renderMarkers]);
+  useEffect(() => { if (mapLoaded) renderMarkers(); }, [mapLoaded, stores, wifis, showStores, showWifi, renderMarkers]);
 
-  useEffect(() => {
-    fetchData(mapCenter);
-  }, []);
+  useEffect(() => { fetchData(mapCenter); }, []);
 
   const handleRefresh = () => {
+    if (activeTab === "sbiz") { fetchData(mapCenter); return; }
     const center = mapRef.current?.getCenter();
     if (center) {
       const newCenter = { lat: center.lat(), lng: center.lng() };
@@ -217,15 +152,11 @@ export default function MarketAnalysisPage() {
         if (!isNaN(lat) && !isNaN(lng)) {
           setMapCenter({ lat, lng });
           localStorage.setItem("mapCenter", JSON.stringify({ lat, lng }));
-          if (mapRef.current) {
-            mapRef.current.setCenter(new window.naver.maps.LatLng(lat, lng));
-          }
+          if (mapRef.current) mapRef.current.setCenter(new window.naver.maps.LatLng(lat, lng));
           fetchData({ lat, lng });
         }
       }
-    } catch (e) {
-      console.error("Search error", e);
-    }
+    } catch (e) { console.error("Search error", e); }
   };
 
   return (
@@ -238,10 +169,10 @@ export default function MarketAnalysisPage() {
               <h1 className="text-xl font-bold text-gray-900 dark:text-white">상권 데이터 시각화</h1>
               <Badge color="blue">실시간</Badge>
             </div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">지도를 이동한 후 새로고침하면 해당 지역의 상권 데이터를 확인할 수 있습니다.</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">네이버 지도에서 직접 이동하거나, 소상공인 핫플레이스 GIS에서 상권 트렌드를 확인하세요.</p>
           </div>
           <div className="flex items-center gap-3">
-            {!loading && (
+            {!loading && activeTab === "naver" && (
               <>
                 <div className="text-center px-3">
                   <div className="text-lg font-bold text-primary">{stores.length}</div>
@@ -256,81 +187,106 @@ export default function MarketAnalysisPage() {
             )}
           </div>
         </div>
+
+        {/* Tabs */}
+        <div className="flex gap-1 mt-4 bg-gray-100 dark:bg-gray-700 rounded-lg p-1 w-fit">
+          <button
+            onClick={() => setActiveTab("naver")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+              activeTab === "naver"
+                ? "bg-white dark:bg-gray-800 text-primary shadow-sm"
+                : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+            }`}
+          >
+            <Map size={16} /> 네이버 지도
+          </button>
+          <button
+            onClick={() => setActiveTab("sbiz")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+              activeTab === "sbiz"
+                ? "bg-white dark:bg-gray-800 text-primary shadow-sm"
+                : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+            }`}
+          >
+            <BarChart2 size={16} /> 소상공인 핫플레이스 GIS
+          </button>
+        </div>
       </div>
 
-      {/* Map Container */}
+      {/* Content */}
       <div className="flex-1 relative">
-        {/* Search Bar */}
-        <div className="absolute top-4 left-4 right-4 z-[400] flex gap-2 animate-slide-up">
-          <Card padding="p-2" className="flex-1 flex items-center gap-2">
-            <Search size={16} className="text-gray-400 ml-2" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              placeholder="지역 검색 (예: 전주객사, 익산역)"
-              className="flex-1 bg-transparent outline-none text-sm text-gray-900 dark:text-white placeholder-gray-400"
+        {activeTab === "naver" ? (
+          <>
+            {/* Search Bar */}
+            <div className="absolute top-4 left-4 right-4 z-[400] flex gap-2 animate-slide-up">
+              <Card padding="p-2" className="flex-1 flex items-center gap-2">
+                <Search size={16} className="text-gray-400 ml-2" />
+                <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                  placeholder="지역 검색 (예: 전주객사, 익산역)"
+                  className="flex-1 bg-transparent outline-none text-sm text-gray-900 dark:text-white placeholder-gray-400" />
+                <Button variant="primary" size="sm" onClick={handleSearch}>검색</Button>
+              </Card>
+              <Button variant="secondary" size="sm" onClick={handleRefresh} disabled={loading}>
+                <RefreshCw size={14} className={loading ? "animate-spin" : ""} /> 새로고침
+              </Button>
+            </div>
+
+            {/* Controls Panel */}
+            <div className="absolute top-20 left-4 z-[400] animate-slide-up" style={{ animationDelay: '100ms' }}>
+              <Card className="w-56">
+                <h3 className="text-xs font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                  <MapPin size={14} className="text-primary" /> 레이어
+                </h3>
+                <div className="space-y-2">
+                  <label className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors ${showStores ? "bg-primary-light dark:bg-primary/20" : "bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600"}`}>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2.5 h-2.5 rounded-full bg-primary"></div>
+                      <span className="text-xs font-medium text-gray-700 dark:text-gray-300">상가업소</span>
+                    </div>
+                    <input type="checkbox" checked={showStores} onChange={(e) => setShowStores(e.target.checked)} className="w-3.5 h-3.5 text-primary rounded focus:ring-primary" />
+                  </label>
+                  <label className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors ${showWifi ? "bg-green-50 dark:bg-green-900/20" : "bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600"}`}>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2.5 h-2.5 rounded-full bg-green-500"></div>
+                      <span className="text-xs font-medium text-gray-700 dark:text-gray-300">와이파이존</span>
+                    </div>
+                    <input type="checkbox" checked={showWifi} onChange={(e) => setShowWifi(e.target.checked)} className="w-3.5 h-3.5 text-green-500 rounded focus:ring-green-500" />
+                  </label>
+                </div>
+              </Card>
+            </div>
+
+            {/* Legend */}
+            <div className="absolute bottom-4 left-4 z-[400] animate-slide-up" style={{ animationDelay: '200ms' }}>
+              <Card padding="p-2.5" className="flex items-center gap-3">
+                <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-primary"></div><span className="text-[11px] text-gray-600 dark:text-gray-400">상가</span></div>
+                <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-green-500"></div><span className="text-[11px] text-gray-600 dark:text-gray-400">와이파이</span></div>
+              </Card>
+            </div>
+
+            {/* Coordinates */}
+            <div className="absolute bottom-4 right-4 z-[400] animate-slide-up" style={{ animationDelay: '300ms' }}>
+              <Card padding="p-2.5">
+                <span className="text-[10px] text-gray-400 dark:text-gray-500 font-mono">{mapCenter.lat.toFixed(4)}, {mapCenter.lng.toFixed(4)}</span>
+              </Card>
+            </div>
+
+            {/* Naver Map */}
+            <div ref={mapContainerRef} className="w-full h-full" style={{ minHeight: '500px' }} />
+          </>
+        ) : (
+          /* SBIZ GIS iframe */
+          <div className="w-full h-full" style={{ minHeight: '500px' }}>
+            <iframe
+              src={SBIZ_GIS_URL}
+              className="w-full h-full border-0"
+              style={{ minHeight: 'calc(100vh - 200px)' }}
+              title="소상공인 핫플레이스 GIS"
+              allow="geolocation"
             />
-            <Button variant="primary" size="sm" onClick={handleSearch}>검색</Button>
-          </Card>
-          <Button variant="secondary" size="sm" onClick={handleRefresh} disabled={loading}>
-            <RefreshCw size={14} className={loading ? "animate-spin" : ""} /> 새로고침
-          </Button>
-        </div>
-
-        {/* Controls Panel */}
-        <div className="absolute top-20 left-4 z-[400] animate-slide-up" style={{ animationDelay: '100ms' }}>
-          <Card className="w-56">
-            <h3 className="text-xs font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-              <MapPin size={14} className="text-primary" /> 레이어
-            </h3>
-            <div className="space-y-2">
-              <label className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors ${showStores ? "bg-primary-light dark:bg-primary/20" : "bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600"}`}>
-                <div className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-primary"></div>
-                  <span className="text-xs font-medium text-gray-700 dark:text-gray-300">상가업소</span>
-                </div>
-                <input type="checkbox" checked={showStores} onChange={(e) => setShowStores(e.target.checked)}
-                  className="w-3.5 h-3.5 text-primary rounded focus:ring-primary" />
-              </label>
-              <label className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors ${showWifi ? "bg-green-50 dark:bg-green-900/20" : "bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600"}`}>
-                <div className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-green-500"></div>
-                  <span className="text-xs font-medium text-gray-700 dark:text-gray-300">와이파이존</span>
-                </div>
-                <input type="checkbox" checked={showWifi} onChange={(e) => setShowWifi(e.target.checked)}
-                  className="w-3.5 h-3.5 text-green-500 rounded focus:ring-green-500" />
-              </label>
-            </div>
-          </Card>
-        </div>
-
-        {/* Legend */}
-        <div className="absolute bottom-4 left-4 z-[400] animate-slide-up" style={{ animationDelay: '200ms' }}>
-          <Card padding="p-2.5" className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-full bg-primary"></div>
-              <span className="text-[11px] text-gray-600 dark:text-gray-400">상가</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-full bg-green-500"></div>
-              <span className="text-[11px] text-gray-600 dark:text-gray-400">와이파이</span>
-            </div>
-          </Card>
-        </div>
-
-        {/* Coordinates Display */}
-        <div className="absolute bottom-4 right-4 z-[400] animate-slide-up" style={{ animationDelay: '300ms' }}>
-          <Card padding="p-2.5">
-            <span className="text-[10px] text-gray-400 dark:text-gray-500 font-mono">
-              {mapCenter.lat.toFixed(4)}, {mapCenter.lng.toFixed(4)}
-            </span>
-          </Card>
-        </div>
-
-        {/* Map */}
-        <div ref={mapContainerRef} className="w-full h-full" style={{ minHeight: '500px' }} />
+          </div>
+        )}
       </div>
     </div>
   );
