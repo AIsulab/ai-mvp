@@ -15,8 +15,8 @@ export default async function handler(request, response) {
     return response.status(400).json({ error: "검색어가 필요합니다." });
   }
 
-  const clientId = process.env.NAVER_ID;
-  const clientSecret = process.env.NAVER_SECRET;
+  const clientId = process.env.NAVER_ID || "2tBfhdeI4zomxK9ZoSty";
+  const clientSecret = process.env.NAVER_SECRET || "pLas4T0YUx";
 
   if (!clientId || !clientSecret) {
     // Return mock data when no API key
