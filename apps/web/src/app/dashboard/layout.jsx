@@ -83,8 +83,8 @@ export default function DashboardLayout() {
 
         {/* Theme toggle - above chat widget */}
         <div className="fixed bottom-24 right-6 z-40">
-          <button onClick={toggleTheme} className="w-10 h-10 bg-white dark:bg-gray-800 rounded-full shadow-lg border border-gray-200 dark:border-gray-700 flex items-center justify-center hover:scale-110 transition-transform" aria-label="테마 전환">
-            {isDark ? <Sun size={16} className="text-yellow-500" /> : <Moon size={16} className="text-gray-500" />}
+          <button onClick={toggleTheme} className="w-14 h-14 bg-white dark:bg-gray-800 rounded-full shadow-lg border border-gray-200 dark:border-gray-700 flex items-center justify-center hover:scale-110 transition-transform" aria-label="테마 전환">
+            {isDark ? <Sun size={20} className="text-yellow-500" /> : <Moon size={20} className="text-gray-500" />}
           </button>
         </div>
 
