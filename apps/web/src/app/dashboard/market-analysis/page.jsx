@@ -3,7 +3,7 @@ import { Store, Wifi, MapPin, RefreshCw, Search, BarChart2, Map } from "lucide-r
 import { Card, Badge, Spinner, Button } from "../../../components/ui";
 import { useTheme } from "../../../contexts/ThemeContext";
 
-const NAVER_MAPS_CLIENT_ID = process.env.NAVER_MAP_ID || process.env.X_NCP_APIGW_API_KEY_ID || "lu0ryww0wc";
+const NAVER_MAPS_CLIENT_ID = "lu0ryww0wc";
 const SBIZ_GIS_URL = "https://bigdata.sbiz.or.kr/#/hotplace/gis";
 const DEFAULT_CENTER = { lat: 35.818, lng: 127.148 };
 
