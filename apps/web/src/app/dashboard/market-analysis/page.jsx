@@ -161,56 +161,37 @@ export default function MarketAnalysisPage() {
 
   return (
     <div className="flex flex-col h-full animate-fade-in">
-      {/* Page Header */}
-      <div className="px-6 py-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">상권 데이터 시각화</h1>
-              <Badge color="blue">실시간</Badge>
-            </div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">네이버 지도에서 직접 이동하거나, 소상공인 핫플레이스 GIS에서 상권 트렌드를 확인하세요.</p>
-          </div>
-          <div className="flex items-center gap-3">
-            {!loading && activeTab === "naver" && (
-              <>
-                <div className="text-center px-3">
-                  <div className="text-lg font-bold text-primary">{stores.length}</div>
-                  <div className="text-[10px] text-gray-500 dark:text-gray-400">상가업소</div>
-                </div>
-                <div className="w-px h-8 bg-gray-200 dark:bg-gray-600"></div>
-                <div className="text-center px-3">
-                  <div className="text-lg font-bold text-green-600">{wifis.length}</div>
-                  <div className="text-[10px] text-gray-500 dark:text-gray-400">와이파이존</div>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* Tabs */}
-        <div className="flex gap-1 mt-4 bg-gray-100 dark:bg-gray-700 rounded-lg p-1 w-fit">
+      {/* Compact Tab Header */}
+      <div className="px-4 py-2 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+        <div className="flex gap-1 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
           <button
             onClick={() => setActiveTab("naver")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+            className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
               activeTab === "naver"
                 ? "bg-white dark:bg-gray-800 text-primary shadow-sm"
                 : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
             }`}
           >
-            <Map size={16} /> 네이버 지도
+            <Map size={14} /> 네이버 지도
           </button>
           <button
             onClick={() => setActiveTab("sbiz")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+            className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
               activeTab === "sbiz"
                 ? "bg-white dark:bg-gray-800 text-primary shadow-sm"
                 : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
             }`}
           >
-            <BarChart2 size={16} /> 소상공인 핫플레이스 GIS
+            <BarChart2 size={14} /> 소상공인 핫플레이스 GIS
           </button>
         </div>
+        {!loading && activeTab === "naver" && (
+          <div className="flex items-center gap-3 text-xs">
+            <span className="text-gray-500 dark:text-gray-400">상가 <strong className="text-primary">{stores.length}</strong></span>
+            <span className="text-gray-300 dark:text-gray-600">|</span>
+            <span className="text-gray-500 dark:text-gray-400">와이파이 <strong className="text-green-600">{wifis.length}</strong></span>
+          </div>
+        )}
       </div>
 
       {/* Content */}

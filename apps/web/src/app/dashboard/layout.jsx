@@ -74,16 +74,13 @@ export default function DashboardLayout() {
       {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
         <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10 shrink-0">
-          <div className="flex items-center justify-between px-6 py-4">
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-              {navItems.find((i) => isActive(i.href))?.label || "W-AI"}
-            </h1>
-            <div className="flex items-center gap-4">
-              <button onClick={toggleTheme} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" aria-label="테마 전환">
-                {isDark ? <Sun size={18} className="text-yellow-500" /> : <Moon size={18} className="text-gray-500" />}
+          <div className="flex items-center justify-end px-4 py-2">
+            <div className="flex items-center gap-2">
+              <button onClick={toggleTheme} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" aria-label="테마 전환">
+                {isDark ? <Sun size={16} className="text-yellow-500" /> : <Moon size={16} className="text-gray-500" />}
               </button>
-              <button className="md:hidden p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" onClick={() => setSidebarOpen(true)}>
-                <Menu size={18} className="text-gray-600 dark:text-gray-400" />
+              <button className="md:hidden p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" onClick={() => setSidebarOpen(true)}>
+                <Menu size={16} className="text-gray-600 dark:text-gray-400" />
               </button>
             </div>
           </div>
