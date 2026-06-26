@@ -60,11 +60,7 @@ export default function DashboardLayout() {
           })}
         </nav>
 
-        <div className="px-3 py-3 border-t border-gray-200 dark:border-gray-700 space-y-2">
-          <button onClick={toggleTheme} className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-            {isDark ? <Sun size={15} className="text-yellow-500" /> : <Moon size={15} />}
-            <span>{isDark ? "라이트 모드" : "다크 모드"}</span>
-          </button>
+        <div className="px-3 py-3 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-2 px-3 py-2 rounded-lg">
             <div className="w-6 h-6 rounded-full bg-primary-light dark:bg-primary/20 flex items-center justify-center">
               <span className="text-xs font-semibold text-primary">사</span>
@@ -84,7 +80,14 @@ export default function DashboardLayout() {
         <main className="flex-1 overflow-x-hidden overflow-y-auto">
           <Outlet />
         </main>
-        
+
+        {/* Theme toggle - above chat widget */}
+        <div className="fixed bottom-24 right-6 z-40">
+          <button onClick={toggleTheme} className="w-10 h-10 bg-white dark:bg-gray-800 rounded-full shadow-lg border border-gray-200 dark:border-gray-700 flex items-center justify-center hover:scale-110 transition-transform" aria-label="테마 전환">
+            {isDark ? <Sun size={16} className="text-yellow-500" /> : <Moon size={16} className="text-gray-500" />}
+          </button>
+        </div>
+
         <ChatWidget />
       </div>
     </div>
