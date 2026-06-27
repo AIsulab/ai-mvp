@@ -1,0 +1,28 @@
+---
+MiMo AI API
+sk-sdrkhdn1qyc2vgvgam2t5tjda2p948r8lvzb084pw737y4c
+
+---
+기상청 API (단기예보)
+Q52FPirRTJKdhT4q0eyS-A
+
+---
+공공데이터포털 API (SGIS, WiFi, 지원금 공용)
+ce2f69c86f89f3322e12f4e241097f76f6dfff578bf9d46f7dc684941e3157fe
+
+---
+네이버개발자센터 API (검색: 블로그, 뉴스, 카페 등)
+Client ID: 2tBfhdei4zomxK9ZoSty
+Client Secret: pLas4T0YUx
+
+---
+네이버클라우드 API Hub
+(api종류: 백과사전, 이미지, 지식in, 성인검색어판별, 블로그, 지역, 오타변환, 뉴스, 웹문서, 카페, 검색어트렌드, 쇼핑인사이드)
+Client ID (X-NCP-APIGW-API-KEY-ID): ggzyllooes
+Client Secret (X-NCP-APIGW-API-KEY): Li8P7z4GTkOj2BUzI8hYZKPiacspnaW7KTGmXTj
+
+---
+네이버클라우드 MAPS API
+(api종류: Directions 5, Geocoding, Reverse Geocoding, Dynamic Map, Static Map)
+Client ID (X-NCP-APIGW-API-KEY-ID): 4sclocrnx9
+Client Secret (X-NCP-APIGW-API-KEY): IdI4tgazQJ54eqhJgAFN1ylaigNfr30OVUC4SiPV

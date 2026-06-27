@@ -71,65 +71,65 @@ export default function ReviewReplyPage() {
   const stars = review ? starCount(review) : null;
 
   return (
-    <div className="max-w-3xl mx-auto animate-fade-in">
-      <div className="mb-6">
-        <div className="flex items-center gap-2 mb-2">
-          <h1 className="text-xl font-semibold text-gray-900 tracking-tight">리뷰 답변 자동화</h1>
+    <div className="animate-fade-in">
+      <div className="mb-4 md:mb-5">
+        <div className="flex items-center gap-2 mb-1 flex-wrap">
+          <h1 className="text-base md:text-lg font-semibold text-gray-900 dark:text-white tracking-tight">리뷰 답변 자동화</h1>
           <Badge color="orange">감성 분석</Badge>
         </div>
-        <p className="text-sm text-gray-500">고객 리뷰를 붙여넣으면 상황에 맞는 답변 3가지 버전과 개선점 분석을 즉시 제공합니다.</p>
+        <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400">고객 리뷰를 붙여넣으면 상황에 맞는 답변 3가지 버전과 개선점 분석을 즉시 제공합니다.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
+      <div className="grid grid-cols-3 gap-2 md:gap-3 mb-4 md:mb-5">
         {replyTypes.map((rt) => (
           <button key={rt.key} onClick={() => setReplyType(rt.key)}
-            className={`border rounded-xl p-4 text-left transition-colors ${replyType === rt.key ? "border-primary bg-primary-light" : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50"}`}>
-            <div className={`text-sm font-semibold mb-1 ${replyType === rt.key ? "text-primary" : "text-gray-900"}`}>{rt.label}</div>
-            <div className="text-xs text-gray-500">{rt.desc}</div>
+            className={`border rounded-xl p-2.5 md:p-4 text-left transition-all ${replyType === rt.key ? "border-primary bg-primary/10 shadow-sm" : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600 active:scale-[0.98]"}`}>
+            <div className={`text-xs md:text-sm font-semibold mb-0.5 md:mb-1 ${replyType === rt.key ? "text-primary" : "text-gray-900 dark:text-white"}`}>{rt.label}</div>
+            <div className="text-[9px] md:text-xs text-gray-500 dark:text-gray-400 hidden sm:block">{rt.desc}</div>
           </button>
         ))}
       </div>
 
-      <Card className="mb-5">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-semibold text-gray-900">고객 리뷰 입력</h2>
-          <div className="flex gap-2">
-            <Button variant="ghost" size="sm" onClick={() => setReview(exampleReviews[0].text)}><ThumbsUp size={10} /> 긍정 예시</Button>
-            <Button variant="ghost" size="sm" onClick={() => setReview(exampleReviews[1].text)}><ThumbsDown size={10} /> 부정 예시</Button>
+      <Card className="mb-4 md:mb-5">
+        <div className="flex items-center justify-between mb-2.5 md:mb-3">
+          <h2 className="text-xs md:text-sm font-semibold text-gray-900 dark:text-white">고객 리뷰 입력</h2>
+          <div className="flex gap-1 md:gap-2">
+            <Button variant="ghost" size="sm" onClick={() => setReview(exampleReviews[0].text)}><ThumbsUp size={9} /> 긍정</Button>
+            <Button variant="ghost" size="sm" onClick={() => setReview(exampleReviews[1].text)}><ThumbsDown size={9} /> 부정</Button>
           </div>
         </div>
-        <Textarea value={review} onChange={(e) => setReview(e.target.value)} rows={5} placeholder="고객이 남긴 리뷰를 여기에 붙여넣어 주세요..." />
+        <Textarea value={review} onChange={(e) => setReview(e.target.value)} rows={4} placeholder="고객이 남긴 리뷰를 여기에 붙여넣어 주세요..." />
         {stars && (
-          <div className="mt-2 flex items-center gap-1">
-            <span className="text-xs text-gray-400">예상 평점:</span>
-            <span className="flex">{Array.from({ length: 5 }).map((_, i) => (<Star key={i} size={12} className={i < stars ? "text-orange-400 fill-orange-400" : "text-gray-200 fill-gray-200"} />))}</span>
+          <div className="mt-1.5 md:mt-2 flex items-center gap-1">
+            <span className="text-[10px] md:text-xs text-gray-400">예상 평점:</span>
+            <span className="flex">{Array.from({ length: 5 }).map((_, i) => (<Star key={i} size={11} className={i < stars ? "text-orange-400 fill-orange-400" : "text-gray-200 fill-gray-200"} />))}</span>
           </div>
         )}
-        {error && <div className="mt-3 text-sm text-red-500 flex items-center gap-1.5"><AlertCircle size={14} /> {error}</div>}
-        <Button variant="primary" className="w-full mt-4" onClick={generate} disabled={isGenerating || !review.trim()} loading={isGenerating}>
-          <Star size={15} /> 답변 자동 생성하기
+        {error && <div className="mt-2.5 md:mt-3 text-xs md:text-sm text-red-500 flex items-center gap-1.5"><AlertCircle size={13} /> {error}</div>}
+        <Button variant="primary" className="w-full mt-3 md:mt-4" onClick={generate} disabled={isGenerating || !review.trim()} loading={isGenerating}>
+          <Star size={14} /> 답변 자동 생성하기
         </Button>
       </Card>
 
       {streaming && (
-        <Card className="border-primary/30 mb-4">
-          <div className="flex items-center gap-2 mb-3">
+        <Card className="border-primary/30 mb-3 md:mb-4">
+          <div className="flex items-center gap-2 mb-2.5 md:mb-3">
             <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
-            <span className="text-xs font-medium text-primary">분석 중...</span>
+            <span className="text-[10px] md:text-xs font-medium text-primary">분석 중...</span>
           </div>
-          <pre className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{streaming}</pre>
+          <pre className="text-xs md:text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">{streaming}</pre>
         </Card>
       )}
 
       {result && (
         <Card>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-gray-900">생성된 답변 및 분석</h2>
+          <div className="flex items-center justify-between mb-3 md:mb-4">
+            <h2 className="text-xs md:text-sm font-semibold text-gray-900 dark:text-white">생성된 답변 및 분석</h2>
             <Button variant="ghost" size="sm" onClick={copy}>
-              {copied ? <><Check size={11} className="text-green-500" /> 복사됨</> : <><Copy size={11} /> 전체 복사</>}
+              {copied ? <><Check size={10} className="text-green-500" /> 복사됨</> : <><Copy size={10} /> 전체 복사</>}
             </Button>
           </div>
-          <pre className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{result}</pre>
+          <pre className="text-xs md:text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">{result}</pre>
         </Card>
       )}
     </div>

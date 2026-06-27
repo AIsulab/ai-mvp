@@ -121,10 +121,8 @@ export default function DashboardLayout() {
           </div>
         </div>
 
-        <main className="flex-1 h-full overflow-x-hidden overflow-y-auto">
-          <div className="max-w-[1100px] mx-auto px-8 py-7">
-            <Outlet />
-          </div>
+        <main className="flex-1 h-full p-0 md:p-0">
+          <Outlet />
         </main>
 
         {/* Theme toggle */}

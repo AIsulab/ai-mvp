@@ -2,7 +2,7 @@ import { MapPin } from "lucide-react";
 
 export default function HeroSection({ weather, weatherLoading, region }) {
   return (
-    <div className="bg-gradient-to-br from-[#0B1B3D] via-[#132D5E] to-[#0B1B3D] text-white py-8 md:py-12 px-4 md:px-6 animate-fade-in">
+    <div className="bg-gradient-to-br from-[#0B1B3D] via-[#132D5E] to-[#0B1B3D] text-white py-6 md:py-8 animate-fade-in">
       <div className="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8">
         <div className="flex-1 text-center md:text-left">
           <div className="inline-flex items-center gap-1.5 bg-yellow-400/10 text-yellow-400 px-3 py-1 rounded-full text-xs font-medium mb-3 md:mb-4 border border-yellow-400/20">

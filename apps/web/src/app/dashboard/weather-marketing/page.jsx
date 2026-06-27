@@ -71,7 +71,8 @@ export default function WeatherMarketingPage() {
       </div>
 
       <Card className="mb-4">
-        <h2 className="text-[15px] font-semibold text-[#111827] dark:text-white mb-3">현재 날씨 (전주)</h2>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-[15px] font-semibold text-[#111827] dark:text-white">현재 날씨 (전주)</h2>
           <button onClick={() => refetch()} className="text-[10px] md:text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors inline-flex items-center gap-1">
             <RefreshCw size={10} /> 새로고침
           </button>

@@ -104,10 +104,10 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <HeroSection weather={weather} weatherLoading={weatherLoading} region={storeInfo.region} />
 
-      <div className="max-w-6xl mx-auto px-6 -mt-6">
+      <div className="-mt-4 md:-mt-6">
         <StoreInfoForm
           storeInfo={storeInfo}
           setStoreInfo={setStoreInfo}
@@ -117,8 +117,8 @@ export default function DashboardPage() {
 
         <StatCards weather={weather} />
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
-          <div className="lg:col-span-5 flex flex-col gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6 mb-5 md:mb-6">
+          <div className="lg:col-span-5 flex flex-col gap-4 md:gap-6">
             <WeatherWidget weather={weather} />
             <ReviewWidget
               reviewInput={reviewInput}
@@ -129,7 +129,7 @@ export default function DashboardPage() {
             />
           </div>
 
-          <div className="lg:col-span-7 flex flex-col gap-6">
+          <div className="lg:col-span-7 flex flex-col gap-4 md:gap-6">
             <MarketingEngine marketingResult={marketingResult} />
             <SnsWidget
               snsTab={snsTab}
