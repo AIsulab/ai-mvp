@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Link, useLocation, Outlet } from "react-router-dom";
-import { LayoutDashboard, Cloud, Zap, Star, MapPin, Gift, ChevronRight, Menu, X, Sun, Moon, Store } from "lucide-react";
+import { LayoutDashboard, Cloud, Zap, Star, MapPin, Gift, Menu, X, Sun, Moon, Store } from "lucide-react";
 import { useTheme } from "../../contexts/ThemeContext";
 import ChatWidget from "../../components/ChatWidget";
 import DemoOnboarding from "../../components/DemoOnboarding";

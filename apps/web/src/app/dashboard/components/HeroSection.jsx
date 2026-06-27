@@ -42,9 +42,9 @@ export default function HeroSection({ weather, weatherLoading, region }) {
             </div>
           ) : (
             <>
-              <div className="text-4xl md:text-5xl mb-2 md:mb-3 animate-scale-in">{weather?.emoji}</div>
-              <div className="text-2xl md:text-3xl font-bold mb-1">{weather?.temperature}</div>
-              <div className="text-xs md:text-sm text-blue-200/80 mb-3 md:mb-4">{weather?.condition}</div>
+              <div className="text-4xl md:text-5xl mb-2 md:mb-3 animate-scale-in">{weather?.emoji || "🌤️"}</div>
+              <div className="text-2xl md:text-3xl font-bold mb-1">{weather?.temperature || "--"}</div>
+              <div className="text-xs md:text-sm text-blue-200/80 mb-3 md:mb-4">{weather?.condition || "날씨 로딩 중..."}</div>
               <div className="text-[10px] md:text-xs font-medium text-yellow-400 bg-yellow-400/10 py-1.5 px-3 rounded-full inline-flex items-center gap-1.5">
                 <MapPin size={11} /> {region} / 전북
               </div>

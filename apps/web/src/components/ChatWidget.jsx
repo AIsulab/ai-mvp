@@ -1,10 +1,9 @@
 import { useState, useRef, useEffect } from "react";
-import { Send, Bot, User, MessageSquare, Info, BarChart2, Mic, X } from "lucide-react";
+import { Send, Bot, User, MessageSquare, X } from "lucide-react";
 import ReactMarkdown from 'react-markdown';
 
 export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("정책정보");
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -24,149 +23,98 @@ export default function ChatWidget() {
   ];
 
   const scrollToBottom = () => {
-    if (isOpen) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }
+    if (isOpen) messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages, isOpen]);
+  useEffect(() => { scrollToBottom(); }, [messages, isOpen]);
 
   const handleSend = async (text = input) => {
     if (!text.trim() || isLoading) return;
-    
     const userMessage = text.trim();
     setInput("");
-    
-    const newMessages = [...messages, { id: Date.now(), role: "user", content: userMessage }];
-    setMessages(newMessages);
+    setMessages(prev => [...prev, { id: Date.now(), role: "user", content: userMessage }]);
     setIsLoading(true);
 
     try {
-      // 1. 네이버 검색
       let naverContext = "";
       const searchKeywords = ["맛집", "트렌드", "추천", "리뷰", "블로그", "검색", "요즘"];
-      const needsSearch = searchKeywords.some(kw => userMessage.includes(kw));
-      
-      if (needsSearch) {
+      if (searchKeywords.some(kw => userMessage.includes(kw))) {
         setMessages(prev => [...prev, { id: Date.now() + 1, role: "assistant", content: "🔍 실시간 네이버 데이터를 검색 중입니다...", isStatus: true }]);
         try {
-          const naverRes = await fetch(`/api/naver?type=blog&query=${encodeURIComponent(userMessage)}&display=3`);
-          const naverData = await naverRes.json();
-          if (naverData && naverData.items) {
-            naverContext = naverData.items.map((item, idx) => `[${idx+1}] 제목: ${item.title.replace(/<[^>]*>?/gm, '')}\n내용: ${item.description.replace(/<[^>]*>?/gm, '')}`).join('\n\n');
-          }
-        } catch(e) { console.error("Naver Search Error:", e); }
+          const res = await fetch(`/api/naver?type=blog&query=${encodeURIComponent(userMessage)}&display=3`);
+          const data = await res.json();
+          if (data?.items) naverContext = data.items.map((item, i) => `[${i+1}] ${item.title.replace(/<[^>]*>?/gm, '')}: ${item.description.replace(/<[^>]*>?/gm, '')}`).join('\n\n');
+        } catch(e) {}
         setMessages(prev => prev.filter(m => !m.isStatus));
       }
 
-      // 2. SGIS 상권
       let sgisContext = "";
       const sgisKeywords = ["상권", "점포", "경쟁", "개수", "밀집", "창업"];
-      const needsSgis = sgisKeywords.some(kw => userMessage.includes(kw));
-      if (needsSgis) {
+      if (sgisKeywords.some(kw => userMessage.includes(kw))) {
         setMessages(prev => [...prev, { id: Date.now() + 2, role: "assistant", content: "📊 공공데이터 상권 통계(SGIS)를 분석 중입니다...", isStatus: true }]);
         try {
-          const sgisRes = await fetch(`/api/sgis?radius=500`);
-          const sgisData = await sgisRes.json();
-          if (sgisData && sgisData.body && sgisData.body.items) {
-            const items = sgisData.body.items;
-            const summary = items.slice(0, 10).map(item => `- ${item.bizesNm} (${item.indsSclsNm})`).join('\n');
-            sgisContext = `검색 반경(500m) 내 주요 상가업소 리스트 (총 ${items.length}개 이상 중 일부):\n${summary}`;
-          }
-        } catch(e) { console.error("SGIS Search Error:", e); }
+          const res = await fetch(`/api/sgis?radius=500`);
+          const data = await res.json();
+          if (data?.body?.items) sgisContext = `검색 반경 내 주요 상가업소:\n${data.body.items.slice(0, 10).map(i => `- ${i.bizesNm} (${i.indsSclsNm})`).join('\n')}`;
+        } catch(e) {}
         setMessages(prev => prev.filter(m => !m.isStatus));
       }
 
-      // 3. 와이파이
       let wifiContext = "";
-      const wifiKeywords = ["와이파이", "인터넷", "무료", "wifi", "작업하기"];
-      const needsWifi = wifiKeywords.some(kw => userMessage.toLowerCase().includes(kw));
-      if (needsWifi) {
+      if (["와이파이", "internet", "무료", "wifi", "작업하기"].some(kw => userMessage.toLowerCase().includes(kw))) {
         setMessages(prev => [...prev, { id: Date.now() + 3, role: "assistant", content: "📡 전주시 공공 와이파이존 위치를 검색 중입니다...", isStatus: true }]);
         try {
-          const wifiRes = await fetch(`/api/wifi`);
-          const wifiData = await wifiRes.json();
-          if (wifiData && wifiData.data && wifiData.data.items) {
-            const items = wifiData.data.items;
-            const summary = items.slice(0, 8).map(item => `- ${item.instlPlace}: ${item.addr} (좌표: ${item.lat}, ${item.lon})`).join('\n');
-            wifiContext = `전주시 무료 공공 와이파이 설치 장소 리스트:\n${summary}`;
-          }
-        } catch(e) { console.error("WiFi Search Error:", e); }
+          const res = await fetch(`/api/wifi`);
+          const data = await res.json();
+          if (data?.data?.items) wifiContext = `전주시 무료 와이파이:\n${data.data.items.slice(0, 8).map(i => `- ${i.instlPlace}: ${i.addr}`).join('\n')}`;
+        } catch(e) {}
         setMessages(prev => prev.filter(m => !m.isStatus));
       }
 
-      const chatHistory = messages
-        .filter(m => m.id !== 1)
-        .map(m => ({ role: m.role, content: m.content }));
-
+      const chatHistory = messages.filter(m => m.id !== 1).map(m => ({ role: m.role, content: m.content }));
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          action: "chat", 
-          chatMessage: userMessage,
-          chatHistory: chatHistory.slice(-5),
-          naverContext,
-          sgisContext,
-          wifiContext
-        }),
+        body: JSON.stringify({ action: "chat", chatMessage: userMessage, chatHistory: chatHistory.slice(-5), naverContext, sgisContext, wifiContext }),
       });
-      
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "API Error");
-
+      if (!res.ok) throw new Error(data.error);
       setMessages(prev => [...prev, { id: Date.now(), role: "assistant", content: data.result }]);
-    } catch (err) {
-      setMessages(prev => [...prev, { id: Date.now(), role: "assistant", content: "❌ 죄송합니다. 응답 생성 중 오류가 발생했습니다." }]);
+    } catch {
+      setMessages(prev => [...prev, { id: Date.now(), role: "assistant", content: "❌ 응답 생성 중 오류가 발생했습니다." }]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
+  const handleKeyDown = (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } };
 
   return (
     <>
-      {/* 챗봇 토글 버튼 */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 w-14 h-14 bg-[#2563EB] hover:bg-[#1D4ED8] text-white rounded-full shadow-xl flex items-center justify-center z-50 transition-transform hover:scale-110"
-      >
-        {isOpen ? <X size={24} /> : <MessageSquare size={24} />}
+      <button onClick={() => setIsOpen(!isOpen)} className="fixed bottom-6 right-6 w-12 h-12 md:w-14 md:h-14 bg-primary hover:bg-primary-dark text-white rounded-full shadow-xl flex items-center justify-center z-50 transition-transform hover:scale-110 active:scale-95">
+        {isOpen ? <X size={22} /> : <MessageSquare size={22} />}
       </button>
 
-      {/* 챗봇 위젯 창 */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 w-[400px] h-[600px] bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col z-50 flex-shrink-0 animate-in slide-in-from-bottom-5">
-          {/* Header */}
-          <div className="bg-[#0B1B3D] text-white p-4 flex items-center justify-between shrink-0">
+        <div className="fixed bottom-20 right-4 md:bottom-24 md:right-6 w-[calc(100vw-2rem)] max-w-[400px] h-[calc(100vh-10rem)] max-h-[600px] bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col z-50 animate-slide-up">
+          <div className="bg-[#0B1B3D] text-white p-3.5 md:p-4 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-2">
-              <Bot size={20} />
-              <h3 className="font-semibold text-[15px]">소상공인 AI 챗봇</h3>
+              <Bot size={18} />
+              <h3 className="font-semibold text-sm md:text-[15px]">소상공인 AI 챗봇</h3>
             </div>
-            <button onClick={() => setIsOpen(false)} className="text-gray-300 hover:text-white">
-              <X size={18} />
-            </button>
+            <button onClick={() => setIsOpen(false)} className="text-white/60 hover:text-white p-1"><X size={16} /></button>
           </div>
 
-          {/* Chat Messages */}
-          <div className="flex-1 overflow-y-auto p-4 bg-[#F8FAFC] space-y-4">
+          <div className="flex-1 overflow-y-auto p-3 md:p-4 bg-gray-50 dark:bg-gray-900 space-y-3 md:space-y-4">
             {messages.map((msg) => (
               <div key={msg.id} className={`flex gap-2 max-w-[90%] ${msg.role === 'user' ? 'ml-auto flex-row-reverse' : 'mr-auto'}`}>
-                <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 ${msg.role === 'user' ? 'bg-[#2563EB] text-white' : 'bg-white border border-gray-200 text-[#0B3B8E] shadow-sm'}`}>
-                  {msg.role === 'user' ? <User size={14} /> : <Bot size={16} />}
+                <div className={`w-6 h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center shrink-0 ${msg.role === 'user' ? 'bg-primary text-white' : 'bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-primary shadow-sm'}`}>
+                  {msg.role === 'user' ? <User size={13} /> : <Bot size={14} />}
                 </div>
-                <div className={`p-3 rounded-2xl text-[14px] leading-relaxed shadow-sm ${
-                  msg.role === 'user' 
-                    ? 'bg-[#2563EB] text-white rounded-tr-none' 
-                    : 'bg-white text-gray-800 border border-gray-200 rounded-tl-none prose prose-sm max-w-none'
+                <div className={`p-2.5 md:p-3 rounded-2xl text-[13px] md:text-sm leading-relaxed shadow-sm ${
+                  msg.role === 'user'
+                    ? 'bg-primary text-white rounded-tr-none'
+                    : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-tl-none'
                 }`}>
                   {msg.role === 'user' ? msg.content : <ReactMarkdown>{msg.content}</ReactMarkdown>}
                 </div>
@@ -174,49 +122,33 @@ export default function ChatWidget() {
             ))}
             {isLoading && (
               <div className="flex gap-2 max-w-[90%] mr-auto">
-                <div className="w-7 h-7 rounded-full bg-white border border-gray-200 text-[#0B3B8E] shadow-sm flex items-center justify-center shrink-0">
-                  <Bot size={16} />
-                </div>
-                <div className="bg-white border border-gray-200 p-3 rounded-2xl rounded-tl-none shadow-sm flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-bounce"></span>
-                  <span className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></span>
-                  <span className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></span>
+                <div className="w-6 h-6 md:w-7 md:h-7 rounded-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-primary shadow-sm flex items-center justify-center shrink-0"><Bot size={14} /></div>
+                <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-3 rounded-2xl rounded-tl-none shadow-sm flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce"></span>
+                  <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></span>
+                  <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></span>
                 </div>
               </div>
             )}
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input Area */}
-          <div className="bg-white border-t border-gray-200 p-3 shrink-0">
-            <div className="flex flex-wrap gap-1.5 mb-3">
+          <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-2.5 md:p-3 shrink-0">
+            <div className="flex flex-wrap gap-1 md:gap-1.5 mb-2 md:mb-3">
               {suggestedQuestions.map((q, i) => (
-                <button
-                  key={i}
-                  onClick={() => handleSend(q)}
-                  disabled={isLoading}
-                  className="text-left px-2.5 py-1.5 text-[12px] text-gray-600 bg-gray-50 border border-gray-200 rounded-lg hover:bg-blue-50 hover:text-blue-700 transition-colors whitespace-nowrap"
-                >
+                <button key={i} onClick={() => handleSend(q)} disabled={isLoading}
+                  className="text-left px-2 md:px-2.5 py-1 md:py-1.5 text-[10px] md:text-xs text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors whitespace-nowrap disabled:opacity-50">
                   {q}
                 </button>
               ))}
             </div>
-            <div className="relative flex items-center bg-gray-50 border border-gray-200 rounded-full focus-within:border-[#2563EB] transition-colors pr-1">
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="질문을 입력하세요..."
-                className="flex-1 py-2.5 pl-4 pr-2 bg-transparent outline-none text-[13px] text-gray-800"
-                disabled={isLoading}
-              />
-              <button 
-                onClick={() => handleSend()}
-                disabled={!input.trim() || isLoading}
-                className="w-8 h-8 rounded-full flex items-center justify-center bg-[#2563EB] text-white hover:bg-blue-700 disabled:opacity-50 transition-colors"
-              >
-                <Send size={14} className="ml-0.5" />
+            <div className="relative flex items-center bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-full focus-within:border-primary transition-colors">
+              <input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={handleKeyDown}
+                placeholder="질문을 입력하세요..." disabled={isLoading}
+                className="flex-1 py-2 md:py-2.5 pl-3 md:pl-4 pr-2 bg-transparent outline-none text-xs md:text-sm text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500" />
+              <button onClick={() => handleSend()} disabled={!input.trim() || isLoading}
+                className="w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center bg-primary text-white hover:bg-primary-dark disabled:opacity-50 transition-colors mr-0.5">
+                <Send size={13} className="ml-0.5" />
               </button>
             </div>
           </div>

@@ -8,7 +8,7 @@ export default function PillSelector({
   return (
     <div className={className}>
       {label && (
-        <label className="text-xs font-medium text-gray-500 mb-2 block">
+        <label className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2 block">
           {label}
         </label>
       )}
@@ -20,8 +20,8 @@ export default function PillSelector({
             onClick={() => onChange(opt)}
             className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
               value === opt
-                ? "border-primary bg-primary-light text-primary font-medium"
-                : "border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50"
+                ? "border-primary bg-primary/10 text-primary font-medium"
+                : "border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700/50"
             }`}
           >
             {opt}

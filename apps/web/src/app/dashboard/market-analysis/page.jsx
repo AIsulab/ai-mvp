@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Store, Wifi, MapPin, RefreshCw, Search, BarChart2, Map, AlertTriangle } from "lucide-react";
+import { Wifi, MapPin, RefreshCw, Search, BarChart2, Map, AlertTriangle } from "lucide-react";
 import { Card, Badge, Spinner, Button } from "../../../components/ui";
 import { useTheme } from "../../../contexts/ThemeContext";
 
