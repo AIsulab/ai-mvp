@@ -61,80 +61,79 @@ export default function WeatherMarketingPage() {
   const copyText = (text, idx) => { navigator.clipboard.writeText(text); setCopied(idx); setTimeout(() => setCopied(null), 2000); };
 
   return (
-    <div className="max-w-3xl mx-auto animate-fade-in">
-      <div className="mb-6">
-        <div className="flex items-center gap-2 mb-2">
-          <h1 className="text-xl font-semibold text-gray-900 tracking-tight">날씨 마케팅 자동화</h1>
-          <Badge color="blue"><Zap size={10} /> Weather-Driven Engine</Badge>
+    <div className="animate-fade-in">
+      <div className="mb-4">
+        <div className="flex items-center gap-2 mb-1 flex-wrap">
+          <h1 className="text-[15px] font-semibold text-[#111827] dark:text-white tracking-tight">날씨 마케팅 자동화</h1>
+          <Badge color="blue"><Zap size={10} /> Weather-Driven</Badge>
         </div>
-        <p className="text-sm text-gray-500">기상청 실시간 날씨 데이터를 기반으로 업종에 맞는 마케팅 문구를 즉시 생성합니다.</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">기상청 실시간 날씨 데이터를 기반으로 업종에 맞는 마케팅 문구를 즉시 생성합니다.</p>
       </div>
 
-      <Card className="mb-5">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-semibold text-gray-900">현재 날씨 (전주)</h2>
-          <button onClick={() => refetch()} className="text-xs text-gray-400 hover:text-gray-600 transition-colors inline-flex items-center gap-1">
-            <RefreshCw size={11} /> 새로고침
+      <Card className="mb-4">
+        <h2 className="text-[15px] font-semibold text-[#111827] dark:text-white mb-3">현재 날씨 (전주)</h2>
+          <button onClick={() => refetch()} className="text-[10px] md:text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors inline-flex items-center gap-1">
+            <RefreshCw size={10} /> 새로고침
           </button>
         </div>
         {weatherLoading ? (
-          <div className="flex items-center gap-2 py-2"><Spinner className="text-primary" /><span className="text-sm text-gray-400">날씨 정보 불러오는 중...</span></div>
+          <div className="flex items-center gap-2 py-2"><Spinner className="text-primary" /><span className="text-xs md:text-sm text-gray-400">날씨 정보 불러오는 중...</span></div>
         ) : weather ? (
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="text-3xl">{weather.emoji}</span>
+          <div className="flex flex-wrap items-center gap-2 md:gap-3">
+            <span className="text-2xl md:text-3xl">{weather.emoji}</span>
             <div>
-              <div className="text-base font-semibold text-gray-900">{weather.condition}</div>
-              <div className="text-xs text-gray-500">{weather.temperature} · 습도 {weather.humidity} · 풍속 {weather.windSpeed}</div>
+              <div className="text-sm md:text-base font-semibold text-gray-900 dark:text-white">{weather.condition}</div>
+              <div className="text-[10px] md:text-xs text-gray-500 dark:text-gray-400">{weather.temperature} · 습도 {weather.humidity} · 풍속 {weather.windSpeed}</div>
             </div>
-            <div className="ml-auto flex flex-wrap gap-1.5">
+            <div className="ml-auto flex flex-wrap gap-1 md:gap-1.5">
               {(weather.marketingTheme || "").split(",").map((t, i) => (<Badge key={i} color="gray">{t.trim()}</Badge>))}
             </div>
           </div>
         ) : (
-          <div className="flex items-center gap-2 text-sm text-red-500"><AlertCircle size={14} /> 날씨 정보를 불러오지 못했습니다.</div>
+          <div className="flex items-center gap-2 text-xs md:text-sm text-red-500"><AlertCircle size={13} /> 날씨 정보를 불러오지 못했습니다.</div>
         )}
-        {weather?.isMock && <p className="text-xs text-orange-500 mt-2 flex items-center gap-1"><AlertCircle size={11} /> 기상청 API 키 미설정 — 샘플 데이터 표시 중</p>}
+        {weather?.isMock && <p className="text-[10px] md:text-xs text-orange-500 mt-2 flex items-center gap-1"><AlertCircle size={10} /> 기상청 API 키 미설정 — 샘플 데이터 표시 중</p>}
       </Card>
 
-      <Card className="mb-5">
-        <h2 className="text-sm font-semibold text-gray-900 mb-4">내 가게 정보 입력</h2>
-        <div className="space-y-4">
+      <Card className="mb-4">
+        <h2 className="text-[15px] font-semibold text-[#111827] dark:text-white mb-3">내 가게 정보 입력</h2>
+        <div className="space-y-3 md:space-y-4">
           <PillSelector label="업종 선택" options={businessTypes} value={businessType} onChange={setBusinessType} />
           <Input label="오늘의 메뉴 또는 상품" value={menuOrProduct} onChange={(e) => setMenuOrProduct(e.target.value)} placeholder="예: 육개장, 아메리카노, 여름 한정 팥빙수..." />
           <PillSelector label="문구 톤 선택" options={tones} value={tone} onChange={setTone} />
         </div>
-        {error && <div className="mt-4 text-sm text-red-500 flex items-center gap-1.5"><AlertCircle size={14} /> {error}</div>}
-        <Button variant="primary" className="w-full mt-5" onClick={generate} disabled={isGenerating || !businessType || !menuOrProduct} loading={isGenerating}>
-          <Zap size={15} /> 마케팅 문구 생성하기
+        {error && <div className="mt-3 md:mt-4 text-xs md:text-sm text-red-500 flex items-center gap-1.5"><AlertCircle size={13} /> {error}</div>}
+        <Button variant="primary" className="w-full mt-4 md:mt-5" onClick={generate} disabled={isGenerating || !businessType || !menuOrProduct} loading={isGenerating}>
+          <Zap size={14} /> 마케팅 문구 생성하기
         </Button>
       </Card>
 
       {streaming && (
-        <Card className="border-primary/30 mb-4">
-          <div className="flex items-center gap-2 mb-3">
+        <Card className="border-primary/30 mb-3 md:mb-4">
+          <div className="flex items-center gap-2 mb-2.5 md:mb-3">
             <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
-            <span className="text-xs font-medium text-primary">AI 생성 중...</span>
+            <span className="text-[10px] md:text-xs font-medium text-primary">AI 생성 중...</span>
           </div>
-          <pre className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{streaming}</pre>
+          <pre className="text-xs md:text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">{streaming}</pre>
         </Card>
       )}
 
       {generated.length > 0 && (
         <div>
-          <h2 className="text-sm font-semibold text-gray-900 mb-3">생성된 마케팅 문구</h2>
-          <div className="space-y-3">
+        <h2 className="text-[15px] font-semibold text-[#111827] dark:text-white mb-3">생성된 마케팅 문구</h2>
+          <div className="space-y-2.5 md:space-y-3">
             {generated.map((g, i) => (
-              <Card key={i} className="hover:border-gray-300 transition-colors">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
+              <Card key={i} className="hover:border-gray-300 dark:hover:border-gray-600 transition-colors">
+                <div className="flex items-center justify-between mb-2.5 md:mb-3">
+                  <div className="flex items-center gap-1.5 md:gap-2">
                     <Badge color="gray">{g.emoji} {g.weather}</Badge>
-                    <span className="text-xs text-gray-400">{g.time}</span>
+                    <span className="text-[10px] md:text-xs text-gray-400">{g.time}</span>
                   </div>
                   <Button variant="ghost" size="sm" onClick={() => copyText(g.text, i)}>
-                    {copied === i ? <><Check size={11} className="text-green-500" /> 복사됨</> : <><Copy size={11} /> 복사</>}
+                    {copied === i ? <><Check size={10} className="text-green-500" /> 복사됨</> : <><Copy size={10} /> 복사</>}
                   </Button>
                 </div>
-                <pre className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{g.text}</pre>
+                <pre className="text-xs md:text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">{g.text}</pre>
               </Card>
             ))}
           </div>
