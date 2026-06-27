@@ -71,7 +71,7 @@ export default function ReviewReplyPage() {
   const stars = review ? starCount(review) : null;
 
   return (
-    <div className="animate-fade-in">
+    <div className="px-5 md:px-8 py-4 md:py-6 animate-fade-in">
       <div className="mb-4 md:mb-5">
         <div className="flex items-center gap-2 mb-1 flex-wrap">
           <h1 className="text-base md:text-lg font-semibold text-gray-900 dark:text-white tracking-tight">리뷰 답변 자동화</h1>

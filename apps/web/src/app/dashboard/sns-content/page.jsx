@@ -47,7 +47,7 @@ export default function SnsContentPage() {
   const copy = (text, key) => { navigator.clipboard.writeText(text); setCopied(key); setTimeout(() => setCopied(null), 2000); };
 
   return (
-    <div className="animate-fade-in">
+    <div className="px-5 md:px-8 py-4 md:py-6 animate-fade-in">
       <div className="mb-4">
         <div className="flex items-center gap-2 mb-1 flex-wrap">
           <h1 className="text-[15px] font-semibold text-[#111827] dark:text-white tracking-tight">SNS 콘텐츠 자동 생성</h1>

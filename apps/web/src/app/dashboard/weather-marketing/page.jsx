@@ -61,7 +61,7 @@ export default function WeatherMarketingPage() {
   const copyText = (text, idx) => { navigator.clipboard.writeText(text); setCopied(idx); setTimeout(() => setCopied(null), 2000); };
 
   return (
-    <div className="animate-fade-in">
+    <div className="px-5 md:px-8 py-4 md:py-6 animate-fade-in">
       <div className="mb-4">
         <div className="flex items-center gap-2 mb-1 flex-wrap">
           <h1 className="text-[15px] font-semibold text-[#111827] dark:text-white tracking-tight">날씨 마케팅 자동화</h1>

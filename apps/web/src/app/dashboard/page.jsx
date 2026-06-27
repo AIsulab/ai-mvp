@@ -107,7 +107,7 @@ export default function DashboardPage() {
     <div className="min-h-screen">
       <HeroSection weather={weather} weatherLoading={weatherLoading} region={storeInfo.region} />
 
-      <div className="-mt-4 md:-mt-6">
+      <div className="px-5 md:px-8 pt-4 md:pt-6">
         <StoreInfoForm
           storeInfo={storeInfo}
           setStoreInfo={setStoreInfo}
