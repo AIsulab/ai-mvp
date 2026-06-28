@@ -4,6 +4,7 @@ import { Cloud, Copy, Check, Zap, RefreshCw, AlertCircle } from "lucide-react";
 import { streamAIResponse } from "@/utils/ai";
 import { Button, Card, Input, PillSelector, Spinner, Badge } from "../../../components/ui";
 import { businessTypes, tones } from "../../../constants/businessTypes";
+import { copyToClipboard } from "../../../utils/clipboard";
 
 export default function WeatherMarketingPage() {
   const [businessType, setBusinessType] = useState("");
@@ -58,7 +59,7 @@ export default function WeatherMarketingPage() {
     }
   };
 
-  const copyText = (text, idx) => { navigator.clipboard.writeText(text); setCopied(idx); setTimeout(() => setCopied(null), 2000); };
+  const copyText = (text, idx) => { copyToClipboard(text).then(() => { setCopied(idx); setTimeout(() => setCopied(null), 2000); }); };
 
   return (
     <div className="px-5 md:px-8 py-4 md:py-6 animate-fade-in">

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Star, Copy, Check, AlertCircle, ThumbsUp, ThumbsDown } from "lucide-react";
 import { streamAIResponse } from "@/utils/ai";
 import { Button, Card, Textarea, Badge } from "../../../components/ui";
+import { copyToClipboard } from "../../../utils/clipboard";
 
 const replyTypes = [
   { key: "grateful", label: "감사 답변", desc: "긍정 리뷰에 진심 어린 감사 전달" },
@@ -58,7 +59,7 @@ export default function ReviewReplyPage() {
     }
   };
 
-  const copy = () => { navigator.clipboard.writeText(result); setCopied(true); setTimeout(() => setCopied(false), 2000); };
+  const copy = () => { copyToClipboard(result).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); }); };
 
   const starCount = (text) => {
     const negative = ["불친절", "별로", "실망", "최악", "안 올", "느린", "비싼", "작은", "없는", "불만"];

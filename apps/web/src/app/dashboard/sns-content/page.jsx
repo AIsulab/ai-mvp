@@ -3,6 +3,7 @@ import { Zap, Copy, Check, AlertCircle, Instagram } from "lucide-react";
 import { streamAIResponse } from "@/utils/ai";
 import { Button, Card, Input, PillSelector, Badge } from "../../../components/ui";
 import { businessTypes, platforms, moods } from "../../../constants/businessTypes";
+import { copyToClipboard } from "../../../utils/clipboard";
 
 export default function SnsContentPage() {
   const [businessType, setBusinessType] = useState("");
@@ -44,7 +45,7 @@ export default function SnsContentPage() {
     }
   };
 
-  const copy = (text, key) => { navigator.clipboard.writeText(text); setCopied(key); setTimeout(() => setCopied(null), 2000); };
+  const copy = (text, key) => { copyToClipboard(text).then(() => { setCopied(key); setTimeout(() => setCopied(null), 2000); }); };
 
   return (
     <div className="px-5 md:px-8 py-4 md:py-6 animate-fade-in">
