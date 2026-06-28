@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Link, useLocation, Outlet } from "react-router-dom";
-import { LayoutDashboard, Cloud, Zap, Star, MapPin, Gift, Menu, X, Sun, Moon, Store } from "lucide-react";
+import { LayoutDashboard, Cloud, Zap, Star, MapPin, Gift, Menu, X, Sun, Moon, Store, ChevronRight } from "lucide-react";
 import { useTheme } from "../../contexts/ThemeContext";
 import ChatWidget from "../../components/ChatWidget";
 import DemoOnboarding from "../../components/DemoOnboarding";
@@ -26,9 +26,7 @@ export default function DashboardLayout() {
     return location.pathname.startsWith(href);
   };
 
-  useEffect(() => {
-    setSidebarOpen(false);
-  }, [location.pathname]);
+  useEffect(() => { setSidebarOpen(false); }, [location.pathname]);
 
   const handleTouchStart = useCallback((e) => {
     touchStartX.current = e.touches[0].clientX;
@@ -37,87 +35,84 @@ export default function DashboardLayout() {
 
   const handleTouchEnd = useCallback((e) => {
     if (!sidebarOpen) return;
-    const touchEndX = e.changedTouches[0].clientX;
-    const touchEndY = e.changedTouches[0].clientY;
-    const deltaX = touchEndX - touchStartX.current;
-    const deltaY = Math.abs(touchEndY - touchStartY.current);
-    if (deltaX < -80 && deltaY < 50) {
-      setSidebarOpen(false);
-    }
+    const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+    const deltaY = Math.abs(e.changedTouches[0].clientY - touchStartY.current);
+    if (deltaX < -80 && deltaY < 50) setSidebarOpen(false);
   }, [sidebarOpen]);
 
   return (
-    <div className="min-h-screen flex" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+    <div className="min-h-screen flex bg-white" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
       <DemoOnboarding />
 
       {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-20 md:hidden animate-fade-in"
-          onClick={() => setSidebarOpen(false)}
-        />
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-20 md:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
       {/* Sidebar */}
-      <aside className={`fixed md:sticky top-0 left-0 h-screen w-[200px] bg-[#111827] flex flex-col z-30 transition-all duration-300 ease-out ${sidebarOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full md:translate-x-0"}`}>
-        <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center shrink-0">
-              <Store size={14} className="text-white" />
+      <aside className={`fixed md:sticky top-0 left-0 h-screen w-60 bg-white border-r border-gray-100 flex flex-col z-30 transition-all duration-300 ease-out ${sidebarOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full md:translate-x-0"}`}>
+        {/* Logo */}
+        <div className="px-5 py-5 border-b border-gray-100">
+          <Link to="/" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
+            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-sm">
+              <Store size={18} className="text-white" />
             </div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-base font-bold text-white tracking-tight">W-AI</span>
-              <span className="text-[10px] bg-primary/20 text-primary px-1.5 py-0.5 rounded-full font-medium">Beta</span>
+            <div>
+              <span className="text-base font-bold text-gray-900 tracking-tight">W-AI</span>
+              <span className="text-[10px] bg-primary-50 text-primary ml-1.5 px-1.5 py-0.5 rounded-full font-medium">Beta</span>
             </div>
           </Link>
-          <button className="md:hidden p-1.5 rounded-lg hover:bg-white/10 transition-colors" onClick={() => setSidebarOpen(false)}>
-            <X size={16} className="text-white/60" />
-          </button>
         </div>
 
-        <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto">
+        {/* Navigation */}
+        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           {navItems.map((item) => {
             const active = isActive(item.href);
             return (
               <Link key={item.href} to={item.href}
-                className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-all duration-150 group ${active ? "bg-white/10 text-white font-semibold" : "text-white/60 hover:bg-white/5 hover:text-white active:scale-[0.98]"}`}>
+                className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-sm transition-all duration-150 ${
+                  active
+                    ? "bg-primary-50 text-primary font-semibold"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                }`}>
                 <span className="flex items-center gap-2.5">
-                  <item.icon size={16} className={active ? "text-white" : "text-white/40 group-hover:text-white/70"} />
+                  <item.icon size={18} className={active ? "text-primary" : "text-gray-400"} />
                   {item.label}
                 </span>
                 <span className="flex items-center gap-1.5">
-                  {item.hot && <span className="text-[9px] bg-primary/30 text-primary px-1.5 py-0.5 rounded-full font-semibold">HOT</span>}
-                  {active && <div className="w-1.5 h-1.5 rounded-full bg-primary" />}
+                  {item.hot && <span className="text-[9px] bg-primary-50 text-primary px-1.5 py-0.5 rounded-full font-semibold">HOT</span>}
+                  {active && <ChevronRight size={14} className="text-primary" />}
                 </span>
               </Link>
             );
           })}
         </nav>
 
-        <div className="px-3 py-3 border-t border-white/10">
-          <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg bg-white/5">
-            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-              <span className="text-xs font-bold text-white">사</span>
+        {/* User Info */}
+        <div className="px-3 py-3 border-t border-gray-100">
+          <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-gray-50">
+            <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center">
+              <span className="text-xs font-bold text-primary">사</span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-white truncate">사장님 계정</p>
-              <p className="text-[10px] text-white/40">Free Plan</p>
+              <p className="text-xs font-semibold text-gray-900 truncate">사장님 계정</p>
+              <p className="text-[10px] text-gray-400">Free Plan</p>
             </div>
           </div>
         </div>
       </aside>
 
-      {/* Main */}
-      <div className="flex-1 flex flex-col min-w-0 bg-[#F9FAFB] dark:bg-gray-900">
-        {/* Mobile header bar */}
-        <div className="md:hidden sticky top-0 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-b border-gray-100 dark:border-gray-700">
-          <div className="flex items-center justify-between px-4 py-2.5">
-            <button className="p-2 -ml-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors active:scale-95" onClick={() => setSidebarOpen(true)}>
-              <Menu size={20} className="text-gray-600 dark:text-gray-400" />
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Mobile Header */}
+        <div className="md:hidden sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-gray-100">
+          <div className="flex items-center justify-between px-4 py-3">
+            <button className="p-1.5 -ml-1 rounded-lg hover:bg-gray-100 transition-colors" onClick={() => setSidebarOpen(true)}>
+              <Menu size={20} className="text-gray-600" />
             </button>
-            <span className="text-sm font-semibold text-gray-900 dark:text-white">
+            <span className="text-sm font-semibold text-gray-900">
               {navItems.find((item) => isActive(item.href))?.label || "W-AI"}
             </span>
-            <div className="w-9" />
+            <div className="w-8" />
           </div>
         </div>
 
@@ -125,10 +120,10 @@ export default function DashboardLayout() {
           <Outlet />
         </main>
 
-        {/* Theme toggle */}
-        <div className="fixed bottom-24 right-4 md:right-6 z-40">
-          <button onClick={toggleTheme} className="w-12 h-12 md:w-14 md:h-14 bg-primary hover:bg-primary-dark text-white rounded-full shadow-xl flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95" aria-label="테마 전환">
-            {isDark ? <Sun size={20} /> : <Moon size={20} />}
+        {/* Theme Toggle */}
+        <div className="fixed bottom-20 right-4 md:bottom-24 md:right-6 z-40">
+          <button onClick={toggleTheme} className="w-11 h-11 md:w-12 md:h-12 bg-white hover:bg-gray-50 text-gray-600 rounded-full shadow-elevated border border-gray-200 flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95" aria-label="테마 전환">
+            {isDark ? <Sun size={18} /> : <Moon size={18} />}
           </button>
         </div>
 
