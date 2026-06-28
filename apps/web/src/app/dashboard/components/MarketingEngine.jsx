@@ -5,12 +5,12 @@ export default function MarketingEngine({ marketingResult }) {
   return (
     <Card className="flex-1">
       <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-4">
-        <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-          <Zap className="text-yellow-500 fill-yellow-500" size={16} /> 마케팅 엔진
+        <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2 tracking-tight">
+          <Zap className="text-accent-orange fill-accent-orange" size={16} /> 마케팅 엔진
         </h3>
         <div className="flex items-center gap-2">
-          <span className="text-[10px] bg-orange-50 text-orange-600 px-2 py-0.5 rounded-full font-semibold border border-orange-100">핵심</span>
-          <span className="text-xs bg-primary text-white px-2 py-0.5 rounded-full font-medium">AI</span>
+          <span className="text-[10px] bg-accent-pink-light text-accent-pink px-2 py-0.5 rounded-[8px] font-semibold">핵심</span>
+          <span className="text-xs bg-navy text-white px-2 py-0.5 rounded-full font-medium">AI</span>
         </div>
       </div>
       <div className="flex overflow-x-auto border-b border-gray-100 mb-4 -mx-1 px-1">
@@ -24,8 +24,8 @@ export default function MarketingEngine({ marketingResult }) {
           </button>
         ))}
       </div>
-      <div className="bg-gray-50 border border-gray-100 rounded-xl p-3 md:p-4 mb-4">
-        <p className="text-[11px] text-gray-500 leading-relaxed">
+      <div className="bg-accent-green-light/30 border border-accent-green/20 rounded-[12px] p-3 md:p-4 mb-4">
+        <p className="text-[11px] text-gray-600 leading-relaxed">
           날씨 분석 중 AI가 자동으로 상황을 판단하여 최적 마케팅 문구를 생성합니다.
         </p>
       </div>
@@ -33,7 +33,7 @@ export default function MarketingEngine({ marketingResult }) {
         <span className="w-3.5 h-3.5 rounded bg-primary-50 flex items-center justify-center text-[10px] text-primary font-bold">AI</span>
         AI 생성 마케팅 문구
       </label>
-      <div className="w-full min-h-[120px] bg-primary-50 border border-primary-100 rounded-xl p-3 md:p-4 text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
+      <div className="w-full min-h-[120px] bg-primary-50 border border-primary-100 rounded-[12px] p-3 md:p-4 text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
         {marketingResult ? marketingResult : <span className="text-gray-400">날씨 분석 시작 버튼을 누르면 AI가 자동으로 문구를 작성합니다.</span>}
       </div>
     </Card>

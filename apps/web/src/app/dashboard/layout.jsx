@@ -53,11 +53,11 @@ export default function DashboardLayout() {
         {/* Logo */}
         <div className="px-5 py-5 border-b border-gray-100">
           <Link to="/" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
-            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-sm">
+            <div className="w-9 h-9 rounded-xl bg-navy flex items-center justify-center shadow-sm">
               <Store size={18} className="text-white" />
             </div>
             <div>
-              <span className="text-base font-bold text-gray-900 tracking-tight">W-AI</span>
+              <span className="text-base font-bold text-navy tracking-tight">W-AI</span>
               <span className="text-[10px] bg-primary-50 text-primary ml-1.5 px-1.5 py-0.5 rounded-full font-medium">Beta</span>
             </div>
           </Link>
@@ -79,7 +79,7 @@ export default function DashboardLayout() {
                   {item.label}
                 </span>
                 <span className="flex items-center gap-1.5">
-                  {item.hot && <span className="text-[9px] bg-primary-50 text-primary px-1.5 py-0.5 rounded-full font-semibold">HOT</span>}
+                  {item.hot && <span className="text-[9px] bg-accent-green-light text-accent-green px-1.5 py-0.5 rounded-full font-semibold">HOT</span>}
                   {active && <ChevronRight size={14} className="text-primary" />}
                 </span>
               </Link>
@@ -90,8 +90,8 @@ export default function DashboardLayout() {
         {/* User Info */}
         <div className="px-3 py-3 border-t border-gray-100">
           <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-gray-50">
-            <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center">
-              <span className="text-xs font-bold text-primary">사</span>
+            <div className="w-8 h-8 rounded-full bg-navy-50 flex items-center justify-center">
+              <span className="text-xs font-bold text-navy">사</span>
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs font-semibold text-gray-900 truncate">사장님 계정</p>

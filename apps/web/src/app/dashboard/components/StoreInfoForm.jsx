@@ -4,10 +4,10 @@ import { businessTypes, regions } from "../../../constants/businessTypes";
 
 export default function StoreInfoForm({ storeInfo, setStoreInfo, onAnalyze, isAnalyzing }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-card p-5 md:p-6 mb-5 md:mb-6 animate-slide-up">
+    <div className="bg-white rounded-[16px] border border-gray-100 shadow-card p-5 md:p-6 mb-5 md:mb-6 animate-slide-up">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-sm font-semibold text-gray-900">내 가게 정보</h2>
+          <h2 className="text-sm font-semibold text-gray-900 tracking-tight">내 가게 정보</h2>
           <p className="text-xs text-gray-400 mt-0.5">한 번만 입력하세요</p>
         </div>
       </div>
@@ -25,9 +25,13 @@ export default function StoreInfoForm({ storeInfo, setStoreInfo, onAnalyze, isAn
           <Select label="지역" value={storeInfo.region} onChange={e => setStoreInfo({ ...storeInfo, region: e.target.value })} options={regions} placeholder="" />
         </div>
         <div className="col-span-2 md:col-span-1 w-full">
-          <Button variant="primary" onClick={onAnalyze} disabled={isAnalyzing} className="w-full md:w-auto">
+          <button
+            onClick={onAnalyze}
+            disabled={isAnalyzing}
+            className="w-full md:w-auto bg-navy text-white font-medium px-4 py-2.5 rounded-full text-sm hover:shadow-hero transition-all duration-200 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
             {isAnalyzing ? "분석 중..." : <><Zap size={14} /> 날씨 분석 시작</>}
-          </Button>
+          </button>
         </div>
       </div>
     </div>

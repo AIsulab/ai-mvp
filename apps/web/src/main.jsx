@@ -6,6 +6,11 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import './app/global.css';
 
+const link = document.createElement('link');
+link.rel = 'stylesheet';
+link.href = 'https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css';
+document.head.appendChild(link);
+
 import LandingPage from './app/page';
 import DashboardLayout from './app/dashboard/layout';
 import DashboardPage from './app/dashboard/page';

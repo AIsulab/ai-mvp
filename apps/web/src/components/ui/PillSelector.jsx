@@ -18,7 +18,7 @@ export default function PillSelector({
             key={opt}
             type="button"
             onClick={() => onChange(opt)}
-            className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+            className={`text-xs px-3 py-1.5 rounded-[8px] border transition-colors ${
               value === opt
                 ? "border-primary bg-primary/10 text-primary font-medium"
                 : "border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700/50"

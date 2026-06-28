@@ -6,8 +6,7 @@ export default function Card({
 }) {
   return (
     <div
-      style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}
-      className={`bg-white dark:bg-gray-800 rounded-xl ${padding} ${className}`}
+      className={`bg-white dark:bg-gray-800 rounded-[16px] border border-gray-100 shadow-card hover:shadow-card-lift transition-all duration-200 ${padding} ${className}`}
       {...props}
     >
       {children}
