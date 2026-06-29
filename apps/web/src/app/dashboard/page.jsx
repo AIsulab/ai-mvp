@@ -8,6 +8,8 @@ import ReviewWidget from "./components/ReviewWidget";
 import MarketingEngine from "./components/MarketingEngine";
 import SnsWidget from "./components/SnsWidget";
 import DataSourceFooter from "./components/DataSourceFooter";
+import WeatherChart from "./components/WeatherChart";
+import MarketingHeatmap from "./components/MarketingHeatmap";
 
 export default function DashboardPage() {
   const [storeInfo, setStoreInfo] = useState({
@@ -49,7 +51,7 @@ export default function DashboardPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setMarketingResult(data.result);
-    } catch (err) { setMarketingResult("❌ AI 생성 중 오류가 발생했습니다.\n에러: " + err.message); }
+    } catch (err) { setMarketingResult("AI 생성 중 오류가 발생했습니다.\n에러: " + err.message); }
     setIsAnalyzing(false);
   };
 
@@ -62,7 +64,7 @@ export default function DashboardPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setReplyResult(data.result);
-    } catch (err) { setReplyResult("❌ 답변 생성 중 오류가 발생했습니다.\n에러: " + err.message); }
+    } catch (err) { setReplyResult("답변 생성 중 오류가 발생했습니다.\n에러: " + err.message); }
     setIsReplying(false);
   };
 
@@ -75,7 +77,7 @@ export default function DashboardPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setSnsResult(data.result);
-    } catch (err) { setSnsResult("❌ 콘텐츠 생성 중 오류가 발생했습니다.\n에러: " + err.message); }
+    } catch (err) { setSnsResult("콘텐츠 생성 중 오류가 발생했습니다.\n에러: " + err.message); }
     setIsSnsGenerating(false);
   };
 
@@ -87,6 +89,17 @@ export default function DashboardPage() {
         <StoreInfoForm storeInfo={storeInfo} setStoreInfo={setStoreInfo} onAnalyze={handleAnalyze} isAnalyzing={isAnalyzing} />
 
         <StatCards weather={weather} />
+
+        {/* Chart Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 md:gap-6 mb-5 md:mb-6">
+          <div className="bg-white rounded-[16px] border border-gray-100 shadow-card p-5">
+            <h3 className="text-sm font-semibold text-gray-900 mb-4 tracking-tight">시간대별 기온/강수 확률</h3>
+            <WeatherChart />
+          </div>
+          <div className="bg-white rounded-[16px] border border-gray-100 shadow-card p-5">
+            <MarketingHeatmap />
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 md:gap-6 mb-6">
           <div className="lg:col-span-5 flex flex-col gap-5 md:gap-6">

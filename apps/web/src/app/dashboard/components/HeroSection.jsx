@@ -1,6 +1,13 @@
-import { MapPin, ArrowRight } from "lucide-react";
+import { MapPin, ArrowRight, TrendingUp, Clock, Lightbulb } from "lucide-react";
 
 export default function HeroSection({ weather, weatherLoading, region }) {
+  const marketingTips = [
+    { icon: "🌧️", tip: "비 오는 날: 배달/실내 메뉴 강조" },
+    { icon: "🔥", tip: "폭염: 시원한 메뉴/할인 강조" },
+    { icon: "❄️", tip: "한파: 따뜻한 메뉴/핫드링크" },
+    { icon: "☀️", tip: "맑음: 야외/활동 메뉴 강조" },
+  ];
+
   return (
     <div className="hero-gradient text-white animate-fade-in">
       <div className="px-5 md:px-8 py-8 md:py-12">
@@ -20,34 +27,48 @@ export default function HeroSection({ weather, weatherLoading, region }) {
             </p>
             <div className="flex flex-wrap gap-4 md:gap-6">
               {[
-                { value: "470만", label: "국내 소상공인" },
-                { value: "10%", label: "AI 활용률" },
-                { value: "1~2시간", label: "절감 시간/일" },
+                { icon: Clock, value: "1~2시간", label: "절감 시간/일" },
+                { icon: TrendingUp, value: "3배", label: "마케팅 효과" },
+                { icon: Lightbulb, value: "무료", label: "AI 기능" },
               ].map((stat, i) => (
-                <div key={i}>
-                  <div className="text-xl md:text-2xl font-bold tracking-tight">{stat.value}</div>
-                  <div className="text-xs text-white/60 mt-0.5">{stat.label}</div>
+                <div key={i} className="flex items-center gap-2">
+                  <stat.icon size={14} className="text-yellow-300" />
+                  <div>
+                    <div className="text-sm font-bold tracking-tight">{stat.value}</div>
+                    <div className="text-[10px] text-white/50">{stat.label}</div>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Weather Card */}
-          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-[16px] p-5 md:p-6 w-full md:w-56 text-center">
-            {weatherLoading ? (
-              <div className="py-6 flex justify-center">
-                <div className="w-8 h-8 border-3 border-white/20 border-t-white rounded-full animate-spin"></div>
-              </div>
-            ) : (
-              <>
-                <div className="text-4xl md:text-5xl mb-2">{weather?.emoji || "🌤️"}</div>
-                <div className="text-2xl md:text-3xl font-bold mb-1 tracking-tight">{weather?.temperature || "--"}</div>
-                <div className="text-sm text-white/70 mb-3">{weather?.condition || "날씨 로딩 중..."}</div>
-                <div className="inline-flex items-center gap-1.5 bg-white/10 text-white/90 py-1.5 px-3 rounded-full text-xs font-medium">
-                  <MapPin size={11} /> {region} / 전북
+          {/* Weather Card + Marketing Tip */}
+          <div className="w-full md:w-64">
+            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-[16px] p-5 text-center mb-3">
+              {weatherLoading ? (
+                <div className="py-6 flex justify-center">
+                  <div className="w-8 h-8 border-3 border-white/20 border-t-white rounded-full animate-spin"></div>
                 </div>
-              </>
-            )}
+              ) : (
+                <>
+                  <div className="text-4xl md:text-5xl mb-2">{weather?.emoji || "🌤️"}</div>
+                  <div className="text-2xl md:text-3xl font-bold mb-1 tracking-tight">{weather?.temperature || "--"}</div>
+                  <div className="text-sm text-white/70 mb-3">{weather?.condition || "날씨 로딩 중..."}</div>
+                  <div className="inline-flex items-center gap-1.5 bg-white/10 text-white/90 py-1.5 px-3 rounded-full text-xs font-medium">
+                    <MapPin size={11} /> {region} / 전북
+                  </div>
+                </>
+              )}
+            </div>
+            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-[12px] p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <Lightbulb size={12} className="text-yellow-300" />
+                <span className="text-[10px] font-semibold text-white/80">오늘의 마케팅 팁</span>
+              </div>
+              <p className="text-[11px] text-white/60 leading-relaxed">
+                {marketingTips[Math.floor(Math.random() * marketingTips.length)].tip}
+              </p>
+            </div>
           </div>
         </div>
       </div>

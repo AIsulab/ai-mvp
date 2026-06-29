@@ -1,88 +1,84 @@
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Cloud, BarChart2, Star, MapPin, Gift, ArrowRight, Zap, ChevronRight, Store, Users, TrendingUp, Shield } from "lucide-react";
-import { Button, Badge } from "../components/ui";
+import { Cloud, BarChart2, Star, MapPin, Gift, ArrowRight, Zap, Store, ChevronRight, Play, Sparkles, TrendingUp, Users, Clock, CheckCircle2 } from "lucide-react";
+
+const demoSteps = [
+  { weather: "비 오는 오후", emoji: "🌧️", business: "국밥집", result: "오늘처럼 궂은 날엔 진한 국밥 한 그릇이 최고죠. 뜨끈한 온기로 하루를 채워드립니다 🍲" },
+  { weather: "폭염 여름", emoji: "🔥", business: "냉면집", result: "이 더위엔 시원한 냉면으로 열기를 식혀보세요. 특제 육수의 깊은 맛이 여름 더위를 날려드립니다 🍜" },
+  { weather: "겨울 눈", emoji: "❄️", business: "카페", result: "눈 오는 날의 낭만을 따뜻한 커피 한 잔과 함께하세요. 오늘의 스페셜 라떼는 무료 리필입니다 ☕" },
+];
 
 const features = [
-  {
-    icon: Cloud,
-    title: "날씨 마케팅 자동화",
-    desc: "기상청 단기예보 API와 연동해 날씨 변화에 따라 업종별 최적 마케팅 문구를 실시간 자동 생성합니다.",
-    color: "green",
-    items: ["기상청 단기예보 API 실시간 연동", "날씨 × 업종 매칭 엔진", "원클릭 문구 복사 & 배포"],
-  },
-  {
-    icon: BarChart2,
-    title: "AI 상권 분석",
-    desc: "전북 유동인구·매출·폐업률 공공데이터를 결합해 내 가게의 상권 경쟁력과 유망 메뉴를 분석합니다.",
-    color: "pink",
-    items: ["전북 소상공인 현황 데이터 연동", "경쟁 강도 & 업종 포화도 분석", "최적 영업 시간대 추천"],
-  },
-  {
-    icon: Zap,
-    title: "SNS 콘텐츠 생성",
-    desc: "업종·메뉴·오늘 날씨를 입력하면 인스타그램 게시글, 해시태그, 스토리 아이디어를 즉시 완성합니다.",
-    color: "pink",
-    items: ["인스타그램 / 블로그 문구 생성", "업종별 해시태그 자동 추가", "날씨 감성 톤 자동 적용"],
-  },
-  {
-    icon: Star,
-    title: "리뷰 답변 자동화",
-    desc: "고객 리뷰를 붙여넣으면 AI가 상황에 맞는 감사·개선 답변을 즉시 작성하고 개선 포인트를 도출합니다.",
-    color: "orange",
-    items: ["긍정/부정 리뷰 자동 분류", "맞춤 답변 3가지 옵션 제공", "개선점 리포트 자동 생성"],
-  },
-  {
-    icon: MapPin,
-    title: "지역 데이터 추천",
-    desc: "전북 특화 소비 트렌드와 계절·이벤트 데이터를 결합해 지역 맞춤형 경영 인사이트를 제공합니다.",
-    color: "green",
-    items: ["전북 지역 소비 트렌드 분석", "계절별 인기 메뉴 추천", "AI 경영 제안서 자동 작성"],
-  },
-  {
-    icon: Gift,
-    title: "지원금 자동 매칭",
-    desc: "업종·매출·창업연차를 입력하면 지금 바로 신청 가능한 전북 소상공인 지원사업을 자동으로 추천합니다.",
-    color: "orange",
-    items: ["전북 지원사업 DB 실시간 업데이트", "신청 자격 자동 매칭", "신청 기한 알림 서비스"],
-  },
+  { icon: Cloud, title: "날씨 마케팅", desc: "실시간 기상청 데이터로 자동 문구 생성", color: "#364cce" },
+  { icon: BarChart2, title: "상권 분석", desc: "전북 유동인구·매출 데이터 AI 분석", color: "#FF749B" },
+  { icon: Star, title: "리뷰 관리", desc: "고객 리뷰에 AI가 맞춤 답변 작성", color: "#FF9A26" },
+  { icon: Zap, title: "SNS 생성", desc: "인스타/블로그 콘텐츠 즉시 완성", color: "#33A927" },
+  { icon: MapPin, title: "지역 특화", desc: "전북 소비 트렌드 AI 분석", color: "#80366c" },
+  { icon: Gift, title: "지원금 매칭", desc: "신청 가능한 지원사업 자동 추천", color: "#d05755" },
 ];
 
-const colorMap = {
-  green: { bg: '#D4F6D0', border: '#33A927', text: '#33A927' },
-  pink: { bg: '#FFDFE8', border: '#FF749B', text: '#FF749B' },
-  orange: { bg: '#FFEDB4', border: '#FF9A26', text: '#FF9A26' },
-};
-
-const stats = [
-  { value: "5가지", label: "AI 핵심 기능" },
-  { value: "실시간", label: "기상청 API 연동" },
-  { value: "전북 특화", label: "공공데이터 활용" },
-  { value: "1인 개발", label: "경량 MVP" },
-];
-
-const partners = [
-  "기상청 공식 API", "전북 공공데이터", "소상공인시장진흥공단", "전북특별자치도", "MiMo AI"
+const steps = [
+  { num: "01", title: "가게 정보 입력", desc: "업종, 메뉴, 지역만 알려주세요" },
+  { num: "02", title: "AI가 분석", desc: "날씨·상권·리뷰 데이터를 실시간 분석합니다" },
+  { num: "03", title: "마케팅 완성", desc: "버튼 하나로 맞춤 문구가 준비됩니다" },
 ];
 
 export default function LandingPage() {
+  const [demoStep, setDemoStep] = useState(0);
+  const [isTyping, setIsTyping] = useState(false);
+  const [typedText, setTypedText] = useState("");
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setIsVisible(true); },
+      { threshold: 0.1 }
+    );
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDemoStep((prev) => (prev + 1) % demoSteps.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    setIsTyping(true);
+    setTypedText("");
+    const text = demoSteps[demoStep].result;
+    let i = 0;
+    const typeInterval = setInterval(() => {
+      if (i < text.length) {
+        setTypedText(text.slice(0, i + 1));
+        i++;
+      } else {
+        setIsTyping(false);
+        clearInterval(typeInterval);
+      }
+    }, 30);
+    return () => clearInterval(typeInterval);
+  }, [demoStep]);
+
   return (
     <div className="min-h-screen bg-white">
       {/* NavBar */}
       <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
-        <div className="max-w-main-content mx-auto px-4 md:px-5 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-navy flex items-center justify-center shadow-sm">
+        <div className="max-w-[1080px] mx-auto px-4 md:px-5 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-navy flex items-center justify-center">
               <Store size={18} className="text-white" />
             </div>
             <span className="text-lg font-bold text-navy tracking-tight">W-AI</span>
           </div>
           <div className="flex items-center gap-6">
+            <a href="#demo" className="text-sm text-gray-500 hover:text-navy transition-colors hidden md:block">데모</a>
             <a href="#features" className="text-sm text-gray-500 hover:text-navy transition-colors hidden md:block">기능</a>
-            <a href="#engine" className="text-sm text-gray-500 hover:text-navy transition-colors hidden md:block">날씨 엔진</a>
-            <Link to="/dashboard">
-              <Button variant="primary" size="md">
-                시작하기 <ArrowRight size={14} />
-              </Button>
+            <Link to="/dashboard" className="bg-navy text-white font-semibold px-5 py-2 rounded-full text-sm hover:shadow-hero transition-all hover:-translate-y-0.5">
+              시작하기
             </Link>
           </div>
         </div>
@@ -90,180 +86,213 @@ export default function LandingPage() {
 
       {/* Hero */}
       <section className="hero-gradient text-white relative overflow-hidden">
-        <div className="max-w-main-content mx-auto px-4 md:px-5 py-16 md:py-24">
-          <div className="max-w-[890px] mx-auto text-center">
-            <div className="inline-flex items-center gap-1.5 bg-white/15 text-white/90 px-4 py-1.5 rounded-full text-sm font-medium mb-6 backdrop-blur-sm">
-              <Cloud size={14} />
-              기상청 공식 API · 전북 공공데이터 실시간 연동
+        <div className="max-w-[1080px] mx-auto px-4 md:px-5 py-16 md:py-24">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div>
+              <div className="inline-flex items-center gap-1.5 bg-white/15 text-white/90 px-3 py-1.5 rounded-full text-xs font-medium mb-6 backdrop-blur-sm">
+                <Sparkles size={12} />
+                AI 기반 소상공인 경영 비서
+              </div>
+              <h1 className="text-3xl md:text-[42px] font-extrabold mb-5 leading-[1.2] tracking-tight">
+                사장님의<br />
+                <span className="text-yellow-300">성공 이유</span>,<br />
+                W-AI
+              </h1>
+              <p className="text-white/70 text-base md:text-lg mb-8 leading-[1.6] max-w-md">
+                날씨 · 상권 · 리뷰 데이터를 AI가 자동 분석해<br />
+                마케팅 문구부터 경영 인사이트까지
+              </p>
+              <div className="flex items-center gap-4 flex-wrap">
+                <Link to="/dashboard" className="bg-white text-navy font-semibold px-7 py-3 rounded-full text-sm hover:shadow-hero transition-all hover:-translate-y-0.5 flex items-center gap-2">
+                  무료로 시작하기 <ArrowRight size={16} />
+                </Link>
+                <a href="#demo" className="bg-white/10 text-white font-medium px-7 py-3 rounded-full text-sm border border-white/20 hover:bg-white/20 transition-all flex items-center gap-2">
+                  <Play size={14} /> 데모 보기
+                </a>
+              </div>
+              <div className="flex items-center gap-6 mt-10">
+                {[
+                  { value: "470만", label: "국내 소상공인" },
+                  { value: "10%", label: "AI 활용률" },
+                  { value: "1~2시간", label: "절감 시간/일" },
+                ].map((s, i) => (
+                  <div key={i}>
+                    <div className="text-xl font-bold">{s.value}</div>
+                    <div className="text-xs text-white/50">{s.label}</div>
+                  </div>
+                ))}
+              </div>
             </div>
-            <h1 className="text-4xl md:text-[42px] font-extrabold mb-5 leading-[1.2] tracking-tight">
-              사장님의 성공 이유,<br />
-              <span className="text-white">W-AI</span>
-            </h1>
-            <p className="text-white/70 text-lg md:text-xl mb-4 leading-[1.6]">
-              날씨 · 상권 · 리뷰 데이터를 AI가 자동 분석해
-            </p>
-            <p className="text-white font-semibold text-lg md:text-xl mb-10 leading-[1.6]">
-              마케팅 문구부터 경영 인사이트까지 버튼 하나로 완성
-            </p>
-            <div className="flex items-center justify-center gap-4 flex-wrap">
-              <Link to="/dashboard">
-                <button className="bg-white text-navy font-semibold px-8 py-3.5 rounded-full text-sm hover:shadow-hero transition-all duration-200 hover:-translate-y-0.5">
-                  무료로 시작하기 <ArrowRight size={16} className="inline ml-1" />
-                </button>
-              </Link>
-              <a href="#features">
-                <button className="bg-white/10 text-white font-medium px-8 py-3.5 rounded-full text-sm border border-white/20 hover:bg-white/20 transition-all duration-200">
-                  기능 살펴보기
-                </button>
-              </a>
+
+            {/* Live Demo Card */}
+            <div className="bg-white rounded-[20px] p-6 shadow-hero text-gray-900 max-w-md mx-auto w-full">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                <span className="text-xs text-gray-500 font-medium">실시간 AI 마케팅 엔진</span>
+              </div>
+
+              <div className="flex items-center gap-2 mb-4">
+                <span className="bg-gray-100 text-gray-700 px-3 py-1.5 rounded-full text-xs font-medium">
+                  {demoSteps[demoStep].emoji} {demoSteps[demoStep].weather}
+                </span>
+                <span className="text-gray-300">+</span>
+                <span className="bg-gray-100 text-gray-700 px-3 py-1.5 rounded-full text-xs font-medium">
+                  {demoSteps[demoStep].business}
+                </span>
+              </div>
+
+              <div className="bg-gray-50 rounded-[12px] p-4 min-h-[80px]">
+                <p className="text-sm text-gray-700 leading-relaxed">
+                  "{typedText}<span className={`inline-block w-0.5 h-4 bg-navy ml-0.5 ${isTyping ? 'animate-pulse' : 'opacity-0'}`}></span>"
+                </p>
+              </div>
+
+              <div className="flex items-center justify-center gap-1.5 mt-4">
+                {demoSteps.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setDemoStep(i)}
+                    className={`w-2 h-2 rounded-full transition-all ${i === demoStep ? 'bg-navy w-6' : 'bg-gray-200'}`}
+                  />
+                ))}
+              </div>
             </div>
           </div>
+        </div>
+      </section>
 
-          {/* Stats Row */}
-          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-[890px] mx-auto">
-            {stats.map((s, i) => (
-              <div key={i} className="text-center">
-                <div className="text-2xl md:text-3xl font-bold mb-1">{s.value}</div>
-                <div className="text-sm text-white/60">{s.label}</div>
+      {/* How It Works */}
+      <section className="max-w-[1080px] mx-auto px-4 md:px-5 py-16 md:py-20">
+        <div className="text-center mb-12">
+          <h2 className="text-2xl md:text-[28px] font-bold text-gray-900 tracking-tight mb-3">3단계로 완성되는 마케팅</h2>
+          <p className="text-gray-500 text-base">설정도, 프롬프트도 필요 없습니다</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {steps.map((step, i) => (
+            <div key={i} className="text-center md:text-left">
+              <div className="text-4xl font-extrabold text-navy/10 mb-3">{step.num}</div>
+              <h3 className="text-lg font-bold text-gray-900 mb-2 tracking-tight">{step.title}</h3>
+              <p className="text-sm text-gray-500 leading-relaxed">{step.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Interactive Demo Section */}
+      <section id="demo" ref={sectionRef} className="bg-gray-50 border-y border-gray-100">
+        <div className="max-w-[1080px] mx-auto px-4 md:px-5 py-16 md:py-20">
+          <div className="text-center mb-12">
+            <span className="inline-flex items-center gap-1.5 bg-primary/10 text-primary px-3 py-1 rounded-[8px] text-xs font-semibold mb-4">
+              <Play size={10} /> 데모
+            </span>
+            <h2 className="text-2xl md:text-[28px] font-bold text-gray-900 tracking-tight mb-3">실제 작동 모습을 확인하세요</h2>
+            <p className="text-gray-500 text-base">날씨가 변하면 마케팅 문구도 자동으로 바뀝니다</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+            {/* Input Panel */}
+            <div className="bg-white rounded-[16px] border border-gray-100 p-6 shadow-card">
+              <h3 className="text-sm font-bold text-gray-900 mb-4 tracking-tight">가게 정보 입력</h3>
+              <div className="space-y-3">
+                <div>
+                  <label className="text-xs text-gray-500 mb-1 block">업종</label>
+                  <div className="flex gap-2">
+                    {["국밥집", "카페", "식당", "미용실"].map((type) => (
+                      <button key={type} className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${type === demoSteps[demoStep].business ? 'border-navy bg-navy/5 text-navy' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}>
+                        {type}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs text-gray-500 mb-1 block">오늘의 날씨</label>
+                  <div className="flex gap-2 flex-wrap">
+                    {demoSteps.map((step, i) => (
+                      <button key={i} onClick={() => setDemoStep(i)} className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${i === demoStep ? 'border-navy bg-navy/5 text-navy' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}>
+                        {step.emoji} {step.weather}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <button className="w-full mt-5 bg-navy text-white font-medium py-2.5 rounded-full text-sm hover:shadow-hero transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                <Zap size={14} /> 마케팅 문구 생성
+              </button>
+            </div>
+
+            {/* Output Panel */}
+            <div className="bg-white rounded-[16px] border border-gray-100 p-6 shadow-card">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-bold text-gray-900 tracking-tight">AI 생성 결과</h3>
+                <span className="text-[10px] bg-accent-green-light text-accent-green px-2 py-1 rounded-[8px] font-medium">자동 생성</span>
+              </div>
+              <div className="bg-accent-green-light/20 border border-accent-green/20 rounded-[12px] p-4 min-h-[120px]">
+                <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+                  {typedText}<span className={`inline-block w-0.5 h-4 bg-navy ml-0.5 ${isTyping ? 'animate-pulse' : 'opacity-0'}`}></span>
+                </p>
+              </div>
+              <div className="flex items-center gap-2 mt-4">
+                <span className="text-xs text-gray-400">복사</span>
+                <span className="text-xs text-gray-400">|</span>
+                <span className="text-xs text-gray-400">수정</span>
+                <span className="text-xs text-gray-400">|</span>
+                <span className="text-xs text-gray-400">카카오 전송</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Grid */}
+      <section id="features" className="max-w-[1080px] mx-auto px-4 md:px-5 py-16 md:py-20">
+        <div className="text-center mb-12">
+          <h2 className="text-2xl md:text-[28px] font-bold text-gray-900 tracking-tight mb-3">소상공인을 위한 6가지 AI 기능</h2>
+          <p className="text-gray-500 text-base max-w-lg mx-auto">설정 없이 바로 사용할 수 있습니다</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {features.map((f, i) => (
+            <div key={i} className="bg-white rounded-[16px] border border-gray-100 p-6 hover:shadow-card-lift hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style={{ backgroundColor: f.color + '15' }}>
+                <f.icon size={20} style={{ color: f.color }} />
+              </div>
+              <h3 className="text-base font-bold text-gray-900 mb-2 tracking-tight group-hover:text-primary transition-colors">{f.title}</h3>
+              <p className="text-sm text-gray-500 leading-relaxed">{f.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Social Proof */}
+      <section className="bg-gray-50 border-y border-gray-100">
+        <div className="max-w-[1080px] mx-auto px-4 md:px-5 py-16 md:py-20">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+            {[
+              { icon: Users, value: "470만+", label: "국내 소상공인" },
+              { icon: TrendingUp, value: "1시간", label: "마케팅 시간 절약" },
+              { icon: Clock, value: "실시간", label: "날씨 데이터 연동" },
+            ].map((stat, i) => (
+              <div key={i}>
+                <stat.icon size={24} className="text-primary mx-auto mb-3" />
+                <div className="text-2xl font-bold text-gray-900 mb-1">{stat.value}</div>
+                <div className="text-sm text-gray-500">{stat.label}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Partners Marquee */}
-      <div className="border-y border-gray-100 bg-gray-50/50 overflow-hidden py-4">
-        <div className="flex animate-marquee whitespace-nowrap">
-          {[...partners, ...partners, ...partners].map((p, i) => (
-            <div key={i} className="inline-flex items-center gap-2 mx-8 text-sm text-gray-400 font-medium">
-              <div className="w-2 h-2 rounded-full bg-primary/30"></div>
-              {p}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Features */}
-      <section id="features" className="max-w-main-content mx-auto px-4 md:px-5 py-16 md:py-20">
-        <div className="mb-12 text-center">
-          <h2 className="text-2xl md:text-[28px] font-bold text-gray-900 tracking-tight mb-3">
-            소상공인을 위한 AI 올인원 플랫폼
-          </h2>
-          <p className="text-gray-500 text-base md:text-lg max-w-[600px] mx-auto leading-[1.6]">
-            프롬프트 작성 능력이 없어도, AI 설정을 몰라도 괜찮습니다.<br/>오직 사장님의 비즈니스에만 집중하세요.
-          </p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {features.map((f, i) => {
-            const colors = colorMap[f.color];
-            return (
-              <div
-                key={i}
-                className="rounded-[16px] border-[1.5px] p-6 hover:-translate-y-0.5 hover:shadow-card-lift transition-all duration-200 cursor-pointer group"
-                style={{ backgroundColor: colors.bg + '20', borderColor: colors.border + '40' }}
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center"
-                    style={{ backgroundColor: colors.bg }}
-                  >
-                    <f.icon size={20} style={{ color: colors.text }} />
-                  </div>
-                  <span
-                    className="text-xs font-semibold px-2.5 py-1 rounded-[8px]"
-                    style={{ backgroundColor: colors.bg, color: colors.text }}
-                  >
-                    {f.color === 'green' ? '지역 특화' : f.color === 'pink' ? '일반 기능' : '고객 관리'}
-                  </span>
-                </div>
-                <h3 className="text-lg font-bold text-gray-900 mb-2 tracking-tight">{f.title}</h3>
-                <p className="text-sm text-gray-500 mb-4 leading-[1.6]">{f.desc}</p>
-                <div className="space-y-2">
-                  {f.items.map((item, j) => (
-                    <div key={j} className="flex items-start gap-2 text-sm text-gray-600">
-                      <span className="mt-0.5 shrink-0" style={{ color: colors.text }}>✓</span>
-                      <span className="leading-[1.5]">{item}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* Weather-Driven Engine Highlight */}
-      <section id="engine" className="bg-gray-50 border-y border-gray-100">
-        <div className="max-w-main-content mx-auto px-4 md:px-5 py-16 md:py-20">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
-            <div>
-              <span className="inline-flex items-center gap-1.5 bg-primary/10 text-primary px-3 py-1 rounded-[8px] text-xs font-semibold mb-4">
-                Weather-Driven Engine
-              </span>
-              <h2 className="text-2xl md:text-[28px] font-bold text-gray-900 tracking-tight mb-4 leading-[1.35]">
-                날씨가 바뀌면<br />마케팅도 자동으로 바뀝니다
-              </h2>
-              <p className="text-gray-500 text-sm md:text-base leading-[1.6] mb-6">
-                기상청 단기예보 API와 MiMo AI를 결합한 독자적인 Weather-Driven 엔진. 맑음, 비, 눈, 폭염, 한파 등 날씨 조건을 실시간 감지해 업종별로 최적화된 마케팅 문구를 자동 생성합니다.
-              </p>
-              <div className="space-y-3">
-                {[
-                  { icon: "🌧️", weather: "비", example: '"오늘처럼 비 오는 날엔 따뜻한 순대국 한 그릇"', type: "국밥집" },
-                  { icon: "🔥", weather: "폭염", example: '"이 더위엔 시원한 냉면으로 열기를 식혀요"', type: "식당" },
-                  { icon: "❄️", weather: "눈", example: '"눈 오는 날의 낭만을 따뜻한 커피 한 잔과 함께"', type: "카페" },
-                ].map((ex, i) => (
-                  <div key={i} className="bg-white border border-gray-200 rounded-[12px] p-4 shadow-sm hover:shadow-md transition-all">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-xs font-semibold px-2.5 py-1 rounded-[8px] bg-gray-100 text-gray-700">{ex.icon} {ex.weather}</span>
-                      <span className="text-gray-300 text-xs">+</span>
-                      <span className="text-xs font-semibold px-2.5 py-1 rounded-[8px] bg-gray-100 text-gray-700">{ex.type}</span>
-                    </div>
-                    <p className="text-sm text-gray-700 tracking-tight leading-[1.5]">{ex.example}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="bg-white border border-gray-200 rounded-[16px] p-6 shadow-sm md:mt-8">
-              <h3 className="text-base font-bold text-gray-900 mb-5 tracking-tight">날씨 조건별 마케팅 방향</h3>
-              <div className="space-y-4">
-                {[
-                  { icon: "☀️", label: "맑음 · 고온", tags: ["청량함", "야외활동", "여름 특선"] },
-                  { icon: "🌧️", label: "비", tags: ["따뜻함", "실내", "배달", "든든함"] },
-                  { icon: "❄️", label: "눈", tags: ["낭만", "겨울 감성", "연말 특별"] },
-                  { icon: "🌬️", label: "한파", tags: ["온기", "국물", "핫드링크"] },
-                  { icon: "☁️", label: "흐림", tags: ["기분전환", "특별 할인", "에너지"] },
-                ].map((row, i) => (
-                  <div key={i} className="flex items-center gap-3">
-                    <div className="w-7 flex justify-center text-lg shrink-0">{row.icon}</div>
-                    <div className="w-20 text-xs font-medium text-gray-700 shrink-0">{row.label}</div>
-                    <div className="flex gap-1.5 flex-wrap">
-                      {row.tags.map((t, j) => (
-                        <span key={j} className="text-[11px] border border-gray-200 text-gray-600 px-2.5 py-1 rounded-[8px] bg-white hover:bg-gray-50 transition-colors">{t}</span>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* CTA */}
-      <section className="max-w-main-content mx-auto px-4 md:px-5 py-16 md:py-20 text-center">
+      <section className="max-w-[1080px] mx-auto px-4 md:px-5 py-16 md:py-20 text-center">
         <h2 className="text-2xl md:text-[28px] font-bold text-gray-900 tracking-tight mb-3">지금 바로 시작해보세요</h2>
-        <p className="text-gray-500 text-base mb-8">전북 소상공인이라면 누구나 무료로 사용할 수 있습니다.</p>
-        <Link to="/dashboard">
-          <button className="bg-navy text-white font-semibold px-8 py-3.5 rounded-full text-sm hover:shadow-hero transition-all duration-200 hover:-translate-y-0.5">
-            W-AI 대시보드 시작하기 <ArrowRight size={16} className="inline ml-1" />
-          </button>
+        <p className="text-gray-500 text-base mb-8">전북 소상공인이라면 누구나 무료로 사용할 수 있습니다</p>
+        <Link to="/dashboard" className="inline-flex items-center gap-2 bg-navy text-white font-semibold px-8 py-3.5 rounded-full text-sm hover:shadow-hero transition-all hover:-translate-y-0.5">
+          W-AI 대시보드 시작하기 <ArrowRight size={16} />
         </Link>
       </section>
 
       {/* Footer */}
       <footer className="border-t border-gray-100 bg-gray-50/30">
-        <div className="max-w-main-content mx-auto px-4 md:px-5 py-8">
+        <div className="max-w-[1080px] mx-auto px-4 md:px-5 py-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2.5">
               <div className="w-7 h-7 rounded-lg bg-navy flex items-center justify-center">
