@@ -10,11 +10,11 @@ export default function StatCards({ weather }) {
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
       {stats.map((s, i) => (
         <div key={i} className="bg-white rounded-xl border border-gray-100 p-4 hover:shadow-card transition-shadow">
-          <div className="flex items-center gap-1.5 mb-2">
-            <span className="text-[14px]">{s.icon}</span>
-            <span className="text-[12px] text-gray-400">{s.label}</span>
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-[16px]">{s.icon}</span>
+            <span className="text-[13px] text-gray-600 font-medium">{s.label}</span>
           </div>
-          <div className={`text-[18px] font-bold ${s.color || "text-gray-900"}`}>
+          <div className={`text-[20px] font-bold ${s.color || "text-gray-900"}`}>
             {s.value}
           </div>
         </div>

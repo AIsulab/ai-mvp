@@ -6,7 +6,7 @@ export default function StoreInfoForm({ storeInfo, setStoreInfo, onAnalyze, isAn
   const [focused, setFocused] = useState(null);
 
   const inputClass = (field) => `
-    w-full border rounded-lg px-4 py-3 text-[14px] text-gray-900 transition-all outline-none
+    w-full border rounded-lg px-4 py-3.5 text-[16px] text-gray-900 transition-all outline-none
     ${focused === field
       ? 'border-gray-900 ring-2 ring-gray-100 bg-white'
       : 'border-gray-200 bg-gray-50 hover:border-gray-300'
@@ -17,12 +17,12 @@ export default function StoreInfoForm({ storeInfo, setStoreInfo, onAnalyze, isAn
     <div className="bg-white rounded-xl border border-gray-100 p-5 md:p-6">
       {/* Header */}
       <div className="flex items-center gap-3 mb-5">
-        <div className="w-9 h-9 rounded-lg bg-gray-900 flex items-center justify-center">
-          <Store size={16} className="text-white" />
+        <div className="w-10 h-10 rounded-lg bg-gray-900 flex items-center justify-center">
+          <Store size={18} className="text-white" />
         </div>
         <div>
-          <h2 className="text-[15px] font-semibold text-gray-900">내 가게 정보</h2>
-          <p className="text-[12px] text-gray-400">한 번만 입력하면 AI가 자동으로 마케팅합니다</p>
+          <h2 className="text-[17px] font-semibold text-gray-900">내 가게 정보</h2>
+          <p className="text-[13px] text-gray-500">한 번만 입력하면 AI가 자동으로 마케팅합니다</p>
         </div>
       </div>
 
@@ -31,8 +31,8 @@ export default function StoreInfoForm({ storeInfo, setStoreInfo, onAnalyze, isAn
         {/* Row 1: 업종 + 지역 */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="text-[12px] text-gray-500 mb-1.5 flex items-center gap-1 font-medium">
-              <UtensilsCrossed size={12} className="text-gray-400" /> 업종
+            <label className="text-[14px] text-gray-700 mb-1.5 flex items-center gap-1 font-medium">
+              <UtensilsCrossed size={13} className="text-gray-500" /> 업종
             </label>
             <div className="relative">
               <select
@@ -49,8 +49,8 @@ export default function StoreInfoForm({ storeInfo, setStoreInfo, onAnalyze, isAn
           </div>
 
           <div>
-            <label className="text-[12px] text-gray-500 mb-1.5 flex items-center gap-1 font-medium">
-              <MapPin size={12} className="text-gray-400" /> 지역
+            <label className="text-[14px] text-gray-700 mb-1.5 flex items-center gap-1 font-medium">
+              <MapPin size={13} className="text-gray-500" /> 지역
             </label>
             <div className="relative">
               <select
@@ -69,8 +69,8 @@ export default function StoreInfoForm({ storeInfo, setStoreInfo, onAnalyze, isAn
 
         {/* Row 2: 가게 이름 */}
         <div>
-          <label className="text-[12px] text-gray-500 mb-1.5 flex items-center gap-1 font-medium">
-            <Store size={12} className="text-gray-400" /> 가게 이름
+          <label className="text-[14px] text-gray-700 mb-1.5 flex items-center gap-1 font-medium">
+            <Store size={13} className="text-gray-500" /> 가게 이름
           </label>
           <input
             type="text"
@@ -85,7 +85,7 @@ export default function StoreInfoForm({ storeInfo, setStoreInfo, onAnalyze, isAn
 
         {/* Row 3: 메뉴/상품 */}
         <div>
-          <label className="text-[12px] text-gray-500 mb-1.5 flex items-center gap-1 font-medium">
+          <label className="text-[14px] text-gray-700 mb-1.5 flex items-center gap-1 font-medium">
             🍽️ 주요 메뉴 / 상품
           </label>
           <input
@@ -104,7 +104,7 @@ export default function StoreInfoForm({ storeInfo, setStoreInfo, onAnalyze, isAn
       <button
         onClick={onAnalyze}
         disabled={isAnalyzing}
-        className="w-full bg-gray-900 text-white font-medium py-3.5 rounded-lg text-[15px] hover:bg-gray-800 transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-sm hover:shadow-md active:scale-[0.99]"
+        className="w-full bg-gray-900 text-white font-medium py-4 rounded-lg text-[16px] hover:bg-gray-800 transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-sm hover:shadow-md active:scale-[0.99]"
       >
         {isAnalyzing ? (
           <>

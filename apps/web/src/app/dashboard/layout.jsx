@@ -36,10 +36,10 @@ export default function DashboardLayout() {
           <div className="h-14 flex items-center justify-between">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <div className="w-7 h-7 rounded-lg bg-gray-900 flex items-center justify-center">
-                <Store size={13} className="text-white" />
+              <div className="w-8 h-8 rounded-lg bg-gray-900 flex items-center justify-center">
+                <Store size={15} className="text-white" />
               </div>
-              <span className="text-[14px] font-bold text-gray-900">W-AI</span>
+              <span className="text-[16px] font-bold text-gray-900">W-AI</span>
             </Link>
 
             {/* Desktop Nav */}
@@ -48,14 +48,14 @@ export default function DashboardLayout() {
                 const active = isActive(item.href);
                 return (
                   <Link key={item.href} to={item.href}
-                    className={`px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all flex items-center gap-1.5 ${
+                    className={`px-3 py-2 rounded-lg text-[14px] font-medium transition-all flex items-center gap-1.5 ${
                       active
                         ? "bg-gray-900 text-white"
-                        : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                     }`}>
-                    <item.icon size={13} />
+                    <item.icon size={15} />
                     {item.label}
-                    {item.hot && !active && <span className="text-[8px] bg-gray-100 text-gray-500 px-1 py-0.5 rounded">HOT</span>}
+                    {item.hot && !active && <span className="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">HOT</span>}
                   </Link>
                 );
               })}
@@ -81,14 +81,14 @@ export default function DashboardLayout() {
                 const active = isActive(item.href);
                 return (
                   <Link key={item.href} to={item.href}
-                    className={`flex items-center gap-2 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all ${
+                    className={`flex items-center gap-2.5 px-3 py-3 rounded-lg text-[15px] font-medium transition-all ${
                       active
                         ? "bg-gray-900 text-white"
-                        : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                     }`}>
-                    <item.icon size={14} />
+                    <item.icon size={16} />
                     {item.label}
-                    {item.hot && !active && <span className="ml-auto text-[9px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full">HOT</span>}
+                    {item.hot && !active && <span className="ml-auto text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full">HOT</span>}
                   </Link>
                 );
               })}
