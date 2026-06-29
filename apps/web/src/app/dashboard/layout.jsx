@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Link, useLocation, Outlet } from "react-router-dom";
-import { LayoutDashboard, Cloud, Zap, Star, MapPin, Gift, Menu, X, Sun, Moon, Store } from "lucide-react";
+import { LayoutDashboard, Cloud, Zap, Star, MapPin, Gift, BookOpen, Menu, X, Sun, Moon, Store } from "lucide-react";
 import { useTheme } from "../../contexts/ThemeContext";
 import ChatWidget from "../../components/ChatWidget";
 import DemoOnboarding from "../../components/DemoOnboarding";
@@ -10,6 +10,7 @@ const navItems = [
   { icon: Cloud, label: "날씨 마케팅", href: "/dashboard/weather-marketing", hot: true },
   { icon: Zap, label: "SNS 콘텐츠", href: "/dashboard/sns-content" },
   { icon: Star, label: "리뷰 답변", href: "/dashboard/review-reply" },
+  { icon: BookOpen, label: "프롬프트 보드", href: "/dashboard/prompt-board", new: true },
   { icon: MapPin, label: "상권 분석", href: "/dashboard/market-analysis" },
   { icon: Gift, label: "지원금 매칭", href: "/dashboard/support-fund" },
 ];
@@ -56,6 +57,7 @@ export default function DashboardLayout() {
                     <item.icon size={15} />
                     {item.label}
                     {item.hot && !active && <span className="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">HOT</span>}
+                    {item.new && !active && <span className="text-[10px] bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded">NEW</span>}
                   </Link>
                 );
               })}
@@ -89,6 +91,7 @@ export default function DashboardLayout() {
                     <item.icon size={16} />
                     {item.label}
                     {item.hot && !active && <span className="ml-auto text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full">HOT</span>}
+                    {item.new && !active && <span className="ml-auto text-[10px] bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded-full">NEW</span>}
                   </Link>
                 );
               })}

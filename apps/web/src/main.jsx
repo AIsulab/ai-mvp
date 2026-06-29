@@ -19,6 +19,7 @@ import SnsContentPage from './app/dashboard/sns-content/page';
 import ReviewReplyPage from './app/dashboard/review-reply/page';
 import MarketAnalysisPage from './app/dashboard/market-analysis/page';
 import SupportFundPage from './app/dashboard/support-fund/page';
+import PromptBoardPage from './app/dashboard/prompt-board/page';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -44,6 +45,7 @@ function App() {
               <Route path="review-reply" element={<ReviewReplyPage />} />
               <Route path="market-analysis" element={<MarketAnalysisPage />} />
               <Route path="support-fund" element={<SupportFundPage />} />
+              <Route path="prompt-board" element={<PromptBoardPage />} />
             </Route>
           </Routes>
         </BrowserRouter>
