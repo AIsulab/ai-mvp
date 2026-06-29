@@ -27,24 +27,24 @@ const getHeatColor = (score) => {
 export default function MarketingHeatmap() {
   return (
     <div>
-      <h3 className="text-[13px] font-semibold text-gray-900 mb-3">시간대별 마케팅 지수</h3>
-      <div className="grid grid-cols-8 gap-1 mb-1">
+      <h3 className="text-[14px] font-semibold text-gray-900 mb-3">시간대별 마케팅 지수</h3>
+      <div className="grid grid-cols-8 gap-1.5 mb-1.5">
         {hourlyData.slice(0, 8).map((d, i) => (
           <div key={i} className="text-center">
-            <div className={`w-full h-5 rounded ${getHeatColor(d.score)} flex items-center justify-center`}>
-              <span className={`text-[8px] font-bold ${d.score >= 70 ? 'text-white' : 'text-orange-600'}`}>{d.score}</span>
+            <div className={`w-full h-6 rounded ${getHeatColor(d.score)} flex items-center justify-center`}>
+              <span className={`text-[9px] font-bold ${d.score >= 70 ? 'text-white' : 'text-orange-600'}`}>{d.score}</span>
             </div>
-            <span className="text-[8px] text-gray-400 block mt-0.5">{d.hour}</span>
+            <span className="text-[9px] text-gray-400 block mt-1">{d.hour}</span>
           </div>
         ))}
       </div>
-      <div className="grid grid-cols-8 gap-1">
+      <div className="grid grid-cols-8 gap-1.5">
         {hourlyData.slice(8, 16).map((d, i) => (
           <div key={i} className="text-center">
-            <div className={`w-full h-5 rounded ${getHeatColor(d.score)} flex items-center justify-center`}>
-              <span className={`text-[8px] font-bold ${d.score >= 70 ? 'text-white' : 'text-orange-600'}`}>{d.score}</span>
+            <div className={`w-full h-6 rounded ${getHeatColor(d.score)} flex items-center justify-center`}>
+              <span className={`text-[9px] font-bold ${d.score >= 70 ? 'text-white' : 'text-orange-600'}`}>{d.score}</span>
             </div>
-            <span className="text-[8px] text-gray-400 block mt-0.5">{d.hour}</span>
+            <span className="text-[9px] text-gray-400 block mt-1">{d.hour}</span>
           </div>
         ))}
       </div>
