@@ -46,7 +46,7 @@ export default function DashboardLayout() {
       )}
 
       {/* Sidebar */}
-      <aside className={`fixed md:sticky top-0 left-0 h-screen w-[220px] bg-white border-r border-gray-100 flex flex-col z-30 transition-all duration-200 ${sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
+      <aside className={`fixed md:sticky top-0 left-0 h-screen w-[200px] bg-white border-r border-gray-100 flex flex-col z-30 transition-all duration-200 ${sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
         {/* Logo */}
         <div className="px-4 h-14 flex items-center border-b border-gray-100">
           <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
@@ -91,7 +91,7 @@ export default function DashboardLayout() {
       </aside>
 
       {/* Main */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 max-w-[800px] mx-auto">
         {/* Mobile Header */}
         <div className="md:hidden sticky top-0 z-10 bg-white border-b border-gray-100">
           <div className="flex items-center justify-between px-4 h-12">
