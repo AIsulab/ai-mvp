@@ -85,28 +85,29 @@ export default function DashboardPage() {
     <div className="min-h-screen">
       <HeroSection weather={weather} weatherLoading={weatherLoading} region={storeInfo.region} />
 
-      <div className="px-5 md:px-8 py-6 md:py-8">
+      <div className="px-4 md:px-6 py-4 md:py-6 space-y-4 md:space-y-5">
         <StoreInfoForm storeInfo={storeInfo} setStoreInfo={setStoreInfo} onAnalyze={handleAnalyze} isAnalyzing={isAnalyzing} />
 
         <StatCards weather={weather} />
 
-        {/* Chart Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 md:gap-6 mb-5 md:mb-6">
-          <div className="bg-white rounded-[16px] border border-gray-100 shadow-card p-5">
-            <h3 className="text-sm font-semibold text-gray-900 mb-4 tracking-tight">시간대별 기온/강수 확률</h3>
+        {/* Charts */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="bg-white rounded-xl border border-gray-100 p-4">
+            <h3 className="text-[13px] font-semibold text-gray-900 mb-3">시간대별 기온/강수</h3>
             <WeatherChart />
           </div>
-          <div className="bg-white rounded-[16px] border border-gray-100 shadow-card p-5">
+          <div className="bg-white rounded-xl border border-gray-100 p-4">
             <MarketingHeatmap />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 md:gap-6 mb-6">
-          <div className="lg:col-span-5 flex flex-col gap-5 md:gap-6">
+        {/* Widgets */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          <div className="lg:col-span-5 flex flex-col gap-4">
             <WeatherWidget weather={weather} />
             <ReviewWidget reviewInput={reviewInput} setReviewInput={setReviewInput} onGenerate={handleReviewReply} isReplying={isReplying} result={replyResult} />
           </div>
-          <div className="lg:col-span-7 flex flex-col gap-5 md:gap-6">
+          <div className="lg:col-span-7 flex flex-col gap-4">
             <MarketingEngine marketingResult={marketingResult} />
             <SnsWidget snsTab={snsTab} setSnsTab={setSnsTab} snsEvent={snsEvent} setSnsEvent={setSnsEvent} onGenerate={handleSnsGenerate} isGenerating={isSnsGenerating} result={snsResult} />
           </div>

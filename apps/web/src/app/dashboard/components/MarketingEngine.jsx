@@ -1,41 +1,32 @@
 import { Zap, Instagram, MessageSquare, FileText } from "lucide-react";
-import { Card } from "../../../components/ui";
 
 export default function MarketingEngine({ marketingResult }) {
   return (
-    <Card className="flex-1">
-      <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-4">
-        <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2 tracking-tight">
-          <Zap className="text-accent-orange fill-accent-orange" size={16} /> 마케팅 엔진
+    <div className="bg-white rounded-xl border border-gray-100 p-4">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-[13px] font-semibold text-gray-900 flex items-center gap-1.5">
+          <Zap size={14} className="text-gray-400" /> 마케팅 엔진
         </h3>
-        <div className="flex items-center gap-2">
-          <span className="text-[10px] bg-accent-pink-light text-accent-pink px-2 py-0.5 rounded-[8px] font-semibold">핵심</span>
-          <span className="text-xs bg-navy text-white px-2 py-0.5 rounded-full font-medium">AI</span>
-        </div>
+        <span className="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full font-medium">AI</span>
       </div>
-      <div className="flex overflow-x-auto border-b border-gray-100 mb-4 -mx-1 px-1">
+      <div className="flex gap-2 mb-3 border-b border-gray-100 pb-2">
         {[
-          { icon: Instagram, label: "인스타그램", active: true },
+          { icon: Instagram, label: "인스타", active: true },
           { icon: MessageSquare, label: "카카오", active: false },
           { icon: FileText, label: "네이버", active: false },
         ].map((tab, i) => (
-          <button key={i} className={`px-3 md:px-4 py-2 border-b-2 text-xs md:text-sm font-medium whitespace-nowrap flex items-center gap-1.5 transition-colors ${tab.active ? "border-primary text-primary" : "border-transparent text-gray-400 hover:text-gray-600"}`}>
-            <tab.icon size={13} /> {tab.label}
+          <button key={i} className={`text-[11px] font-medium flex items-center gap-1 pb-1 border-b-2 transition-colors ${tab.active ? "border-gray-900 text-gray-900" : "border-transparent text-gray-400 hover:text-gray-600"}`}>
+            <tab.icon size={11} /> {tab.label}
           </button>
         ))}
       </div>
-      <div className="bg-accent-green-light/30 border border-accent-green/20 rounded-[12px] p-3 md:p-4 mb-4">
-        <p className="text-[11px] text-gray-600 leading-relaxed">
-          날씨 분석 중 AI가 자동으로 상황을 판단하여 최적 마케팅 문구를 생성합니다.
-        </p>
+      <div className="bg-gray-50 rounded-lg p-3 min-h-[100px]">
+        {marketingResult ? (
+          <p className="text-[12px] text-gray-700 whitespace-pre-wrap leading-relaxed">{marketingResult}</p>
+        ) : (
+          <p className="text-[11px] text-gray-400">분석 시작 버튼을 누르면 AI가 문구를 작성합니다</p>
+        )}
       </div>
-      <label className="text-[11px] font-semibold text-primary flex items-center gap-1.5 mb-2">
-        <span className="w-3.5 h-3.5 rounded bg-primary-50 flex items-center justify-center text-[10px] text-primary font-bold">AI</span>
-        AI 생성 마케팅 문구
-      </label>
-      <div className="w-full min-h-[120px] bg-primary-50 border border-primary-100 rounded-[12px] p-3 md:p-4 text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
-        {marketingResult ? marketingResult : <span className="text-gray-400">날씨 분석 시작 버튼을 누르면 AI가 자동으로 문구를 작성합니다.</span>}
-      </div>
-    </Card>
+    </div>
   );
 }
