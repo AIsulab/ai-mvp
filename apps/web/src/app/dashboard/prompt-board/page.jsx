@@ -427,7 +427,7 @@ export default function PromptBoardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50/50">
-      <div className="max-w-[890px] mx-auto px-4 md:px-5 py-6">
+        <div className="max-w-[1100px] mx-auto px-4 md:px-5 py-6">
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-2">

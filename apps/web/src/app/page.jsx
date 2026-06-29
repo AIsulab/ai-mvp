@@ -50,7 +50,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-white">
       {/* Nav */}
       <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-sm border-b border-gray-100">
-        <div className="max-w-[890px] mx-auto px-5 h-14 flex items-center justify-between">
+        <div className="max-w-[1100px] mx-auto px-5 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-gray-900 flex items-center justify-center">
               <Store size={15} className="text-white" />
@@ -68,7 +68,7 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero */}
-      <section className="max-w-[890px] mx-auto px-5 pt-20 pb-16 md:pt-28 md:pb-20">
+      <section className="max-w-[1100px] mx-auto px-5 pt-20 pb-16 md:pt-28 md:pb-20">
         <div className="max-w-[520px]">
           <div className="text-[11px] font-medium text-gray-400 tracking-wider mb-4">AI 기반 소상공인 경영 비서</div>
           <h1 className="text-[36px] md:text-[48px] font-extrabold text-gray-900 leading-[1.1] tracking-tight mb-5">
@@ -90,7 +90,7 @@ export default function LandingPage() {
 
       {/* Demo */}
       <section id="demo" className="border-y border-gray-100 bg-gray-50/50">
-        <div className="max-w-[890px] mx-auto px-5 py-14 md:py-16">
+        <div className="max-w-[1100px] mx-auto px-5 py-14 md:py-16">
           <div className="text-[11px] font-medium text-gray-400 tracking-wider mb-3">DEMO</div>
           <h2 className="text-[22px] md:text-[26px] font-bold text-gray-900 tracking-tight mb-8">실제 작동 모습</h2>
 
@@ -149,7 +149,7 @@ export default function LandingPage() {
       </section>
 
       {/* Features */}
-      <section id="features" className="max-w-[890px] mx-auto px-5 py-14 md:py-16">
+      <section id="features" className="max-w-[1100px] mx-auto px-5 py-14 md:py-16">
         <div className="text-[11px] font-medium text-gray-400 tracking-wider mb-3">FEATURES</div>
         <h2 className="text-[22px] md:text-[26px] font-bold text-gray-900 tracking-tight mb-8">6가지 AI 기능</h2>
 
@@ -172,7 +172,7 @@ export default function LandingPage() {
 
       {/* CTA */}
       <section className="border-t border-gray-100">
-        <div className="max-w-[890px] mx-auto px-5 py-14 md:py-16 text-center">
+        <div className="max-w-[1100px] mx-auto px-5 py-14 md:py-16 text-center">
           <h2 className="text-[22px] md:text-[26px] font-bold text-gray-900 tracking-tight mb-3">지금 시작하세요</h2>
           <p className="text-gray-500 text-[14px] mb-8">전북 소상공인이라면 누구나 무료</p>
           <Link to="/dashboard" className="inline-flex items-center gap-2 bg-gray-900 text-white font-medium px-7 py-2.5 rounded-full text-[13px] hover:bg-gray-800 transition-colors">
@@ -183,7 +183,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="border-t border-gray-100">
-        <div className="max-w-[890px] mx-auto px-5 py-6 flex items-center justify-between">
+        <div className="max-w-[1100px] mx-auto px-5 py-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-md bg-gray-900 flex items-center justify-center">
               <Store size={11} className="text-white" />

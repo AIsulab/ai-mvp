@@ -33,7 +33,7 @@ export default function DashboardLayout() {
 
       {/* Top Nav */}
       <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-sm border-b border-gray-100">
-        <div className="max-w-[890px] mx-auto px-5">
+        <div className="max-w-[1100px] mx-auto px-5">
           <div className="h-14 flex items-center justify-between">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
@@ -101,7 +101,7 @@ export default function DashboardLayout() {
       </nav>
 
       {/* Content */}
-      <div className="max-w-[890px] mx-auto">
+      <div className="max-w-[1100px] mx-auto">
         <main className="min-h-[calc(100vh-56px)]">
           <Outlet />
         </main>
