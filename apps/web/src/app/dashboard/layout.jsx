@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Link, useLocation, Outlet } from "react-router-dom";
-import { LayoutDashboard, Cloud, Zap, Star, MapPin, Gift, Menu, Sun, Moon, Store } from "lucide-react";
+import { LayoutDashboard, Cloud, Zap, Star, MapPin, Gift, Menu, X, Sun, Moon, Store } from "lucide-react";
 import { useTheme } from "../../contexts/ThemeContext";
 import ChatWidget from "../../components/ChatWidget";
 import DemoOnboarding from "../../components/DemoOnboarding";
@@ -16,108 +16,95 @@ const navItems = [
 
 export default function DashboardLayout() {
   const location = useLocation();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { isDark, toggleTheme } = useTheme();
-  const touchStartX = useRef(0);
 
   const isActive = (href) => {
     if (href === "/dashboard") return location.pathname === "/dashboard";
     return location.pathname.startsWith(href);
   };
 
-  useEffect(() => { setSidebarOpen(false); }, [location.pathname]);
-
-  const handleTouchStart = useCallback((e) => {
-    touchStartX.current = e.touches[0].clientX;
-  }, []);
-
-  const handleTouchEnd = useCallback((e) => {
-    if (!sidebarOpen) return;
-    const deltaX = e.changedTouches[0].clientX - touchStartX.current;
-    if (deltaX < -80) setSidebarOpen(false);
-  }, [sidebarOpen]);
+  useEffect(() => { setMobileMenuOpen(false); }, [location.pathname]);
 
   return (
-    <div className="min-h-screen flex bg-white" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+    <div className="min-h-screen bg-white">
       <DemoOnboarding />
 
-      {sidebarOpen && (
-        <div className="fixed inset-0 bg-black/20 z-20 md:hidden" onClick={() => setSidebarOpen(false)} />
-      )}
+      {/* Top Nav */}
+      <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-sm border-b border-gray-100">
+        <div className="max-w-[890px] mx-auto px-5">
+          <div className="h-14 flex items-center justify-between">
+            {/* Logo */}
+            <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+              <div className="w-7 h-7 rounded-lg bg-gray-900 flex items-center justify-center">
+                <Store size={13} className="text-white" />
+              </div>
+              <span className="text-[14px] font-bold text-gray-900">W-AI</span>
+            </Link>
 
-      {/* Sidebar */}
-      <aside className={`fixed md:sticky top-0 left-0 h-screen w-[200px] bg-white border-r border-gray-100 flex flex-col z-30 transition-all duration-200 ${sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
-        {/* Logo */}
-        <div className="px-4 h-14 flex items-center border-b border-gray-100">
-          <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <div className="w-7 h-7 rounded-lg bg-gray-900 flex items-center justify-center">
-              <Store size={13} className="text-white" />
+            {/* Desktop Nav */}
+            <div className="hidden md:flex items-center gap-1">
+              {navItems.map((item) => {
+                const active = isActive(item.href);
+                return (
+                  <Link key={item.href} to={item.href}
+                    className={`px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all flex items-center gap-1.5 ${
+                      active
+                        ? "bg-gray-900 text-white"
+                        : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+                    }`}>
+                    <item.icon size={13} />
+                    {item.label}
+                    {item.hot && !active && <span className="text-[8px] bg-gray-100 text-gray-500 px-1 py-0.5 rounded">HOT</span>}
+                  </Link>
+                );
+              })}
             </div>
-            <span className="text-[14px] font-bold text-gray-900">W-AI</span>
-          </Link>
-        </div>
 
-        {/* Nav */}
-        <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto">
-          {navItems.map((item) => {
-            const active = isActive(item.href);
-            return (
-              <Link key={item.href} to={item.href}
-                className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition-all ${
-                  active
-                    ? "bg-gray-900 text-white font-medium"
-                    : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
-                }`}>
-                <item.icon size={15} className={active ? "text-white" : "text-gray-400"} />
-                {item.label}
-                {item.hot && !active && <span className="ml-auto text-[9px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full">HOT</span>}
-              </Link>
-            );
-          })}
-        </nav>
-
-        {/* User */}
-        <div className="px-3 py-3 border-t border-gray-100">
-          <div className="flex items-center gap-2 px-2 py-2 rounded-lg bg-gray-50">
-            <div className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center">
-              <span className="text-[10px] font-bold text-gray-600">사</span>
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[11px] font-medium text-gray-900 truncate">사장님</p>
-              <p className="text-[9px] text-gray-400">Free Plan</p>
+            {/* Right */}
+            <div className="flex items-center gap-2">
+              <button onClick={toggleTheme} className="w-8 h-8 rounded-lg hover:bg-gray-50 flex items-center justify-center transition-colors">
+                {isDark ? <Sun size={14} className="text-gray-500" /> : <Moon size={14} className="text-gray-500" />}
+              </button>
+              <button className="md:hidden p-1.5" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+                {mobileMenuOpen ? <X size={18} className="text-gray-600" /> : <Menu size={18} className="text-gray-600" />}
+              </button>
             </div>
           </div>
         </div>
-      </aside>
 
-      {/* Main */}
-      <div className="flex-1 flex flex-col min-w-0 max-w-[800px] mx-auto">
-        {/* Mobile Header */}
-        <div className="md:hidden sticky top-0 z-10 bg-white border-b border-gray-100">
-          <div className="flex items-center justify-between px-4 h-12">
-            <button className="p-1 -ml-1" onClick={() => setSidebarOpen(true)}>
-              <Menu size={18} className="text-gray-600" />
-            </button>
-            <span className="text-[13px] font-medium text-gray-900">
-              {navItems.find((item) => isActive(item.href))?.label || "W-AI"}
-            </span>
-            <div className="w-7" />
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-gray-100 bg-white">
+            <div className="max-w-[890px] mx-auto px-5 py-2">
+              {navItems.map((item) => {
+                const active = isActive(item.href);
+                return (
+                  <Link key={item.href} to={item.href}
+                    className={`flex items-center gap-2 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all ${
+                      active
+                        ? "bg-gray-900 text-white"
+                        : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+                    }`}>
+                    <item.icon size={14} />
+                    {item.label}
+                    {item.hot && !active && <span className="ml-auto text-[9px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full">HOT</span>}
+                  </Link>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
+      </nav>
 
-        <main className="flex-1 overflow-x-hidden overflow-y-auto">
+      {/* Content */}
+      <div className="max-w-[890px] mx-auto">
+        <main className="min-h-[calc(100vh-56px)]">
           <Outlet />
         </main>
-
-        {/* Theme Toggle */}
-        <div className="fixed bottom-16 right-4 md:bottom-6 md:right-6 z-40">
-          <button onClick={toggleTheme} className="w-10 h-10 bg-white border border-gray-200 rounded-full shadow-card flex items-center justify-center hover:shadow-card-hover transition-all" aria-label="테마 전환">
-            {isDark ? <Sun size={15} /> : <Moon size={15} />}
-          </button>
-        </div>
-
-        <ChatWidget />
       </div>
+
+      <ChatWidget />
     </div>
   );
 }
