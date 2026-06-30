@@ -20,6 +20,7 @@ import ReviewReplyPage from './app/dashboard/review-reply/page';
 import MarketAnalysisPage from './app/dashboard/market-analysis/page';
 import SupportFundPage from './app/dashboard/support-fund/page';
 import PromptBoardPage from './app/dashboard/prompt-board/page';
+import NoticePage from './app/dashboard/notice/page';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -46,6 +47,7 @@ function App() {
               <Route path="market-analysis" element={<MarketAnalysisPage />} />
               <Route path="support-fund" element={<SupportFundPage />} />
               <Route path="prompt-board" element={<PromptBoardPage />} />
+              <Route path="notice" element={<NoticePage />} />
             </Route>
           </Routes>
         </BrowserRouter>
