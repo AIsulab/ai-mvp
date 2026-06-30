@@ -3,7 +3,7 @@ import { Wifi, MapPin, RefreshCw, Search, BarChart2, Map, AlertTriangle } from "
 import { Card, Badge, Spinner, Button } from "../../../components/ui";
 import { useTheme } from "../../../contexts/ThemeContext";
 
-const NAVER_MAP_KEY = "4sclocrnx9";
+const NAVER_MAP_KEY = "4sc1ocrnx9";
 const SBIZ_GIS_URL = "https://bigdata.sbiz.or.kr/#/hotplace/gis";
 const DEFAULT_CENTER = { lat: 35.8242238, lng: 127.1479532 };
 
@@ -40,7 +40,7 @@ export default function MarketAnalysisPage() {
       if (window.naver && window.naver.maps) { resolve(window.naver.maps); return; }
       if (!NAVER_MAP_KEY) { setMapError("VITE_NAVER_MAP_CLIENT_ID 환경변수가 설정되지 않았습니다."); resolve(null); return; }
       const script = document.createElement("script");
-      script.src = `https://openapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${NAVER_MAP_KEY}&submodules=geocoder`;
+      script.src = `https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${NAVER_MAP_KEY}&submodules=geocoder`;
       script.async = true;
       script.onload = () => {
         if (window.naver && window.naver.maps) {
