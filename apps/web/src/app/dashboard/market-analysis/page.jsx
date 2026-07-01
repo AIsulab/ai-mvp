@@ -3,7 +3,7 @@ import { Wifi, MapPin, RefreshCw, Search, BarChart2, Map, AlertTriangle } from "
 import { Card, Badge, Spinner, Button } from "../../../components/ui";
 import { useTheme } from "../../../contexts/ThemeContext";
 
-const NAVER_MAP_KEY = "4sc1ocrnx9";
+const NAVER_MAP_KEY = import.meta.env.VITE_NAVER_MAP_CLIENT_ID || "";
 const SBIZ_GIS_URL = "https://bigdata.sbiz.or.kr/#/hotplace/gis";
 const DEFAULT_CENTER = { lat: 35.8242238, lng: 127.1479532 };
 

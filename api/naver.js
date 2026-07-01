@@ -15,7 +15,7 @@ export default async function handler(request, response) {
     return response.status(400).json({ error: "검색어가 필요합니다." });
   }
 
-  const clientId = process.env.NAVER_CLIENT_ID || process.env.NAVER_ID || "2tBfhdei4zomxK9ZoSty";
+  const clientId = process.env.NAVER_CLIENT_ID || process.env.NAVER_ID || "2tBfhdel4zomxK9ZoSty";
   const clientSecret = process.env.NAVER_CLIENT_SECRET || process.env.NAVER_SECRET || "pLas4T0YUx";
 
   if (!clientId || !clientSecret) {

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
 const NAVER_MAPS_URL = "https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=";
-const NAVER_MAP_KEY = "4sc1ocrnx9";
+const NAVER_MAP_KEY = import.meta.env.VITE_NAVER_MAP_CLIENT_ID || "";
 
 export function useNaverMap(containerRef, options = {}) {
   const [map, setMap] = useState(null);
@@ -17,7 +17,7 @@ export function useNaverMap(containerRef, options = {}) {
     if (!document.getElementById(scriptId)) {
       const script = document.createElement("script");
       script.id = scriptId;
-      script.src = `${NAVER_MAPS_URL}${NAVER_MAP_KEY}`;
+      script.src = `${NAVER_MAPS_URL}${NAVER_MAP_KEY}&submodules=geocoder`;
       script.async = true;
       script.onload = () => {
         if (window.naver && window.naver.maps) {
