@@ -37,39 +37,46 @@ export default function MarketAnalysisPage() {
 
   const loadNaverMap = useCallback(() => {
     return new Promise((resolve) => {
-      if (window.naver && window.naver.maps) { resolve(window.naver.maps); return; }
+      function isReady() {
+        const n = window.naver;
+        return n && n.maps && typeof n.maps.Map === "function" && typeof n.maps.LatLng === "function" && typeof n.maps.Event === "object";
+      }
+      if (isReady()) { resolve(window.naver.maps); return; }
       if (!NAVER_MAP_KEY) { setMapError("VITE_NAVER_MAP_CLIENT_ID 환경변수가 설정되지 않았습니다."); resolve(null); return; }
       const script = document.createElement("script");
       script.src = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${NAVER_MAP_KEY}&submodules=geocoder`;
-      console.log("[NaverMap] KEY:", NAVER_MAP_KEY ? `${NAVER_MAP_KEY.slice(0,4)}...` : "(empty)");
+      console.log("[NaverMap] KEY:", NAVER_MAP_KEY ? `${NAVER_MAP_KEY.slice(0,4)}...${NAVER_MAP_KEY.slice(-2)}` : "(empty)");
       console.log("[NaverMap] SDK URL:", script.src);
       script.async = true;
       script.onload = () => {
-        console.log("[NaverMap] Script loaded, checking window.naver:", !!window.naver, "maps:", !!window.naver?.maps);
-        if (window.naver && window.naver.maps) {
-          console.log("[NaverMap] SDK ready immediately");
-          resolve(window.naver.maps);
-        } else {
-          console.log("[NaverMap] SDK not ready yet, polling...");
-          let attempts = 0;
-          const poll = setInterval(() => {
-            attempts++;
-            if (window.naver && window.naver.maps) {
-              clearInterval(poll);
-              console.log(`[NaverMap] SDK ready after ${attempts} attempts`);
-              resolve(window.naver.maps);
-            } else if (attempts >= 100) {
-              clearInterval(poll);
-              console.error("[NaverMap] SDK init timeout after 5s");
-              setMapError(`네이버 지도 API 인증 실패 — KEY: ${NAVER_MAP_KEY.slice(0,4)}... (console 확인)`);
-              resolve(null);
-            }
-          }, 50);
-        }
+        console.log("[NaverMap] Script loaded. Polling for full SDK init...");
+        let attempts = 0;
+        const poll = setInterval(() => {
+          attempts++;
+          if (isReady()) {
+            clearInterval(poll);
+            console.log(`[NaverMap] SDK fully ready after ${attempts * 50}ms`);
+            resolve(window.naver.maps);
+          } else if (attempts >= 160) {
+            clearInterval(poll);
+            const n = window.naver;
+            const detail = {
+              naverExists: !!n,
+              mapsExists: !!n?.maps,
+              hasMap: typeof n?.maps?.Map,
+              hasLatLng: typeof n?.maps?.LatLng,
+              hasEvent: typeof n?.maps?.Event,
+              hasMarker: typeof n?.maps?.Marker,
+            };
+            console.error("[NaverMap] Auth FAILED. Detail:", detail);
+            setMapError(`인증 실패 — Map:${detail.hasMap} Event:${detail.hasEvent} LatLng:${detail.hasLatLng}. 네이버 콘솔에서 sulab.store 도메인을 확인하세요.`);
+            resolve(null);
+          }
+        }, 50);
       };
       script.onerror = () => {
-        console.error("[NaverMap] Script load FAILED for URL:", script.src);
-        setMapError("지도 스크립트 로드 실패 — 네트워크 또는 URL 확인");
+        console.error("[NaverMap] Script load FAILED:", script.src);
+        setMapError("SDK 스크립트 로드 실패 — 네트워크 또는 URL 확인");
         resolve(null);
       };
       document.head.appendChild(script);

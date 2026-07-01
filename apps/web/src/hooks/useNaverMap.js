@@ -3,13 +3,32 @@ import { useState, useEffect, useRef, useCallback } from "react";
 const NAVER_MAPS_URL = "https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=";
 const NAVER_MAP_KEY = import.meta.env.VITE_NAVER_MAP_CLIENT_ID || "";
 
-function waitForNaverMaps(maxWait = 5000) {
+function isNaverMapsReady() {
+  const n = window.naver;
+  return n && n.maps && typeof n.maps.Map === "function" && typeof n.maps.LatLng === "function" && typeof n.maps.Event === "object";
+}
+
+function waitForNaverMaps(maxWait = 8000) {
   return new Promise((resolve) => {
-    if (window.naver && window.naver.maps) { resolve(window.naver.maps); return; }
+    if (isNaverMapsReady()) { resolve(window.naver.maps); return; }
     const start = Date.now();
     const interval = setInterval(() => {
-      if (window.naver && window.naver.maps) { clearInterval(interval); resolve(window.naver.maps); }
-      else if (Date.now() - start > maxWait) { clearInterval(interval); resolve(null); }
+      if (isNaverMapsReady()) {
+        clearInterval(interval);
+        resolve(window.naver.maps);
+      } else if (Date.now() - start > maxWait) {
+        clearInterval(interval);
+        const n = window.naver;
+        console.error("[NaverMap] Auth check detail:", {
+          naverExists: !!n,
+          mapsExists: !!n?.maps,
+          hasMap: typeof n?.maps?.Map,
+          hasLatLng: typeof n?.maps?.LatLng,
+          hasEvent: typeof n?.maps?.Event,
+          hasMarker: typeof n?.maps?.Marker,
+        });
+        resolve(null);
+      }
     }, 50);
   });
 }
@@ -41,8 +60,14 @@ export function useNaverMap(containerRef, options = {}) {
           console.log("[NaverMap] SDK ready");
           initMap(naverMaps);
         } else {
-          console.error("[NaverMap] SDK init timeout - window.naver:", !!window.naver, "maps:", !!window.naver?.maps);
-          setError("네이버 지도 SDK 초기화 실패 (인증 확인 필요)");
+          const n = window.naver;
+          const detail = {
+            naverExists: !!n, mapsExists: !!n?.maps,
+            hasMap: typeof n?.maps?.Map, hasLatLng: typeof n?.maps?.LatLng,
+            hasEvent: typeof n?.maps?.Event, hasMarker: typeof n?.maps?.Marker,
+          };
+          console.error("[NaverMap] Auth FAILED. Detail:", detail);
+          setError(`인증 실패 — Map:${detail.hasMap} Event:${detail.hasEvent} LatLng:${detail.hasLatLng}. 네이버 콘솔에서 sulab.store 도메인을 확인하세요.`);
         }
       };
       script.onerror = () => {
