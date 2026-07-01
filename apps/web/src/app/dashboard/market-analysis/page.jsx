@@ -40,18 +40,36 @@ export default function MarketAnalysisPage() {
       if (window.naver && window.naver.maps) { resolve(window.naver.maps); return; }
       if (!NAVER_MAP_KEY) { setMapError("VITE_NAVER_MAP_CLIENT_ID 환경변수가 설정되지 않았습니다."); resolve(null); return; }
       const script = document.createElement("script");
-      script.src = `https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${NAVER_MAP_KEY}&submodules=geocoder`;
+      script.src = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${NAVER_MAP_KEY}&submodules=geocoder`;
+      console.log("[NaverMap] KEY:", NAVER_MAP_KEY ? `${NAVER_MAP_KEY.slice(0,4)}...` : "(empty)");
+      console.log("[NaverMap] SDK URL:", script.src);
       script.async = true;
       script.onload = () => {
+        console.log("[NaverMap] Script loaded, checking window.naver:", !!window.naver, "maps:", !!window.naver?.maps);
         if (window.naver && window.naver.maps) {
+          console.log("[NaverMap] SDK ready immediately");
           resolve(window.naver.maps);
         } else {
-          setMapError("네이버 지도 API 인증 실패 — VITE_NAVER_MAP_CLIENT_ID를 확인해주세요.");
-          resolve(null);
+          console.log("[NaverMap] SDK not ready yet, polling...");
+          let attempts = 0;
+          const poll = setInterval(() => {
+            attempts++;
+            if (window.naver && window.naver.maps) {
+              clearInterval(poll);
+              console.log(`[NaverMap] SDK ready after ${attempts} attempts`);
+              resolve(window.naver.maps);
+            } else if (attempts >= 100) {
+              clearInterval(poll);
+              console.error("[NaverMap] SDK init timeout after 5s");
+              setMapError(`네이버 지도 API 인증 실패 — KEY: ${NAVER_MAP_KEY.slice(0,4)}... (console 확인)`);
+              resolve(null);
+            }
+          }, 50);
         }
       };
       script.onerror = () => {
-        setMapError("지도를 불러오지 못했습니다. 네트워크 연결을 확인해주세요.");
+        console.error("[NaverMap] Script load FAILED for URL:", script.src);
+        setMapError("지도 스크립트 로드 실패 — 네트워크 또는 URL 확인");
         resolve(null);
       };
       document.head.appendChild(script);
@@ -65,6 +83,7 @@ export default function MarketAnalysisPage() {
     if (!naver || !mapContainerRef.current) return;
     try {
       if (mapRef.current) { mapRef.current.setCenter(new naver.LatLng(center.lat, center.lng)); return; }
+      console.log("[NaverMap] Creating map at", center.lat, center.lng);
       const map = new naver.Map(mapContainerRef.current, {
         center: new naver.LatLng(center.lat, center.lng),
         zoom: 14, scaleControl: true, logoControl: false, mapDataControl: false,
@@ -77,8 +96,10 @@ export default function MarketAnalysisPage() {
       });
       mapRef.current = map;
       setMapLoaded(true);
+      console.log("[NaverMap] Map initialized successfully");
     } catch (e) {
-      setMapError("지도를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.");
+      console.error("[NaverMap] Map init error:", e);
+      setMapError(`지도 초기화 실패: ${e.message}`);
     }
   }, [loadNaverMap, activeTab]);
 
@@ -285,10 +306,11 @@ export default function MarketAnalysisPage() {
             {/* Naver Map */}
             {mapError ? (
               <div className="w-full flex items-center justify-center bg-gray-100 dark:bg-gray-800" style={{ minHeight: '400px' }}>
-                <div className="text-center p-6 max-w-sm">
+                <div className="text-center p-6 max-w-md">
                   <AlertTriangle size={36} className="text-orange-400 mx-auto mb-3" />
                   <p className="text-sm font-semibold text-gray-900 dark:text-white mb-1">지도를 불러오지 못했습니다.</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">잠시 후 다시 시도해주세요.</p>
+                  <p className="text-xs text-red-500 dark:text-red-400 mb-2 font-mono break-all">{mapError}</p>
+                  <p className="text-[10px] text-gray-400 mb-4">KEY: {NAVER_MAP_KEY ? `${NAVER_MAP_KEY.slice(0,4)}...${NAVER_MAP_KEY.slice(-2)}` : "(없음)"}</p>
                   <button onClick={() => { setMapError(null); setMapLoaded(false); mapRef.current = null; initMap(mapCenter); }} className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:underline">
                     <RefreshCw size={12} /> 다시 시도
                   </button>
