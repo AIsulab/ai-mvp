@@ -18,7 +18,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "MiMo API 키가 설정되지 않았습니다." });
   }
 
-  const { action, storeInfo, weather, reviewText, snsTab, snsEvent, chatMessage, chatHistory, naverContext, sgisContext, wifiContext } = req.body;
+  const { action, storeInfo, weather, reviewText, snsTab, snsEvent, chatMessage, chatHistory, naverContext, sgisContext, wifiContext, stream } = req.body;
   let systemPrompt = "당신은 전북지역 소상공인을 돕는 훌륭한 AI 마케팅 비서 'W-AI'입니다. 언제나 친절하고 창의적이며, 고객의 이목을 끄는 문구를 작성합니다.";
   let messages = [];
 
@@ -65,6 +65,7 @@ export default async function handler(req, res) {
         messages,
         temperature: 0.7,
         max_tokens: 800,
+        stream: !!stream,
       }),
     });
 
@@ -73,11 +74,63 @@ export default async function handler(req, res) {
       throw new Error(errData.error?.message || `MiMo API 오류: ${response.status}`);
     }
 
+    // Streaming response
+    if (stream) {
+      res.setHeader("Content-Type", "text/event-stream");
+      res.setHeader("Cache-Control", "no-cache");
+      res.setHeader("Connection", "keep-alive");
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed || !trimmed.startsWith("data: ")) continue;
+            const data = trimmed.slice(6);
+            if (data === "[DONE]") {
+              res.write("data: [DONE]\n\n");
+              continue;
+            }
+            try {
+              const parsed = JSON.parse(data);
+              const content = parsed.choices?.[0]?.delta?.content;
+              if (content) {
+                res.write(`data: ${JSON.stringify({ content })}\n\n`);
+              }
+            } catch (e) {
+              // skip malformed chunks
+            }
+          }
+        }
+      } catch (streamErr) {
+        console.error("Stream read error:", streamErr);
+      }
+
+      res.end();
+      return;
+    }
+
+    // Non-streaming response (backward compatible)
     const data = await response.json();
     const resultText = data.choices[0].message.content.trim();
     return res.status(200).json({ result: resultText });
   } catch (error) {
     console.error("MiMo Error:", error);
+    if (stream) {
+      res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
+      res.end();
+      return;
+    }
     return res.status(500).json({ error: error.message });
   }
 }

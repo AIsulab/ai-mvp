@@ -7,7 +7,7 @@ export default async function handler(req, res) {
 
   try {
     // 1. 공공데이터포털(기업마당) API 호출 시도
-    const apiKey = process.env.PUBLIC_DATA_API_KEY || 'ce2f69c86f89f3322e12f4e241097f76f6dfff578bf9d46f7dc684941e3157fe';
+    const apiKey = process.env.PUBLIC_DATA_API_KEY;
     const apiUrl = `https://apis.data.go.kr/1421000/bizinfo/pblancBsnsService?ServiceKey=${apiKey}&numOfRows=10&pageNo=1&type=json`;
 
     const controller = new AbortController();

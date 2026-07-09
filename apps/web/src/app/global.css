@@ -21,6 +21,12 @@
     letter-spacing: -0.02em;
   }
 
+  .dark body,
+  .dark {
+    background: #111827;
+    color: #F3F4F6;
+  }
+
   h1, h2, h3, h4, h5, h6 {
     letter-spacing: -0.03em;
   }
@@ -33,14 +39,28 @@
     background: #E4E4E7;
     color: #18181B;
   }
+
+  .dark ::selection {
+    background: #374151;
+    color: #F3F4F6;
+  }
 }
 
 @layer components {
   .section-number {
     @apply text-[11px] font-medium text-gray-400 tracking-wider;
   }
+
+  .card-hover {
+    @apply transition-all duration-200 hover:shadow-card-hover hover:border-gray-300 dark:hover:border-gray-600;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
 }
 
+/* Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -53,4 +73,25 @@
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #A1A1AA;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #4B5563;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #6B7280;
+}
+
+/* Focus visible */
+:focus-visible {
+  outline: 2px solid #3B82F6;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Smooth transitions for dark mode */
+*,
+*::before,
+*::after {
+  transition-property: background-color, border-color, color;
+  transition-duration: 0ms;
 }

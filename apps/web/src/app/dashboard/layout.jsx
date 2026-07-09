@@ -30,7 +30,7 @@ export default function DashboardLayout() {
 
   return (
     <div className="min-h-screen bg-white">
-      <DemoOnboarding />
+      <DemoOnboarding onComplete={() => {}} />
 
       {/* Top Nav */}
       <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-sm border-b border-gray-100">

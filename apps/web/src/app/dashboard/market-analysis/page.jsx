@@ -42,7 +42,7 @@ export default function MarketAnalysisPage() {
         return n && n.maps && typeof n.maps.Map === "function" && typeof n.maps.LatLng === "function" && typeof n.maps.Event === "object";
       }
       if (isReady()) { resolve(window.naver.maps); return; }
-      if (!NAVER_MAP_KEY) { setMapError("VITE_NAVER_MAP_CLIENT_ID 환경변수가 설정되지 않았습니다."); resolve(null); return; }
+      if (!NAVER_MAP_KEY) { setMapError("VITE_NAVER_MAP_CLIENT_ID 환경변수가 설정되지 않았습니다.\nVercel 대시보드 → Settings → Environment Variables에서 설정하세요."); resolve(null); return; }
       const script = document.createElement("script");
       script.src = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${NAVER_MAP_KEY}&submodules=geocoder`;
       console.log("[NaverMap] KEY:", NAVER_MAP_KEY ? `${NAVER_MAP_KEY.slice(0,4)}...${NAVER_MAP_KEY.slice(-2)}` : "(empty)");
