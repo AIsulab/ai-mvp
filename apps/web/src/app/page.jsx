@@ -57,7 +57,7 @@ export default function LandingPage() {
       <div style={{ position: 'absolute', top: '20%', right: '10%', width: 450, height: 450, background: 'radial-gradient(circle, rgba(139,92,246,0.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
       <div style={{ position: 'absolute', bottom: '15%', left: '10%', width: 600, height: 600, background: 'radial-gradient(circle, rgba(6,182,212,0.08) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
-      {/* ── 최상단 파트너 블로그 띠 배너 ── */}
+      {/* ── 최상단 복지 블로그 띠 배너 ── */}
       <div style={{
         background: 'linear-gradient(90deg, #4f46e5, #7c3aed, #06b6d4)',
         padding: '8px 16px',
@@ -71,8 +71,8 @@ export default function LandingPage() {
         gap: 10,
         boxShadow: '0 2px 10px rgba(79, 70, 229, 0.3)'
       }}>
-        <span style={{ background: 'rgba(255,255,255,0.2)', padding: '2px 8px', borderRadius: 100, fontSize: 10, fontWeight: 800 }}>제휴 파트너</span>
-        <span>⚡ AI가 매일 업데이트하는 최신 복지·지원 정책 정보 [복지모아 AI 블로그]</span>
+        <span style={{ background: 'rgba(255,255,255,0.2)', padding: '2px 8px', borderRadius: 100, fontSize: 10, fontWeight: 800 }}>복지정보 블로그</span>
+        <span>⚡ 최신 복지·지원 정책 정보를 매일 업데이트하는 W-AI 복지 블로그</span>
         <a href="https://sutudio.dothome.co.kr/" target="_blank" rel="noopener noreferrer" style={{ color: '#fef08a', textDecoration: 'underline', fontWeight: 800, marginLeft: 4 }}>
           바로가기 →
         </a>
@@ -410,7 +410,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── 복지 정책 칼럼 & 제휴 블로그 섹션 ── */}
+      {/* ── 복지 정책 칼럼 & 복지 블로그 섹션 ── */}
       <section id="welfare-blog" style={{ padding: '80px 20px', background: '#090C16', borderTop: '1px solid rgba(255,255,255,0.03)' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
           <WelfareBlogBanner variant="dark" />
@@ -468,7 +468,7 @@ export default function LandingPage() {
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
             <a href="https://sutudio.dothome.co.kr/" target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, color: '#a5b4fc', textDecoration: 'none' }}>
-              협업 파트너: 복지모아 AI 블로그 ↗
+              복지정보 블로그 ↗
             </a>
             <span style={{ fontSize: 11, color: 'rgba(255, 255, 255, 0.3)' }}>Weather × Win × AI</span>
             <span style={{ fontSize: 11, color: 'rgba(255, 255, 255, 0.3)' }}>© W-AI | sulab.store</span>

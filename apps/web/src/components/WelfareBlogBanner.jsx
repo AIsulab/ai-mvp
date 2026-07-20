@@ -101,7 +101,7 @@ export default function WelfareBlogBanner({ variant = "dark" }) {
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/15 text-indigo-400 border border-indigo-500/30 mb-2.5">
             <Sparkles size={13} className="text-indigo-400 animate-pulse" />
-            <span>W-AI × 복지모아 협업 파트너</span>
+            <span>W-AI × 복지정보 블로그</span>
             {isLive && (
               <span className="inline-flex items-center gap-1 text-[10px] text-emerald-400 bg-emerald-500/15 px-2 py-0.5 rounded-full font-semibold border border-emerald-500/30">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
@@ -113,7 +113,7 @@ export default function WelfareBlogBanner({ variant = "dark" }) {
             매일 업데이트되는 최신 복지 정책 & 혜택 칼럼
           </h3>
           <p className={`text-xs md:text-sm mt-1.5 max-w-2xl ${isDark ? "text-gray-400" : "text-gray-600"}`}>
-            W-AI AI 인공지능과 연동되어 2026년 신규 지원금, 청년·소상공인 지원 정책, 생활 복지 정보가 매일 자동으로 업로드됩니다.
+            W-AI와 함께 운영하는 복지 블로그에서 2026년 신규 지원금, 청년·소상공인 지원 정책, 생활 복지 정보를 매일 업데이트합니다.
           </p>
         </div>
 
@@ -199,7 +199,7 @@ export default function WelfareBlogBanner({ variant = "dark" }) {
       }`}>
         <div className="flex items-center gap-1.5">
           <ShieldCheck size={13} className="text-indigo-400" />
-          <span>본 정보는 W-AI와 협업 중인 <strong>복지모아 AI 블로그</strong>에서 제공하며 매일 정기 수집됩니다.</span>
+          <span>본 정보는 W-AI와 함께 운영하는 <strong>복지정보 블로그</strong>에서 제공됩니다.</span>
         </div>
         <span className="font-mono">https://sutudio.dothome.co.kr</span>
       </div>
