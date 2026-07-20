@@ -12,7 +12,7 @@ function loadNaverSDK() {
 
   sdkPromise = new Promise((resolve, reject) => {
     const doReject = (err) => {
-      sdkPromise = null; // 항상 리셋하여 재시도 가능하게
+      sdkPromise = null;
       reject(err);
     };
 
@@ -29,50 +29,31 @@ function loadNaverSDK() {
       return;
     }
 
-    const callbackName = "__naverMapReady_" + Date.now();
-    window[callbackName] = () => {
-      console.log("[NaverMap] SDK initialized via callback ✓");
-      delete window[callbackName];
-      if (typeof window.naver?.maps?.Map === "function") {
-        resolve(window.naver.maps);
-      } else {
-        doReject(new Error(
-          "네이버 지도 API 인증 실패: 도메인이 NCP 콘솔에 등록되지 않았습니다.\n" +
-          "NCP 콘솔 > AI·NAVER API > Maps > Application에서 현재 도메인을 Web 서비스 URL에 추가해주세요."
-        ));
-      }
-    };
-
     const scriptId = "naver-map-sdk";
-    const existingScript = document.getElementById(scriptId);
-    if (existingScript) {
-      waitForSDKReady(5000).then(resolve).catch(doReject);
-      return;
+    let script = document.getElementById(scriptId);
+
+    if (!script) {
+      script = document.createElement("script");
+      script.id = scriptId;
+      script.src = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${keyToUse}&submodules=geocoder`;
+      script.async = true;
+      document.head.appendChild(script);
     }
 
-    const script = document.createElement("script");
-    script.id = scriptId;
-    script.src = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${keyToUse}&submodules=geocoder&callback=${callbackName}`;
-    script.async = true;
-
-    console.log("[NaverMap] Loading SDK with Key:", keyToUse);
-
     script.onerror = () => {
-      delete window[callbackName];
       doReject(new Error("SDK 스크립트 로드 실패 — 네트워크 또는 URL 확인"));
     };
 
-    script.onload = () => {
-      setTimeout(() => {
-        if (window[callbackName]) {
-          console.warn("[NaverMap] callback not fired after 5s, polling fallback...");
-          delete window[callbackName];
-          waitForSDKReady(5000).then(resolve).catch(doReject);
+    // 스크립트가 로드되었더라도 LatLng, Map 객체 등이 완벽히 초기화될 때까지 폴링 대기
+    waitForSDKReady(7000)
+      .then(resolve)
+      .catch(err => {
+        if (!window.naver || !window.naver.maps) {
+          doReject(new Error("네이버 지도 API 인증 실패: 도메인이 NCP 콘솔에 등록되지 않았거나 Key가 올바르지 않습니다."));
+        } else {
+          doReject(err);
         }
-      }, 5000);
-    };
-
-    document.head.appendChild(script);
+      });
   });
 
   return sdkPromise;

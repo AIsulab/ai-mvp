@@ -37,49 +37,59 @@ export default function MarketAnalysisPage() {
   const infoWindowsRef = useRef([]);
   const { isDark } = useTheme();
 
-  // SDK 로드는 useNaverMap.js의 공유 싱글턴 사용 (중복 로드 방지)
-
+  // SDK 로드는 useNaverMap.js의 공유 싱글턴 사용
   const initMap = useCallback(async (center) => {
     if (activeTab !== "naver") return;
     setMapError(null);
 
     try {
-      // 공유 SDK 로더 사용 (콜백 방식 + 싱글턴)
-      const naver = await loadNaverSDK();
+      const naverMaps = await loadNaverSDK();
       if (!mapContainerRef.current) return;
+      if (!naverMaps || typeof naverMaps.LatLng !== "function") {
+        throw new Error("naver.maps.LatLng 객체를 찾을 수 없습니다.");
+      }
 
       // 이미 지도가 있으면 중심 이동만
       if (mapRef.current) {
-        mapRef.current.setCenter(new naver.LatLng(center.lat, center.lng));
+        mapRef.current.setCenter(new naverMaps.LatLng(center.lat, center.lng));
         return;
       }
 
       console.log("[NaverMap] Creating map at", center.lat, center.lng);
 
-      // 재시도 로직 포함 초기화 (최대 3회, 500ms 간격)
+      // 재시도 로직 포함 초기화
       const map = await tryInitMap(
         mapContainerRef.current,
-        naver,
+        naverMaps,
         {
-          center: new naver.LatLng(center.lat, center.lng),
+          center: new naverMaps.LatLng(center.lat, center.lng),
           zoom: 14, scaleControl: true, logoControl: false, mapDataControl: false,
         },
         3,
         500
       );
 
-      naver.Event.addListener(map, "idle", () => {
-        const c = map.getCenter();
-        const newCenter = { lat: c.lat(), lng: c.lng() };
-        setMapCenter(newCenter);
-        localStorage.setItem("mapCenter", JSON.stringify(newCenter));
-      });
+      if (naverMaps.Event) {
+        naverMaps.Event.addListener(map, "idle", () => {
+          const c = map.getCenter();
+          if (c) {
+            const newCenter = { lat: c.lat(), lng: c.lng() };
+            setMapCenter(newCenter);
+            localStorage.setItem("mapCenter", JSON.stringify(newCenter));
+          }
+        });
+      }
 
       mapRef.current = map;
       setMapLoaded(true);
       console.log("[NaverMap] Map initialized successfully ✓");
     } catch (e) {
       console.error("[NaverMap] Map init error:", e);
+      setMapError(
+        `지도 초기화 실패: ${e.message}`
+      );
+    }
+  }, [activeTab]);verMap] Map init error:", e);
       setMapError(
         `지도 초기화 실패: ${e.message}\n네이버 콘솔에서 현재 도메인이 등록됐는지 확인하세요.`
       );
