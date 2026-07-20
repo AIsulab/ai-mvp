@@ -34,7 +34,7 @@ export default async function handler(request, response) {
 
   try {
     const encodedKey = encodeURIComponent(serviceKey);
-    const url = `http://apis.data.go.kr/B553077/api/open/sdsc2/storeListInRadius?radius=${radius}&cx=${cx}&cy=${cy}&serviceKey=${encodedKey}&pageNo=1&numOfRows=20&type=json`;
+    const url = `https://apis.data.go.kr/B553077/api/open/sdsc2/storeListInRadius?radius=${radius}&cx=${cx}&cy=${cy}&serviceKey=${encodedKey}&pageNo=1&numOfRows=20&type=json`;
     
     const res = await fetch(url);
     const data = await res.json();

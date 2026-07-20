@@ -168,12 +168,12 @@ export default function WeatherMarketingPage() {
             <div className="flex-1">
               <p className="text-xs md:text-sm text-red-600 dark:text-red-400">{error}</p>
             </div>
-            <button onClick={generate} className="text-xs text-red-600 dark:text-red-400 hover:text-red-800 underline underline-offset-2 shrink-0 font-medium">
+            <button onClick={() => generate()} className="text-xs text-red-600 dark:text-red-400 hover:text-red-800 underline underline-offset-2 shrink-0 font-medium">
               재시도
             </button>
           </div>
         )}
-        <Button variant="primary" className="w-full mt-4 md:mt-5" onClick={generate} disabled={isGenerating || !businessType || !menuOrProduct} loading={isGenerating}>
+        <Button variant="primary" className="w-full mt-4 md:mt-5" onClick={() => generate()} disabled={isGenerating || !businessType || !menuOrProduct} loading={isGenerating}>
           <Zap size={14} /> {isGenerating ? "데이터를 불러오는 중입니다..." : "마케팅 문구 생성하기"}
         </Button>
       </Card>

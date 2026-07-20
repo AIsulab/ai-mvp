@@ -41,6 +41,9 @@ export function AuthProvider({ children }) {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       setLoading(false);
+    }).catch(() => {
+      setUser(null);
+      setLoading(false);
     });
 
     // 세션 변화 구독

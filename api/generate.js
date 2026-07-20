@@ -122,7 +122,8 @@ export default async function handler(req, res) {
 
     // Non-streaming response (backward compatible)
     const data = await response.json();
-    const resultText = data.choices[0].message.content.trim();
+    const resultText = data?.choices?.[0]?.message?.content?.trim();
+    if (!resultText) throw new Error("AI 응답이 비어있습니다.");
     return res.status(200).json({ result: resultText });
   } catch (error) {
     console.error("MiMo Error:", error);

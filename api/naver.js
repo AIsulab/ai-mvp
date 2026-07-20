@@ -33,8 +33,11 @@ export default async function handler(request, response) {
       method: "GET",
       headers: { "X-Naver-Client-Id": clientId, "X-Naver-Client-Secret": clientSecret },
     });
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.errorMessage || `네이버 API 요청 실패: ${res.status}`);
+    }
     const data = await res.json();
-    if (!res.ok) throw new Error(data.errorMessage || "네이버 API 요청 실패");
     return response.status(200).json(data);
   } catch (err) {
     console.error("Naver API error:", err);

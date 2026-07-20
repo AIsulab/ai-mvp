@@ -39,7 +39,7 @@ export default async function handler(request, response) {
   const base_time = `${pad(h)}30`; // 초단기예보는 항상 30분 기준
 
   const encodedKey = serviceKey.includes('%') ? serviceKey : encodeURIComponent(serviceKey);
-  const url = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst?serviceKey=${encodedKey}&pageNo=1&numOfRows=100&dataType=JSON&base_date=${base_date}&base_time=${base_time}&nx=${nx}&ny=${ny}`;
+  const url = `https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst?serviceKey=${encodedKey}&pageNo=1&numOfRows=100&dataType=JSON&base_date=${base_date}&base_time=${base_time}&nx=${nx}&ny=${ny}`;
 
   try {
     const res = await fetch(url);

@@ -185,10 +185,10 @@ export default function ReviewReplyPage() {
           <div className="mt-2.5 md:mt-3 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-start gap-2">
             <AlertCircle size={14} className="text-red-500 shrink-0 mt-0.5" />
             <p className="text-xs md:text-sm text-red-600 dark:text-red-400 flex-1">{error}</p>
-            <button onClick={generate} className="text-xs text-red-600 dark:text-red-400 hover:text-red-800 underline underline-offset-2 shrink-0 font-medium">재시도</button>
+            <button onClick={() => generate()} className="text-xs text-red-600 dark:text-red-400 hover:text-red-800 underline underline-offset-2 shrink-0 font-medium">재시도</button>
           </div>
         )}
-        <Button variant="primary" className="w-full mt-3 md:mt-4" onClick={generate} disabled={isGenerating || !review.trim()} loading={isGenerating}>
+        <Button variant="primary" className="w-full mt-3 md:mt-4" onClick={() => generate()} disabled={isGenerating || !review.trim()} loading={isGenerating}>
           <Star size={14} /> {isGenerating ? "데이터를 불러오는 중입니다..." : "답변 자동 생성하기"}
         </Button>
       </Card>
