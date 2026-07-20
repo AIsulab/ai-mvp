@@ -11,6 +11,11 @@ function loadNaverSDK() {
   if (sdkPromise) return sdkPromise;
 
   sdkPromise = new Promise((resolve, reject) => {
+    const doReject = (err) => {
+      sdkPromise = null; // 항상 리셋하여 재시도 가능하게
+      reject(err);
+    };
+
     if (isSDKReady()) {
       console.log("[NaverMap] SDK already loaded");
       resolve(window.naver.maps);
@@ -20,8 +25,7 @@ function loadNaverSDK() {
     const keyToUse = NAVER_MAP_KEY;
 
     if (!keyToUse) {
-      sdkPromise = null;
-      reject(new Error("VITE_NAVER_MAP_CLIENT_ID 환경변수가 설정되지 않았습니다. .env 파일을 확인하세요."));
+      doReject(new Error("VITE_NAVER_MAP_CLIENT_ID 환경변수가 설정되지 않았습니다. .env 파일을 확인하세요."));
       return;
     }
 
@@ -32,18 +36,17 @@ function loadNaverSDK() {
       if (typeof window.naver?.maps?.Map === "function") {
         resolve(window.naver.maps);
       } else {
-        sdkPromise = null;
-        reject(new Error("SDK 콜백 수신했으나 naver.maps.Map이 function이 아님 (인증 실패)"));
+        doReject(new Error(
+          "네이버 지도 API 인증 실패: 도메인이 NCP 콘솔에 등록되지 않았습니다.\n" +
+          "NCP 콘솔 > AI·NAVER API > Maps > Application에서 현재 도메인을 Web 서비스 URL에 추가해주세요."
+        ));
       }
     };
 
     const scriptId = "naver-map-sdk";
     const existingScript = document.getElementById(scriptId);
     if (existingScript) {
-      waitForSDKReady(5000).then(resolve).catch(err => {
-        sdkPromise = null;
-        reject(err);
-      });
+      waitForSDKReady(5000).then(resolve).catch(doReject);
       return;
     }
 
@@ -56,8 +59,7 @@ function loadNaverSDK() {
 
     script.onerror = () => {
       delete window[callbackName];
-      sdkPromise = null;
-      reject(new Error("SDK 스크립트 로드 실패 — 네트워크 또는 URL 확인"));
+      doReject(new Error("SDK 스크립트 로드 실패 — 네트워크 또는 URL 확인"));
     };
 
     script.onload = () => {
@@ -65,10 +67,7 @@ function loadNaverSDK() {
         if (window[callbackName]) {
           console.warn("[NaverMap] callback not fired after 5s, polling fallback...");
           delete window[callbackName];
-          waitForSDKReady(5000).then(resolve).catch(err => {
-            sdkPromise = null;
-            reject(err);
-          });
+          waitForSDKReady(5000).then(resolve).catch(doReject);
         }
       }, 5000);
     };

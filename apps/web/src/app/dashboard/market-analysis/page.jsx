@@ -87,46 +87,54 @@ export default function MarketAnalysisPage() {
   }, [activeTab]);
 
   const clearMarkers = useCallback(() => {
-    markersRef.current.forEach((m) => m.setMap(null));
+    markersRef.current.forEach((m) => { try { m.setMap(null); } catch {} });
     markersRef.current = [];
-    infoWindowsRef.current.forEach((iw) => iw.close());
+    infoWindowsRef.current.forEach((iw) => { try { iw.close(); } catch {} });
     infoWindowsRef.current = [];
   }, []);
 
   const renderMarkers = useCallback(() => {
-    if (!mapRef.current || !window.naver) return;
+    if (!mapRef.current || !window.naver?.maps?.Marker) return;
     clearMarkers();
     const naver = window.naver;
 
     if (showStores) {
       stores.forEach((store) => {
-        const lat = parseFloat(store.lat || store.y);
-        const lng = parseFloat(store.lon || store.x);
-        if (isNaN(lat) || isNaN(lng)) return;
-        const marker = new naver.maps.Marker({
-          position: new naver.maps.LatLng(lat, lng), map: mapRef.current,
-          icon: { content: `<div style="background:#2563EB;width:28px;height:28px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;"><div style="width:8px;height:8px;background:white;border-radius:50%;"></div></div>`, size: new naver.maps.Size(28, 28), anchor: new naver.maps.Point(14, 14) },
-        });
-        const content = `<div style="padding:8px;min-width:180px;font-family:Inter,system-ui,sans-serif;"><strong style="display:block;font-size:14px;margin-bottom:4px;color:#111827;">${store.bizesNm}</strong><span style="font-size:11px;color:#2563EB;background:#EFF6FF;padding:2px 8px;border-radius:12px;">${store.indsSclsNm || store.indsMclsNm || "상가"}</span><p style="font-size:11px;color:#6B7280;margin-top:6px;margin-bottom:0;">${store.ldongNm || store.adongNm || ""}</p>${store.telno ? `<p style="font-size:11px;color:#9CA3AF;margin-top:4px;margin-bottom:0;">📞 ${store.telno}</p>` : ""}</div>`;
-        const infoWindow = new naver.maps.InfoWindow({ content });
-        naver.maps.Event.addListener(marker, "click", () => { infoWindowsRef.current.forEach((iw) => iw.close()); infoWindow.open(mapRef.current, marker); });
-        markersRef.current.push(marker);
-        infoWindowsRef.current.push(infoWindow);
+        try {
+          const lat = parseFloat(store.lat || store.y);
+          const lng = parseFloat(store.lon || store.x);
+          if (isNaN(lat) || isNaN(lng)) return;
+          const marker = new naver.maps.Marker({
+            position: new naver.maps.LatLng(lat, lng), map: mapRef.current,
+            icon: { content: `<div style="background:#2563EB;width:28px;height:28px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;"><div style="width:8px;height:8px;background:white;border-radius:50%;"></div></div>`, size: new naver.maps.Size(28, 28), anchor: new naver.maps.Point(14, 14) },
+          });
+          const content = `<div style="padding:8px;min-width:180px;font-family:Inter,system-ui,sans-serif;"><strong style="display:block;font-size:14px;margin-bottom:4px;color:#111827;">${store.bizesNm}</strong><span style="font-size:11px;color:#2563EB;background:#EFF6FF;padding:2px 8px;border-radius:12px;">${store.indsSclsNm || store.indsMclsNm || "상가"}</span><p style="font-size:11px;color:#6B7280;margin-top:6px;margin-bottom:0;">${store.ldongNm || store.adongNm || ""}</p>${store.telno ? `<p style="font-size:11px;color:#9CA3AF;margin-top:4px;margin-bottom:0;">📞 ${store.telno}</p>` : ""}</div>`;
+          const infoWindow = new naver.maps.InfoWindow({ content });
+          naver.maps.Event.addListener(marker, "click", () => { infoWindowsRef.current.forEach((iw) => { try { iw.close(); } catch {} }); infoWindow.open(mapRef.current, marker); });
+          markersRef.current.push(marker);
+          infoWindowsRef.current.push(infoWindow);
+        } catch (e) {
+          console.warn("[NaverMap] 상가 마커 생성 실패:", e.message);
+        }
       });
     }
 
     if (showWifi) {
       wifis.forEach((wifi) => {
-        if (!wifi.lat || !wifi.lon) return;
-        const marker = new naver.maps.Marker({
-          position: new naver.maps.LatLng(wifi.lat, wifi.lon), map: mapRef.current,
-          icon: { content: `<div style="background:#22C55E;width:28px;height:28px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;"><div style="width:8px;height:8px;background:white;border-radius:50%;"></div></div>`, size: new naver.maps.Size(28, 28), anchor: new naver.maps.Point(14, 14) },
-        });
-        const content = `<div style="padding:8px;min-width:180px;font-family:Inter,system-ui,sans-serif;"><strong style="display:block;font-size:14px;margin-bottom:4px;color:#15803D;">${wifi.instlPlace}</strong><span style="font-size:11px;color:#16A34A;background:#F0FDF4;padding:2px 8px;border-radius:12px;border:1px solid #BBF7D0;">무료 와이파이</span><p style="font-size:11px;color:#6B7280;margin-top:6px;margin-bottom:0;">${wifi.addr || ""}</p>${wifi.wifiSsid ? `<p style="font-size:11px;color:#9CA3AF;margin-top:4px;margin-bottom:0;">📡 ${wifi.wifiSsid}</p>` : ""}</div>`;
-        const infoWindow = new naver.maps.InfoWindow({ content });
-        naver.maps.Event.addListener(marker, "click", () => { infoWindowsRef.current.forEach((iw) => iw.close()); infoWindow.open(mapRef.current, marker); });
-        markersRef.current.push(marker);
-        infoWindowsRef.current.push(infoWindow);
+        try {
+          if (!wifi.lat || !wifi.lon) return;
+          const marker = new naver.maps.Marker({
+            position: new naver.maps.LatLng(wifi.lat, wifi.lon), map: mapRef.current,
+            icon: { content: `<div style="background:#22C55E;width:28px;height:28px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;"><div style="width:8px;height:8px;background:white;border-radius:50%;"></div></div>`, size: new naver.maps.Size(28, 28), anchor: new naver.maps.Point(14, 14) },
+          });
+          const content = `<div style="padding:8px;min-width:180px;font-family:Inter,system-ui,sans-serif;"><strong style="display:block;font-size:14px;margin-bottom:4px;color:#15803D;">${wifi.instlPlace}</strong><span style="font-size:11px;color:#16A34A;background:#F0FDF4;padding:2px 8px;border-radius:12px;border:1px solid #BBF7D0;">무료 와이파이</span><p style="font-size:11px;color:#6B7280;margin-top:6px;margin-bottom:0;">${wifi.addr || ""}</p>${wifi.wifiSsid ? `<p style="font-size:11px;color:#9CA3AF;margin-top:4px;margin-bottom:0;">📡 ${wifi.wifiSsid}</p>` : ""}</div>`;
+          const infoWindow = new naver.maps.InfoWindow({ content });
+          naver.maps.Event.addListener(marker, "click", () => { infoWindowsRef.current.forEach((iw) => { try { iw.close(); } catch {} }); infoWindow.open(mapRef.current, marker); });
+          markersRef.current.push(marker);
+          infoWindowsRef.current.push(infoWindow);
+        } catch (e) {
+          console.warn("[NaverMap] 와이파이 마커 생성 실패:", e.message);
+        }
       });
     }
   }, [stores, wifis, showStores, showWifi, clearMarkers]);
