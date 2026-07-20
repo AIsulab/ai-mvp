@@ -53,7 +53,7 @@ cd ai-mvp
 start index.html
 ```
 
-Vercel을 통해 자동 배포된 라이브 데모는 [sulab.store](https://sulab.store)에서 확인하실 수 있습니다.
+Vercel을 통해 자동 배포된 라이브 데모는 [w-ai-pro.vercel.app](https://w-ai-pro.vercel.app)에서 확인하실 수 있습니다.
 
 ---
 

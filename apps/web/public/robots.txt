@@ -9,4 +9,4 @@ Allow: /
 # Disallow: /dashboard/
 
 # 사이트맵 위치
-Sitemap: https://w-ai-sulabs-projects-4a3df4c3.vercel.app/sitemap.xml
+Sitemap: https://w-ai-pro.vercel.app/sitemap.xml
