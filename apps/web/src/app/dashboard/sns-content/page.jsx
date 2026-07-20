@@ -7,7 +7,7 @@ import { copyToClipboard } from "../../../utils/clipboard";
 import SuccessToast, { useSuccessToast } from "../../../components/SuccessToast";
 
 export default function SnsContentPage() {
-  const [businessType, setBusinessType] = useState("");
+  const [businessType, setBusinessType] = useState("일식/초밥");
   const [event, setEvent] = useState("");
   const [platform, setPlatform] = useState(platforms[0]);
   const [mood, setMood] = useState(moods[0]);

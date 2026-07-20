@@ -16,8 +16,8 @@ import SuccessToast, { useSuccessToast } from "../../../components/SuccessToast"
 
 export default function KeywordInsightPage() {
   const navigate = useNavigate();
-  const [businessType, setBusinessType] = useState("식당/한식");
-  const [keyword, setKeyword] = useState("전주 바베큐치킨");
+  const [businessType, setBusinessType] = useState("일식/초밥");
+  const [keyword, setKeyword] = useState("전주 초밥 맛집");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const streamingTimerRef = useRef(null);

@@ -8,8 +8,8 @@ import { copyToClipboard } from "../../../utils/clipboard";
 import SuccessToast, { useSuccessToast } from "../../../components/SuccessToast";
 
 export default function WeatherMarketingPage() {
-  const [businessType, setBusinessType] = useState("식당/한식");
-  const [menuOrProduct, setMenuOrProduct] = useState("파전, 막걸리");
+  const [businessType, setBusinessType] = useState("일식/초밥");
+  const [menuOrProduct, setMenuOrProduct] = useState("불초밥, 연어초밥, 육회비빔밥");
   const [tone, setTone] = useState(tones[0]);
   const [generated, setGenerated] = useState([]);
   const [streaming, setStreaming] = useState("");
