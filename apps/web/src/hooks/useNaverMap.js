@@ -1,36 +1,143 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
-const NAVER_MAPS_URL = "https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=";
 const NAVER_MAP_KEY = import.meta.env.VITE_NAVER_MAP_CLIENT_ID || "";
+const SDK_URL = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${NAVER_MAP_KEY}&submodules=geocoder`;
 
-function isNaverMapsReady() {
-  const n = window.naver;
-  return n && n.maps && typeof n.maps.Map === "function" && typeof n.maps.LatLng === "function" && typeof n.maps.Event === "object";
+export { loadNaverSDK, tryInitMap };
+
+let sdkPromise = null;
+
+function loadNaverSDK() {
+  if (sdkPromise) return sdkPromise;
+
+  sdkPromise = new Promise((resolve, reject) => {
+    if (isSDKReady()) {
+      console.log("[NaverMap] SDK already loaded");
+      resolve(window.naver.maps);
+      return;
+    }
+
+    const keyToUse = NAVER_MAP_KEY;
+
+    if (!keyToUse) {
+      sdkPromise = null;
+      reject(new Error("VITE_NAVER_MAP_CLIENT_ID 환경변수가 설정되지 않았습니다. .env 파일을 확인하세요."));
+      return;
+    }
+
+    const callbackName = "__naverMapReady_" + Date.now();
+    window[callbackName] = () => {
+      console.log("[NaverMap] SDK initialized via callback ✓");
+      delete window[callbackName];
+      if (typeof window.naver?.maps?.Map === "function") {
+        resolve(window.naver.maps);
+      } else {
+        sdkPromise = null;
+        reject(new Error("SDK 콜백 수신했으나 naver.maps.Map이 function이 아님 (인증 실패)"));
+      }
+    };
+
+    const scriptId = "naver-map-sdk";
+    const existingScript = document.getElementById(scriptId);
+    if (existingScript) {
+      waitForSDKReady(5000).then(resolve).catch(err => {
+        sdkPromise = null;
+        reject(err);
+      });
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.id = scriptId;
+    script.src = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${keyToUse}&submodules=geocoder&callback=${callbackName}`;
+    script.async = true;
+
+    console.log("[NaverMap] Loading SDK with Key:", keyToUse);
+
+    script.onerror = () => {
+      delete window[callbackName];
+      sdkPromise = null;
+      reject(new Error("SDK 스크립트 로드 실패 — 네트워크 또는 URL 확인"));
+    };
+
+    script.onload = () => {
+      setTimeout(() => {
+        if (window[callbackName]) {
+          console.warn("[NaverMap] callback not fired after 5s, polling fallback...");
+          delete window[callbackName];
+          waitForSDKReady(5000).then(resolve).catch(err => {
+            sdkPromise = null;
+            reject(err);
+          });
+        }
+      }, 5000);
+    };
+
+    document.head.appendChild(script);
+  });
+
+  return sdkPromise;
 }
 
-function waitForNaverMaps(maxWait = 8000) {
-  return new Promise((resolve) => {
-    if (isNaverMapsReady()) { resolve(window.naver.maps); return; }
+function isSDKReady() {
+  const n = window.naver;
+  return (
+    n &&
+    n.maps &&
+    typeof n.maps.Map === "function" &&
+    typeof n.maps.LatLng === "function" &&
+    typeof n.maps.Event === "object"
+  );
+}
+
+function waitForSDKReady(timeout = 5000) {
+  return new Promise((resolve, reject) => {
+    if (isSDKReady()) { resolve(window.naver.maps); return; }
     const start = Date.now();
-    const interval = setInterval(() => {
-      if (isNaverMapsReady()) {
-        clearInterval(interval);
+    const timer = setInterval(() => {
+      if (isSDKReady()) {
+        clearInterval(timer);
+        console.log("[NaverMap] SDK ready via polling ✓");
         resolve(window.naver.maps);
-      } else if (Date.now() - start > maxWait) {
-        clearInterval(interval);
+      } else if (Date.now() - start > timeout) {
+        clearInterval(timer);
         const n = window.naver;
-        console.error("[NaverMap] Auth check detail:", {
+        console.error("[NaverMap] SDK timeout. Detail:", {
           naverExists: !!n,
           mapsExists: !!n?.maps,
           hasMap: typeof n?.maps?.Map,
-          hasLatLng: typeof n?.maps?.LatLng,
-          hasEvent: typeof n?.maps?.Event,
-          hasMarker: typeof n?.maps?.Marker,
         });
-        resolve(null);
+        reject(new Error(
+          `SDK 로드 타임아웃 — Client ID 인증 및 도메인 설정을 확인하세요.`
+        ));
       }
     }, 50);
   });
+}
+
+async function tryInitMap(container, naverMaps, mapOptions, maxRetries = 3, retryMs = 300) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      if (typeof naverMaps.Map !== "function") {
+        throw new Error(`naver.maps.Map이 function이 아님 (attempt ${attempt})`);
+      }
+      if (typeof naverMaps.Event === "undefined") {
+        throw new Error(`naver.maps.Event가 undefined (attempt ${attempt})`);
+      }
+
+      console.log(`[NaverMap] initMap attempt ${attempt}/${maxRetries}`);
+      const map = new naverMaps.Map(container, mapOptions);
+      console.log(`[NaverMap] Map created ✓`);
+      return map;
+    } catch (e) {
+      console.warn(`[NaverMap] initMap attempt ${attempt} failed:`, e.message);
+      if (attempt < maxRetries) {
+        await new Promise(r => setTimeout(r, retryMs));
+      } else {
+        throw e;
+      }
+    }
+  }
 }
 
 export function useNaverMap(containerRef, options = {}) {
@@ -42,67 +149,59 @@ export function useNaverMap(containerRef, options = {}) {
   const { center = { lat: 35.818, lng: 127.148 }, zoom = 15 } = options;
 
   useEffect(() => {
-    if (!containerRef.current || map) return;
+    if (!containerRef.current) return;
 
-    console.log("[NaverMap] KEY:", NAVER_MAP_KEY ? `${NAVER_MAP_KEY.slice(0,4)}...` : "(empty)");
+    let cancelled = false;
+    let localMapInstance = null;
 
-    const scriptId = "naver-map-script";
-    if (!document.getElementById(scriptId)) {
-      const script = document.createElement("script");
-      script.id = scriptId;
-      script.src = `${NAVER_MAPS_URL}${NAVER_MAP_KEY}&submodules=geocoder`;
-      console.log("[NaverMap] SDK URL:", script.src);
-      script.async = true;
-      script.onload = async () => {
-        console.log("[NaverMap] Script loaded, waiting for SDK init...");
-        const naverMaps = await waitForNaverMaps();
-        if (naverMaps) {
-          console.log("[NaverMap] SDK ready");
-          initMap(naverMaps);
-        } else {
-          const n = window.naver;
-          const detail = {
-            naverExists: !!n, mapsExists: !!n?.maps,
-            hasMap: typeof n?.maps?.Map, hasLatLng: typeof n?.maps?.LatLng,
-            hasEvent: typeof n?.maps?.Event, hasMarker: typeof n?.maps?.Marker,
-          };
-          console.error("[NaverMap] Auth FAILED. Detail:", detail);
-          setError(`인증 실패 — Map:${detail.hasMap} Event:${detail.hasEvent} LatLng:${detail.hasLatLng}. 네이버 콘솔에서 sulab.store 도메인을 확인하세요.`);
-        }
-      };
-      script.onerror = () => {
-        console.error("[NaverMap] Script load failed");
-        setError("SDK 스크립트 로드 실패");
-      };
-      document.head.appendChild(script);
-    } else {
-      waitForNaverMaps().then((naverMaps) => { if (naverMaps) initMap(naverMaps); });
-    }
-
-    function initMap(naverMaps) {
+    (async () => {
       try {
-        console.log("[NaverMap] initMap start");
-        const naverMap = new naverMaps.Map(containerRef.current, {
-          center: new naverMaps.LatLng(center.lat, center.lng),
-          zoom,
-          scaleControl: true,
-          logoControl: false,
-          mapDataControl: false,
-        });
-        console.log("[NaverMap] Map created OK");
-        setMap(naverMap);
+        const naverMaps = await loadNaverSDK();
+
+        if (cancelled || !containerRef.current) return;
+
+        localMapInstance = await tryInitMap(
+          containerRef.current,
+          naverMaps,
+          {
+            center: new naverMaps.LatLng(center.lat, center.lng),
+            zoom,
+            scaleControl: true,
+            logoControl: false,
+            mapDataControl: false,
+          },
+          3,
+          300
+        );
+
+        if (cancelled) {
+          try { localMapInstance?.destroy?.(); } catch {}
+          return;
+        }
+
+        setMap(localMapInstance);
         setIsLoaded(true);
       } catch (e) {
-        console.error("[NaverMap] initMap error:", e);
-        setError(`지도 초기화 실패: ${e.message}`);
+        if (!cancelled) {
+          console.error("[NaverMap] Fatal:", e.message);
+          setError(e.message);
+        }
       }
-    }
-  }, [containerRef, center, zoom]);
+    })();
+
+    return () => {
+      cancelled = true;
+      markersRef.current.forEach(m => { try { m.setMap(null); } catch {} });
+      markersRef.current = [];
+      if (localMapInstance) {
+        try { localMapInstance.destroy?.(); } catch {}
+      }
+      setMap(null);
+    };
+  }, [containerRef, center.lat, center.lng, zoom]);
 
   const setCenter = useCallback((lat, lng) => {
-    if (map) {
-      map.setCenter(new window.naver.maps.LatLng(lat, lng));
-    }
+    if (map && window.naver?.maps) map.setCenter(new window.naver.maps.LatLng(lat, lng));
   }, [map]);
 
   const getCenter = useCallback(() => {
@@ -113,27 +212,24 @@ export function useNaverMap(containerRef, options = {}) {
     return center;
   }, [map, center]);
 
-  const addMarker = useCallback((lat, lng, options = {}) => {
-    if (!map || !window.naver) return null;
-    const marker = new window.naver.maps.Marker({
-      position: new window.naver.maps.LatLng(lat, lng),
+  const addMarker = useCallback((lat, lng, opts = {}) => {
+    if (!map || !window.naver?.maps) return null;
+    const nm = window.naver.maps;
+    const marker = new nm.Marker({
+      position: new nm.LatLng(lat, lng),
       map,
-      icon: options.icon || undefined,
+      icon: opts.icon || undefined,
     });
-    if (options.infoWindow) {
-      const infoWindow = new window.naver.maps.InfoWindow({
-        content: options.infoWindow,
-      });
-      window.naver.maps.Event.addListener(marker, "click", () => {
-        infoWindow.open(map, marker);
-      });
+    if (opts.infoWindow) {
+      const iw = new nm.InfoWindow({ content: opts.infoWindow });
+      nm.Event.addListener(marker, "click", () => iw.open(map, marker));
     }
     markersRef.current.push(marker);
     return marker;
   }, [map]);
 
   const clearMarkers = useCallback(() => {
-    markersRef.current.forEach((m) => m.setMap(null));
+    markersRef.current.forEach(m => { try { m.setMap(null); } catch {} });
     markersRef.current = [];
   }, []);
 

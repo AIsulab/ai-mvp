@@ -6,7 +6,7 @@ export default function Card({
 }) {
   return (
     <div
-      className={`bg-white dark:bg-gray-800 rounded-[16px] border border-gray-100 shadow-card hover:shadow-card-lift transition-all duration-200 ${padding} ${className}`}
+      className={`bg-white dark:bg-gray-800 rounded-[16px] border border-gray-100 shadow-card hover:shadow-card-hover transition-all duration-200 ${padding} ${className}`}
       {...props}
     >
       {children}

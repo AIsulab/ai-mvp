@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Gift, ExternalLink, Search, Loader2 } from "lucide-react";
 import { Button, Card, Input, PillSelector, Badge } from "../../../components/ui";
 import { businessTypes } from "../../../constants/businessTypes";
+import WelfareBlogBanner from "../../../components/WelfareBlogBanner";
 
 const fallbackFunds = [
   { id: 1, name: "2026년 소상공인 경영안정 바우처", org: "소상공인시장진흥공단", amount: "연 최대 25만원", rate: "무상 지원", deadline: "2026.11.30", desc: "전기·가스·수도요금, 4대 보험료 등 고정비 부담 완화를 위한 바우처 지급", category: "바우처", types: ["카페","식당/한식","치킨/배달","베이커리","편의점","미용실","옷가게","기타"], tags: ["매출 1.04억 미만", "전국"], status: "신청중", url: "https://www.sbiz24.kr" },
@@ -133,6 +134,11 @@ export default function SupportFundPage() {
           )}
         </div>
       )}
+
+      {/* 복지모아 AI 추천 복지정책 칼럼 */}
+      <div className="mt-8 md:mt-10">
+        <WelfareBlogBanner variant="dark" />
+      </div>
     </div>
   );
 }

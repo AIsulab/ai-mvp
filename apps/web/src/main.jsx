@@ -12,7 +12,11 @@ link.href = 'https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/
 document.head.appendChild(link);
 
 import LandingPage from './app/page';
+import TestMapPage from './app/test-map/page';
+import LoginPage from './app/login/page';
 import DashboardLayout from './app/dashboard/layout';
+import ProtectedRoute from './components/ProtectedRoute';
+import { AuthProvider } from './contexts/AuthContext';
 import DashboardPage from './app/dashboard/page';
 import WeatherMarketingPage from './app/dashboard/weather-marketing/page';
 import SnsContentPage from './app/dashboard/sns-content/page';
@@ -21,6 +25,7 @@ import MarketAnalysisPage from './app/dashboard/market-analysis/page';
 import SupportFundPage from './app/dashboard/support-fund/page';
 import PromptBoardPage from './app/dashboard/prompt-board/page';
 import NoticePage from './app/dashboard/notice/page';
+import KeywordInsightPage from './app/dashboard/keyword-insight/page';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -36,21 +41,31 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/dashboard" element={<DashboardLayout />}>
-              <Route index element={<DashboardPage />} />
-              <Route path="weather-marketing" element={<WeatherMarketingPage />} />
-              <Route path="sns-content" element={<SnsContentPage />} />
-              <Route path="review-reply" element={<ReviewReplyPage />} />
-              <Route path="market-analysis" element={<MarketAnalysisPage />} />
-              <Route path="support-fund" element={<SupportFundPage />} />
-              <Route path="prompt-board" element={<PromptBoardPage />} />
-              <Route path="notice" element={<NoticePage />} />
-            </Route>
-          </Routes>
-        </BrowserRouter>
+        <AuthProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              {/* 지도 SDK 단독 진단 페이지 (DashboardLayout 없이 독립 렌더링) */}
+              <Route path="/test-map" element={<TestMapPage />} />
+              <Route path="/dashboard" element={
+                <ProtectedRoute>
+                  <DashboardLayout />
+                </ProtectedRoute>
+              }>
+                <Route index element={<DashboardPage />} />
+                <Route path="weather-marketing" element={<WeatherMarketingPage />} />
+                <Route path="sns-content" element={<SnsContentPage />} />
+                <Route path="review-reply" element={<ReviewReplyPage />} />
+                <Route path="keyword-insight" element={<KeywordInsightPage />} />
+                <Route path="market-analysis" element={<MarketAnalysisPage />} />
+                <Route path="support-fund" element={<SupportFundPage />} />
+                <Route path="prompt-board" element={<PromptBoardPage />} />
+                <Route path="notice" element={<NoticePage />} />
+              </Route>
+            </Routes>
+          </BrowserRouter>
+        </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

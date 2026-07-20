@@ -2,6 +2,8 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Wifi, MapPin, RefreshCw, Search, BarChart2, Map, AlertTriangle } from "lucide-react";
 import { Card, Badge, Spinner, Button } from "../../../components/ui";
 import { useTheme } from "../../../contexts/ThemeContext";
+// SDK 로드/초기화는 useNaverMap 모듈의 공유 유틸을 재사용
+import { loadNaverSDK, tryInitMap } from "../../../hooks/useNaverMap";
 
 const NAVER_MAP_KEY = import.meta.env.VITE_NAVER_MAP_CLIENT_ID || "";
 const SBIZ_GIS_URL = "https://bigdata.sbiz.or.kr/#/hotplace/gis";
@@ -35,80 +37,54 @@ export default function MarketAnalysisPage() {
   const infoWindowsRef = useRef([]);
   const { isDark } = useTheme();
 
-  const loadNaverMap = useCallback(() => {
-    return new Promise((resolve) => {
-      function isReady() {
-        const n = window.naver;
-        return n && n.maps && typeof n.maps.Map === "function" && typeof n.maps.LatLng === "function" && typeof n.maps.Event === "object";
-      }
-      if (isReady()) { resolve(window.naver.maps); return; }
-      if (!NAVER_MAP_KEY) { setMapError("VITE_NAVER_MAP_CLIENT_ID 환경변수가 설정되지 않았습니다."); resolve(null); return; }
-      const script = document.createElement("script");
-      script.src = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${NAVER_MAP_KEY}&submodules=geocoder`;
-      console.log("[NaverMap] KEY:", NAVER_MAP_KEY ? `${NAVER_MAP_KEY.slice(0,4)}...${NAVER_MAP_KEY.slice(-2)}` : "(empty)");
-      console.log("[NaverMap] SDK URL:", script.src);
-      script.async = true;
-      script.onload = () => {
-        console.log("[NaverMap] Script loaded. Polling for full SDK init...");
-        let attempts = 0;
-        const poll = setInterval(() => {
-          attempts++;
-          if (isReady()) {
-            clearInterval(poll);
-            console.log(`[NaverMap] SDK fully ready after ${attempts * 50}ms`);
-            resolve(window.naver.maps);
-          } else if (attempts >= 160) {
-            clearInterval(poll);
-            const n = window.naver;
-            const detail = {
-              naverExists: !!n,
-              mapsExists: !!n?.maps,
-              hasMap: typeof n?.maps?.Map,
-              hasLatLng: typeof n?.maps?.LatLng,
-              hasEvent: typeof n?.maps?.Event,
-              hasMarker: typeof n?.maps?.Marker,
-            };
-            console.error("[NaverMap] Auth FAILED. Detail:", detail);
-            setMapError(`인증 실패 — Map:${detail.hasMap} Event:${detail.hasEvent} LatLng:${detail.hasLatLng}. 네이버 콘솔에서 sulab.store 도메인을 확인하세요.`);
-            resolve(null);
-          }
-        }, 50);
-      };
-      script.onerror = () => {
-        console.error("[NaverMap] Script load FAILED:", script.src);
-        setMapError("SDK 스크립트 로드 실패 — 네트워크 또는 URL 확인");
-        resolve(null);
-      };
-      document.head.appendChild(script);
-    });
-  }, []);
+  // SDK 로드는 useNaverMap.js의 공유 싱글턴 사용 (중복 로드 방지)
 
   const initMap = useCallback(async (center) => {
     if (activeTab !== "naver") return;
     setMapError(null);
-    const naver = await loadNaverMap();
-    if (!naver || !mapContainerRef.current) return;
+
     try {
-      if (mapRef.current) { mapRef.current.setCenter(new naver.LatLng(center.lat, center.lng)); return; }
+      // 공유 SDK 로더 사용 (콜백 방식 + 싱글턴)
+      const naver = await loadNaverSDK();
+      if (!mapContainerRef.current) return;
+
+      // 이미 지도가 있으면 중심 이동만
+      if (mapRef.current) {
+        mapRef.current.setCenter(new naver.LatLng(center.lat, center.lng));
+        return;
+      }
+
       console.log("[NaverMap] Creating map at", center.lat, center.lng);
-      const map = new naver.Map(mapContainerRef.current, {
-        center: new naver.LatLng(center.lat, center.lng),
-        zoom: 14, scaleControl: true, logoControl: false, mapDataControl: false,
-      });
-      naver.maps.Event.addListener(map, "idle", () => {
+
+      // 재시도 로직 포함 초기화 (최대 3회, 500ms 간격)
+      const map = await tryInitMap(
+        mapContainerRef.current,
+        naver,
+        {
+          center: new naver.LatLng(center.lat, center.lng),
+          zoom: 14, scaleControl: true, logoControl: false, mapDataControl: false,
+        },
+        3,
+        500
+      );
+
+      naver.Event.addListener(map, "idle", () => {
         const c = map.getCenter();
         const newCenter = { lat: c.lat(), lng: c.lng() };
         setMapCenter(newCenter);
         localStorage.setItem("mapCenter", JSON.stringify(newCenter));
       });
+
       mapRef.current = map;
       setMapLoaded(true);
-      console.log("[NaverMap] Map initialized successfully");
+      console.log("[NaverMap] Map initialized successfully ✓");
     } catch (e) {
       console.error("[NaverMap] Map init error:", e);
-      setMapError(`지도 초기화 실패: ${e.message}`);
+      setMapError(
+        `지도 초기화 실패: ${e.message}\n네이버 콘솔에서 sulab.store 도메인이 등록됐는지 확인하세요.`
+      );
     }
-  }, [loadNaverMap, activeTab]);
+  }, [activeTab]);
 
   const clearMarkers = useCallback(() => {
     markersRef.current.forEach((m) => m.setMap(null));
@@ -168,11 +144,24 @@ export default function MarketAnalysisPage() {
     finally { setLoading(false); }
   }, []);
 
-  useEffect(() => { if (activeTab === "naver") initMap(mapCenter); }, [activeTab]);
+  useEffect(() => {
+    if (activeTab === "naver") initMap(mapCenter);
+  }, [activeTab]);
 
-  useEffect(() => { if (mapLoaded) renderMarkers(); }, [mapLoaded, stores, wifis, showStores, showWifi, renderMarkers]);
+  useEffect(() => {
+    if (mapLoaded) renderMarkers();
+  }, [mapLoaded, stores, wifis, showStores, showWifi, renderMarkers]);
 
-  useEffect(() => { fetchData(mapCenter); }, []);
+  useEffect(() => {
+    fetchData(mapCenter);
+    return () => {
+      clearMarkers();
+      if (mapRef.current) {
+        try { mapRef.current.destroy?.(); } catch {}
+        mapRef.current = null;
+      }
+    };
+  }, []);
 
   const handleRefresh = () => {
     if (activeTab === "sbiz") { fetchData(mapCenter); return; }
@@ -205,141 +194,206 @@ export default function MarketAnalysisPage() {
   };
 
   return (
-    <div className="flex flex-col h-full animate-fade-in">
-      {/* Compact Tab Header */}
-      <div className="px-3 md:px-4 py-2 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-        <div className="flex gap-0.5 md:gap-1 bg-gray-100 dark:bg-gray-700 rounded-lg p-0.5 md:p-1">
-          <button
-            onClick={() => setActiveTab("naver")}
-            className={`flex items-center gap-1.5 md:gap-2 px-2.5 md:px-4 py-1.5 rounded-md text-xs md:text-sm font-medium transition-all ${
-              activeTab === "naver"
-                ? "bg-white dark:bg-gray-800 text-primary shadow-sm"
-                : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-            }`}
-          >
-            <Map size={13} /> <span className="hidden sm:inline">네이버</span> 지도
-          </button>
-          <button
-            onClick={() => setActiveTab("sbiz")}
-            className={`flex items-center gap-1.5 md:gap-2 px-2.5 md:px-4 py-1.5 rounded-md text-xs md:text-sm font-medium transition-all ${
-              activeTab === "sbiz"
-                ? "bg-white dark:bg-gray-800 text-primary shadow-sm"
-                : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-            }`}
-          >
-            <BarChart2 size={13} /> <span className="hidden sm:inline">핫플레이스</span> GIS
-          </button>
-        </div>
-        {!loading && activeTab === "naver" && (
-          <div className="flex items-center gap-2 md:gap-3 text-[10px] md:text-xs">
-            <span className="text-gray-500 dark:text-gray-400">상가 <strong className="text-primary">{stores.length}</strong></span>
-            <span className="text-gray-300 dark:text-gray-600">|</span>
-            <span className="text-gray-500 dark:text-gray-400">와이파이 <strong className="text-green-600">{wifis.length}</strong></span>
+    <div className="flex flex-col lg:flex-row h-[calc(100vh-56px)] animate-fade-in bg-gray-50 dark:bg-gray-900">
+      {/* Left side: Maps & GIS */}
+      <div className="flex-1 flex flex-col relative h-[50vh] lg:h-full min-h-[350px]">
+        {/* Compact Tab Header */}
+        <div className="absolute top-3 left-3 right-3 z-[400] flex items-center justify-between pointer-events-auto">
+          <div className="flex gap-0.5 bg-white/95 dark:bg-gray-800/95 backdrop-blur-md rounded-xl p-1 shadow-lg border border-gray-100 dark:border-gray-700">
+            <button
+              onClick={() => setActiveTab("naver")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                activeTab === "naver"
+                  ? "bg-gray-900 text-white dark:bg-white dark:text-gray-900 shadow-sm"
+                  : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+              }`}
+            >
+              <Map size={13} /> 지도
+            </button>
+            <button
+              onClick={() => setActiveTab("sbiz")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                activeTab === "sbiz"
+                  ? "bg-gray-900 text-white dark:bg-white dark:text-gray-900 shadow-sm"
+                  : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+              }`}
+            >
+              <BarChart2 size={13} /> GIS 분석
+            </button>
           </div>
-        )}
-      </div>
 
-      {/* Content */}
-      <div className="flex-1 relative">
+          {!loading && activeTab === "naver" && (
+            <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-white/95 dark:bg-gray-800/95 backdrop-blur-md shadow-lg border border-gray-100 dark:border-gray-700 text-[11px] font-semibold text-gray-700 dark:text-gray-300">
+              <span>상가 <strong className="text-blue-600 dark:text-blue-400">{stores.length}</strong></span>
+              <span className="text-gray-300 dark:text-gray-600">|</span>
+              <span>와이파이 <strong className="text-green-600 dark:text-green-400">{wifis.length}</strong></span>
+            </div>
+          )}
+        </div>
+
         {activeTab === "naver" ? (
           <>
             {/* Search Bar */}
-            <div className="absolute top-3 left-3 right-3 md:top-4 md:left-4 md:right-4 z-[400] flex gap-1.5 md:gap-2 animate-slide-up">
-              <Card padding="p-1.5 md:p-2" className="flex-1 flex items-center gap-1.5 md:gap-2">
-                <Search size={14} className="text-gray-400 ml-1.5 md:ml-2" />
+            <div className="absolute top-16 left-3 right-3 z-[400] flex gap-1.5">
+              <Card padding="p-1.5" className="flex-1 flex items-center gap-2 bg-white/95 dark:bg-gray-800/95 backdrop-blur-md shadow-lg border border-gray-100 dark:border-gray-700">
+                <Search size={14} className="text-gray-400 ml-1.5" />
                 <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                   placeholder="지역 검색 (예: 전주객사, 익산역)"
-                  className="flex-1 bg-transparent outline-none text-xs md:text-sm text-gray-900 dark:text-white placeholder-gray-400" />
+                  className="flex-1 bg-transparent outline-none text-xs text-gray-900 dark:text-white placeholder-gray-400" />
                 <Button variant="primary" size="sm" onClick={handleSearch}>검색</Button>
               </Card>
-              <Button variant="secondary" size="sm" onClick={handleRefresh} disabled={loading}>
-                <RefreshCw size={13} className={loading ? "animate-spin" : ""} /> <span className="hidden md:inline">새로고침</span>
+              <Button variant="secondary" size="sm" className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md shadow-lg border border-gray-100 dark:border-gray-700" onClick={handleRefresh} disabled={loading}>
+                <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
               </Button>
             </div>
 
-            {/* Controls Panel - Mobile: horizontal toggle bar */}
-            <div className="absolute top-16 md:top-20 left-3 md:left-4 z-[400] animate-slide-up" style={{ animationDelay: '100ms' }}>
-              <div className="md:hidden bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-2 flex gap-2">
-                <label className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md cursor-pointer text-[10px] font-medium transition-colors ${showStores ? "bg-primary/10 text-primary" : "text-gray-500 dark:text-gray-400"}`}>
-                  <div className="w-2 h-2 rounded-full bg-primary"></div>
-                  상가
-                  <input type="checkbox" checked={showStores} onChange={(e) => setShowStores(e.target.checked)} className="sr-only" />
-                </label>
-                <label className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md cursor-pointer text-[10px] font-medium transition-colors ${showWifi ? "bg-green-50 dark:bg-green-900/30 text-green-600" : "text-gray-500 dark:text-gray-400"}`}>
-                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                  와이파이
-                  <input type="checkbox" checked={showWifi} onChange={(e) => setShowWifi(e.target.checked)} className="sr-only" />
-                </label>
-              </div>
-              <Card className="w-52 md:w-56 hidden md:block">
-                <h3 className="text-xs font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                  <MapPin size={13} className="text-primary" /> 레이어
+            {/* Controls Panel - Desktop layers */}
+            <div className="absolute top-28 left-3 z-[400] hidden md:block">
+              <Card className="w-48 bg-white/95 dark:bg-gray-800/95 backdrop-blur-md shadow-lg border border-gray-100 dark:border-gray-700 p-2.5">
+                <h3 className="text-[11px] font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-1.5">
+                  <MapPin size={12} className="text-blue-600 dark:text-blue-400" /> 지도 레이어
                 </h3>
-                <div className="space-y-2">
-                  <label className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors ${showStores ? "bg-primary/10 dark:bg-primary/20" : "bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600"}`}>
-                    <div className="flex items-center gap-2">
-                      <div className="w-2.5 h-2.5 rounded-full bg-primary"></div>
-                      <span className="text-xs font-medium text-gray-700 dark:text-gray-300">상가업소</span>
-                    </div>
-                    <input type="checkbox" checked={showStores} onChange={(e) => setShowStores(e.target.checked)} className="w-3.5 h-3.5 text-primary rounded focus:ring-primary" />
+                <div className="space-y-1.5">
+                  <label className={`flex items-center justify-between p-1.5 rounded-lg cursor-pointer transition-colors ${showStores ? "bg-blue-500/10 text-blue-600" : "bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400"}`}>
+                    <span className="text-xs font-semibold">상가업소</span>
+                    <input type="checkbox" checked={showStores} onChange={(e) => setShowStores(e.target.checked)} className="w-3.5 h-3.5 rounded text-blue-600 focus:ring-blue-500/50" />
                   </label>
-                  <label className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors ${showWifi ? "bg-green-50 dark:bg-green-900/20" : "bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600"}`}>
-                    <div className="flex items-center gap-2">
-                      <div className="w-2.5 h-2.5 rounded-full bg-green-500"></div>
-                      <span className="text-xs font-medium text-gray-700 dark:text-gray-300">와이파이존</span>
-                    </div>
-                    <input type="checkbox" checked={showWifi} onChange={(e) => setShowWifi(e.target.checked)} className="w-3.5 h-3.5 text-green-500 rounded focus:ring-green-500" />
+                  <label className={`flex items-center justify-between p-1.5 rounded-lg cursor-pointer transition-colors ${showWifi ? "bg-green-500/10 text-green-600" : "bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400"}`}>
+                    <span className="text-xs font-semibold">와이파이존</span>
+                    <input type="checkbox" checked={showWifi} onChange={(e) => setShowWifi(e.target.checked)} className="w-3.5 h-3.5 rounded text-green-600 focus:ring-green-500/50" />
                   </label>
                 </div>
               </Card>
             </div>
 
-            {/* Legend - Mobile: compact */}
-            <div className="absolute bottom-3 left-3 md:bottom-4 md:left-4 z-[400] animate-slide-up" style={{ animationDelay: '200ms' }}>
-              <Card padding="p-2 md:p-2.5" className="flex items-center gap-2 md:gap-3">
-                <div className="flex items-center gap-1 md:gap-1.5"><div className="w-2 h-2 md:w-2.5 md:h-2.5 rounded-full bg-primary"></div><span className="text-[9px] md:text-[11px] text-gray-600 dark:text-gray-400">상가</span></div>
-                <div className="flex items-center gap-1 md:gap-1.5"><div className="w-2 h-2 md:w-2.5 md:h-2.5 rounded-full bg-green-500"></div><span className="text-[9px] md:text-[11px] text-gray-600 dark:text-gray-400">와이파이</span></div>
+            {/* Legend & Coordinates */}
+            <div className="absolute bottom-3 left-3 z-[400] flex items-center gap-2">
+              <Card padding="p-1.5" className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md shadow-lg border border-gray-100 dark:border-gray-700 flex items-center gap-2.5 text-[9px] font-semibold text-gray-600 dark:text-gray-400">
+                <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-blue-600"></div>상가</div>
+                <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-green-500"></div>와이파이</div>
+              </Card>
+              <Card padding="p-1.5" className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md shadow-lg border border-gray-100 dark:border-gray-700 text-[8px] font-mono text-gray-400">
+                {mapCenter.lat.toFixed(4)}, {mapCenter.lng.toFixed(4)}
               </Card>
             </div>
 
-            {/* Coordinates - Mobile: smaller */}
-            <div className="absolute bottom-3 right-3 md:bottom-4 md:right-4 z-[400] animate-slide-up" style={{ animationDelay: '300ms' }}>
-              <Card padding="p-1.5 md:p-2.5">
-                <span className="text-[8px] md:text-[10px] text-gray-400 dark:text-gray-500 font-mono">{mapCenter.lat.toFixed(4)}, {mapCenter.lng.toFixed(4)}</span>
-              </Card>
-            </div>
-
-            {/* Naver Map */}
+            {/* Naver Map Container */}
             {mapError ? (
-              <div className="w-full flex items-center justify-center bg-gray-100 dark:bg-gray-800" style={{ minHeight: '400px' }}>
-                <div className="text-center p-6 max-w-md">
-                  <AlertTriangle size={36} className="text-orange-400 mx-auto mb-3" />
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white mb-1">지도를 불러오지 못했습니다.</p>
-                  <p className="text-xs text-red-500 dark:text-red-400 mb-2 font-mono break-all">{mapError}</p>
-                  <p className="text-[10px] text-gray-400 mb-4">KEY: {NAVER_MAP_KEY ? `${NAVER_MAP_KEY.slice(0,4)}...${NAVER_MAP_KEY.slice(-2)}` : "(없음)"}</p>
-                  <button onClick={() => { setMapError(null); setMapLoaded(false); mapRef.current = null; initMap(mapCenter); }} className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:underline">
-                    <RefreshCw size={12} /> 다시 시도
+              <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+                <div className="text-center p-6 max-w-sm">
+                  <AlertTriangle size={32} className="text-yellow-500 mx-auto mb-2" />
+                  <p className="text-xs font-semibold text-gray-900 dark:text-white mb-1">지도를 불러오지 못했습니다.</p>
+                  <p className="text-[10px] text-red-500 dark:text-red-400 mb-3 font-mono">{mapError.split('\n')[0]}</p>
+                  <button onClick={() => { setMapError(null); setMapLoaded(false); mapRef.current = null; initMap(mapCenter); }} className="px-3 py-1.5 bg-gray-900 text-white dark:bg-white dark:text-gray-900 text-xs font-semibold rounded-lg hover:opacity-90 transition-opacity">
+                    다시 시도
                   </button>
                 </div>
               </div>
             ) : (
-              <div ref={mapContainerRef} className="w-full h-full" style={{ minHeight: '400px' }} />
+              <div ref={mapContainerRef} className="w-full h-full" />
             )}
           </>
         ) : (
           /* SBIZ GIS iframe */
-          <div className="w-full h-full" style={{ minHeight: '400px' }}>
+          <div className="w-full h-full">
             <iframe
               src={SBIZ_GIS_URL}
               className="w-full h-full border-0"
-              style={{ minHeight: 'calc(100vh - 200px)' }}
               title="소상공인 핫플레이스 GIS"
               allow="geolocation"
             />
           </div>
         )}
       </div>
+
+      {/* Right side: Real-time Floating Population & Sales Insights Panel (Scenario 2) */}
+      <div className="w-full lg:w-[360px] bg-white dark:bg-gray-950 border-t lg:border-t-0 lg:border-l border-gray-100 dark:border-gray-800 overflow-y-auto h-[50vh] lg:h-full flex flex-col">
+        {/* Panel Header */}
+        <div className="p-4 border-b border-gray-100 dark:border-gray-800 shrink-0">
+          <div className="flex items-center gap-2 mb-1">
+            <Badge color="blue">상권인사이트</Badge>
+            <span className="text-[11px] text-gray-400 dark:text-gray-500 font-mono">LIVE DATA</span>
+          </div>
+          <h2 className="text-[15px] font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+            <MapPin size={15} className="text-blue-600 dark:text-blue-400" /> 전주 한옥마을 상권
+          </h2>
+          <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">전라북도 전주시 완산구 풍남동 일대</p>
+        </div>
+
+        {/* Panel Body */}
+        <div className="p-4 space-y-4 flex-1">
+          {/* Card 1: Floating Population */}
+          <div className="bg-gradient-to-br from-blue-50/50 to-indigo-50/30 dark:from-blue-950/20 dark:to-transparent border border-blue-100/60 dark:border-blue-900/40 rounded-2xl p-4 shadow-sm">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-semibold text-blue-700 dark:text-blue-400">실시간 유동인구</span>
+              <Badge color="blue">▲ 12.4%</Badge>
+            </div>
+            <div className="flex items-baseline gap-1.5 mb-2">
+              <span className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">19,280</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">명</span>
+            </div>
+            <p className="text-[11px] text-gray-600 dark:text-gray-400 leading-relaxed">
+              맑고 선선한 바람이 불면서 한옥마을 내 보행 인구 흐름이 주말 평균 흐름에 근접하여 활기를 띠고 있습니다.
+            </p>
+            {/* Demographics bar */}
+            <div className="mt-3 pt-3 border-t border-blue-100/40 dark:border-blue-900/20">
+              <div className="flex items-center justify-between text-[10px] text-gray-500 dark:text-gray-400 mb-1.5">
+                <span>주요 방문층: <strong>20대 여성 (38%)</strong></span>
+                <span>남여 비율: <strong>42 : 58</strong></span>
+              </div>
+              <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden flex">
+                <div className="h-full bg-blue-500" style={{ width: '42%' }}></div>
+                <div className="h-full bg-pink-500" style={{ width: '58%' }}></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 2: Sales Insights by Category */}
+          <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-4 shadow-sm space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-gray-900 dark:text-white">업종별 평균 매출 분석</span>
+              <span className="text-[10px] text-gray-400">최근 1개월 기준</span>
+            </div>
+
+            {/* List */}
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800/40 rounded-xl">
+                <div>
+                  <div className="text-[11px] font-bold text-gray-900 dark:text-white">한식 및 주점</div>
+                  <div className="text-[9px] text-gray-400">경쟁강도: 보통</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-xs font-bold text-gray-950 dark:text-white">월 2,450만원</div>
+                  <div className="text-[9px] text-emerald-500 font-semibold">▲ 5.2%</div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800/40 rounded-xl">
+                <div>
+                  <div className="text-[11px] font-bold text-gray-900 dark:text-white">카페 및 디저트</div>
+                  <div className="text-[9px] text-gray-400">경쟁강도: 높음</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-xs font-bold text-gray-950 dark:text-white">월 1,820만원</div>
+                  <div className="text-[9px] text-gray-400 font-semibold">- 0.8%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 3: AI Special Tip */}
+          <div className="bg-amber-50/50 dark:bg-amber-950/10 border border-amber-100 dark:border-amber-950/40 rounded-2xl p-4">
+            <h4 className="text-xs font-bold text-amber-800 dark:text-amber-400 mb-1 flex items-center gap-1">
+              💡 W-AI 상권 권장 전략
+            </h4>
+            <p className="text-[11px] text-amber-800/90 dark:text-amber-500/80 leading-relaxed">
+              구름 많은 날씨에는 야외 관광객의 전 소모 비중이 늘어납니다. <strong>모둠 전 + 전주 막걸리 패키지</strong> 기획 세트의 SNS/배달 채널 홍보글 노출 비중을 높여보세요.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
+

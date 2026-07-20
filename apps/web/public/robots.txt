@@ -1,0 +1,12 @@
+# W-AI (sulab.store) robots.txt
+# https://www.robotstxt.org/
+
+# 모든 검색 엔진 크롤러 허용
+User-agent: *
+Allow: /
+
+# 대시보드 내부 페이지는 색인 불필요 (선택)
+# Disallow: /dashboard/
+
+# 사이트맵 위치
+Sitemap: https://sulab.store/sitemap.xml

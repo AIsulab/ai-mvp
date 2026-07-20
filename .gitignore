@@ -1,7 +1,20 @@
 node_modules/
 .env
+.env.local
 dist/
 build/
 .DS_Store
 
 .vercel
+.mimocode/
+
+# API 문서 zip 파일
+*.zip
+
+# 임시 Python 스크립트
+tmp_*.py
+
+# OpenAPI 가이드 폴더
+OpenAPI*/
+(251128)*/
+기상청*/

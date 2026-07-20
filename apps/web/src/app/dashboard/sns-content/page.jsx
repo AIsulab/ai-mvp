@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Zap, Copy, Check, AlertCircle, Instagram } from "lucide-react";
-import { streamAIResponse } from "@/utils/ai";
+import { streamAIResponse, classifyAIError } from "@/utils/ai";
 import { Button, Card, Input, PillSelector, Badge } from "../../../components/ui";
 import { businessTypes, platforms, moods } from "../../../constants/businessTypes";
 import { copyToClipboard } from "../../../utils/clipboard";
+import SuccessToast, { useSuccessToast } from "../../../components/SuccessToast";
 
 export default function SnsContentPage() {
   const [businessType, setBusinessType] = useState("");
@@ -15,6 +16,15 @@ export default function SnsContentPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [copied, setCopied] = useState(null);
   const [error, setError] = useState(null);
+  const { toast, showError, showCopy } = useSuccessToast();
+
+  useEffect(() => {
+    const pendingText = localStorage.getItem("pending_marketing_text");
+    if (pendingText) {
+      setEvent(pendingText);
+      localStorage.removeItem("pending_marketing_text");
+    }
+  }, []);
 
   const generate = async () => {
     if (!businessType || !event) { setError("업종과 오늘의 이벤트/메뉴를 입력해주세요."); return; }
@@ -39,13 +49,21 @@ export default function SnsContentPage() {
       setResult(fullText);
       setStreaming("");
     } catch (err) {
-      setError("생성 중 오류가 발생했습니다.");
+      const msg = classifyAIError(err);
+      setError(msg);
+      showError(msg);
     } finally {
       setIsGenerating(false);
     }
   };
 
-  const copy = (text, key) => { copyToClipboard(text).then(() => { setCopied(key); setTimeout(() => setCopied(null), 2000); }); };
+  const copy = (text, key) => {
+    copyToClipboard(text).then(() => {
+      setCopied(key);
+      showCopy();
+      setTimeout(() => setCopied(null), 2000);
+    });
+  };
 
   return (
     <div className="px-5 md:px-8 py-4 md:py-6 animate-fade-in">
@@ -67,9 +85,15 @@ export default function SnsContentPage() {
             <PillSelector label="분위기" options={moods} value={mood} onChange={setMood} />
           </div>
         </div>
-        {error && <div className="mt-2.5 md:mt-3 text-xs md:text-sm text-red-500 flex items-center gap-1.5"><AlertCircle size={13} /> {error}</div>}
+        {error && (
+          <div className="mt-2.5 md:mt-3 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-start gap-2">
+            <AlertCircle size={14} className="text-red-500 shrink-0 mt-0.5" />
+            <p className="text-xs md:text-sm text-red-600 dark:text-red-400 flex-1">{error}</p>
+            <button onClick={generate} className="text-xs text-red-600 dark:text-red-400 hover:text-red-800 underline underline-offset-2 shrink-0 font-medium">재시도</button>
+          </div>
+        )}
         <Button variant="primary" className="w-full mt-4 md:mt-5" onClick={generate} disabled={isGenerating || !businessType || !event} loading={isGenerating}>
-          <Instagram size={14} /> SNS 콘텐츠 생성하기
+          <Instagram size={14} /> {isGenerating ? "데이터를 불러오는 중입니다..." : "SNS 콘텐츠 생성하기"}
         </Button>
       </Card>
 
@@ -97,6 +121,7 @@ export default function SnsContentPage() {
           <pre className="text-xs md:text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">{result}</pre>
         </Card>
       )}
+      <SuccessToast toast={toast} onClose={() => {}} />
     </div>
   );
 }

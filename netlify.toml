@@ -1,0 +1,66 @@
+[build]
+  command = "cd apps/web && npm install && npm run build"
+  publish = "apps/web/dist"
+  functions = "netlify/functions"
+
+# SPA 라우팅: 모든 경로를 index.html로 리라이트
+[[redirects]]
+  from = "/dashboard/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/login"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/test-map"
+  to = "/index.html"
+  status = 200
+
+# API 프록시: /api/* → Netlify Functions
+[[redirects]]
+  from = "/api/weather"
+  to = "/.netlify/functions/weather"
+  status = 200
+
+[[redirects]]
+  from = "/api/sgis"
+  to = "/.netlify/functions/sgis"
+  status = 200
+
+[[redirects]]
+  from = "/api/wifi"
+  to = "/.netlify/functions/wifi"
+  status = 200
+
+[[redirects]]
+  from = "/api/naver"
+  to = "/.netlify/functions/naver"
+  status = 200
+
+[[redirects]]
+  from = "/api/generate"
+  to = "/.netlify/functions/generate"
+  status = 200
+
+[[redirects]]
+  from = "/api/keywords"
+  to = "/.netlify/functions/keywords"
+  status = 200
+
+[[redirects]]
+  from = "/api/funds"
+  to = "/.netlify/functions/funds"
+  status = 200
+
+# 모든 미매칭 경로는 index.html로 (SPA 폴백)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# 환경변수
+[build.environment]
+  NODE_VERSION = "18"
