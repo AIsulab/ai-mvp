@@ -1,4 +1,4 @@
-# W-AI (sulab.store) robots.txt
+# W-AI robots.txt
 # https://www.robotstxt.org/
 
 # 모든 검색 엔진 크롤러 허용
@@ -9,4 +9,4 @@ Allow: /
 # Disallow: /dashboard/
 
 # 사이트맵 위치
-Sitemap: https://sulab.store/sitemap.xml
+Sitemap: https://w-ai-sulabs-projects-4a3df4c3.vercel.app/sitemap.xml

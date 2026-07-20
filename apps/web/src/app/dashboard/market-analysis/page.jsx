@@ -81,7 +81,7 @@ export default function MarketAnalysisPage() {
     } catch (e) {
       console.error("[NaverMap] Map init error:", e);
       setMapError(
-        `지도 초기화 실패: ${e.message}\n네이버 콘솔에서 sulab.store 도메인이 등록됐는지 확인하세요.`
+        `지도 초기화 실패: ${e.message}\n네이버 콘솔에서 현재 도메인이 등록됐는지 확인하세요.`
       );
     }
   }, [activeTab]);

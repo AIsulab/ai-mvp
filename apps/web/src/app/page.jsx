@@ -471,7 +471,7 @@ export default function LandingPage() {
               복지정보 블로그 ↗
             </a>
             <span style={{ fontSize: 11, color: 'rgba(255, 255, 255, 0.3)' }}>Weather × Win × AI</span>
-            <span style={{ fontSize: 11, color: 'rgba(255, 255, 255, 0.3)' }}>© W-AI | sulab.store</span>
+            <span style={{ fontSize: 11, color: 'rgba(255, 255, 255, 0.3)' }}>© W-AI</span>
           </div>
         </div>
       </footer>

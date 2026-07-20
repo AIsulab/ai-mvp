@@ -9,14 +9,14 @@
     <meta name="keywords" content="소상공인, AI 마케팅, 날씨 마케팅, 상권 분석, 리뷰 관리, SNS 콘텐츠, 경영 인사이트, AI 경영 비서, 전북, 전주, W-AI" />
     <meta name="author" content="SULAB" />
     <meta name="robots" content="index, follow" />
-    <link rel="canonical" href="https://sulab.store" />
+    <link rel="canonical" href="https://w-ai-sulabs-projects-4a3df4c3.vercel.app" />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://sulab.store" />
+    <meta property="og:url" content="https://w-ai-sulabs-projects-4a3df4c3.vercel.app" />
     <meta property="og:title" content="W-AI | 사장님의 성공 이유" />
     <meta property="og:description" content="소상공인을 위한 AI 올인원 플랫폼. 날씨·상권·리뷰 데이터를 AI가 자동 분석해 마케팅 문구부터 경영 인사이트까지." />
-    <meta property="og:image" content="https://sulab.store/og-image.png" />
+    <meta property="og:image" content="https://w-ai-sulabs-projects-4a3df4c3.vercel.app/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:locale" content="ko_KR" />
@@ -24,14 +24,14 @@
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:url" content="https://sulab.store" />
+    <meta name="twitter:url" content="https://w-ai-sulabs-projects-4a3df4c3.vercel.app" />
     <meta name="twitter:title" content="W-AI | 사장님의 성공 이유" />
     <meta name="twitter:description" content="소상공인을 위한 AI 올인원 플랫폼. 날씨·상권·리뷰 데이터를 AI가 자동 분석." />
-    <meta name="twitter:image" content="https://sulab.store/og-image.png" />
+    <meta name="twitter:image" content="https://w-ai-sulabs-projects-4a3df4c3.vercel.app/og-image.png" />
 
     <!-- Theme & Icons -->
-    <meta name="theme-color" content="#111827" />
-    <meta name="msapplication-TileColor" content="#111827" />
+    <meta name="theme-color" content="#0B0F19" />
+    <meta name="msapplication-TileColor" content="#0B0F19" />
 
     <title>W-AI | 사장님의 성공 이유</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -41,6 +41,21 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+    <!-- 로딩 중 흰배경 방지: 다크 배경 + 콘텐츠 숨김 -->
+    <style>
+      html, body { background: #0B0F19; margin: 0; padding: 0; }
+      #root:empty { display: none; }
+      #root > .seo-fallback {
+        background: #0B0F19;
+        color: #F3F4F6;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Inter', sans-serif;
+      }
+    </style>
   </head>
   <body>
     <!--
@@ -48,78 +63,38 @@
       React 앱이 마운트되면 #root 내용을 대체합니다.
     -->
     <div id="root">
-      <header>
-        <nav aria-label="메인 네비게이션">
-          <a href="/" aria-label="W-AI 홈">W-AI</a>
-          <a href="#features">기능 소개</a>
-          <a href="/dashboard">대시보드 시작</a>
-        </nav>
-      </header>
-
-      <main>
-        <section aria-labelledby="hero-heading">
-          <h1 id="hero-heading">W-AI — AI 기반 소상공인 경영 비서</h1>
-          <p>
-            W-AI는 날씨·상권·리뷰 데이터를 AI가 자동 분석하여
-            소상공인에게 마케팅 문구 자동화, 상권 인사이트, 리뷰 답변,
-            SNS 콘텐츠 생성, 지원금 매칭까지 버튼 하나로 제공하는
-            소상공인 전용 AI 경영 비서 서비스입니다.
-          </p>
-          <a href="/dashboard">무료로 시작하기</a>
-        </section>
-
-        <section id="features" aria-labelledby="features-heading">
-          <h2 id="features-heading">6가지 AI 핵심 기능</h2>
-          <ul>
-            <li>
-              <h3>날씨 마케팅</h3>
-              <p>기상청 실시간 날씨 데이터를 연동해 오늘의 날씨에 맞는 마케팅 문구를 자동 생성합니다. 비 오는 날 국밥집, 더운 날 냉면집 등 상황별 최적 문구를 즉시 제공합니다.</p>
-            </li>
-            <li>
-              <h3>상권 분석</h3>
-              <p>전북 지역 유동인구·매출 데이터를 AI가 분석해 우리 가게 상권의 경쟁 현황과 경영 인사이트를 제공합니다.</p>
-            </li>
-            <li>
-              <h3>리뷰 답변 자동화</h3>
-              <p>고객 리뷰를 분석해 업종과 상황에 맞는 맞춤 답변 초안을 자동 생성합니다. 긍정·부정 리뷰 모두 대응합니다.</p>
-            </li>
-            <li>
-              <h3>SNS 콘텐츠 생성</h3>
-              <p>인스타그램·블로그용 홍보 콘텐츠를 업종 특성에 맞게 즉시 완성합니다. 해시태그 추천도 포함됩니다.</p>
-            </li>
-            <li>
-              <h3>지역 특화 분석</h3>
-              <p>전북 지역 소비 트렌드와 특화 데이터를 기반으로 우리 가게에 맞는 맞춤 분석 리포트를 제공합니다.</p>
-            </li>
-            <li>
-              <h3>지원금 매칭</h3>
-              <p>소상공인이 신청 가능한 정부·지자체 지원사업을 AI가 자동으로 매칭하여 추천합니다.</p>
-            </li>
-          </ul>
-        </section>
-
-        <section aria-labelledby="cta-heading">
-          <h2 id="cta-heading">지금 무료로 시작하세요</h2>
-          <p>전북 소상공인이라면 누구나 무료로 W-AI를 이용할 수 있습니다.</p>
-          <a href="/dashboard">대시보드 무료 체험하기</a>
-        </section>
-      </main>
-
-      <footer>
-        <p>W-AI — Weather × Win × AI | © 2025 SULAB | 소상공인 AI 경영 비서 서비스</p>
-        <address>
-          <a href="https://sulab.store">https://sulab.store</a>
-        </address>
-      </footer>
+      <div class="seo-fallback">
+        <main style="text-align:center; padding:40px;">
+          <h1 style="font-size:24px; font-weight:800; margin-bottom:16px;">W-AI</h1>
+          <p style="font-size:14px; color:#9CA3AF;">로딩 중...</p>
+        </main>
+      </div>
     </div>
 
     <!-- JS 미지원 환경 폴백 -->
     <noscript>
       <style>
         #root { display: none; }
-        .noscript-fallback { font-family: sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; }
-        .noscript-fallback h1 { color: #111827; }
-        .noscript-fallback a { display: inline-block; margin-top: 16px; padding: 12px 24px; background: #6366f1; color: white; border-radius: 8px; text-decoration: none; }
+        .noscript-fallback {
+          font-family: 'Inter', sans-serif;
+          max-width: 800px;
+          margin: 40px auto;
+          padding: 0 20px;
+          background: #0B0F19;
+          color: #F3F4F6;
+          min-height: 100vh;
+        }
+        .noscript-fallback h1 { color: white; font-size: 24px; }
+        .noscript-fallback p { color: #9CA3AF; line-height: 1.7; }
+        .noscript-fallback a {
+          display: inline-block;
+          margin-top: 16px;
+          padding: 12px 24px;
+          background: #6366f1;
+          color: white;
+          border-radius: 8px;
+          text-decoration: none;
+        }
       </style>
       <div class="noscript-fallback">
         <h1>W-AI — AI 기반 소상공인 경영 비서</h1>

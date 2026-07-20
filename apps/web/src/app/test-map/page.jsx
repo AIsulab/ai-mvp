@@ -218,7 +218,7 @@ export default function TestMapPage() {
         <div style={{ marginTop: 16, padding: 14, borderRadius: 10, background: "#fef2f2", border: "1px solid #fecaca" }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: "#dc2626", marginBottom: 8 }}>🔍 디버그 체크리스트</div>
           <ol style={{ fontSize: 12, color: "#7f1d1d", paddingLeft: 18, lineHeight: 2 }}>
-            <li>네이버 클라우드 콘솔 → Maps → Application에 <code>sulab.store</code> 도메인 등록 확인</li>
+            <li>네이버 클라우드 콘솔 → Maps → Application에 현재 도메인 등록 확인</li>
             <li><code>VITE_NAVER_MAP_CLIENT_ID</code> 환경변수 값 정확한지 확인</li>
             <li>브라우저 콘솔에서 Network 탭 → maps.js 요청 상태 확인 (403인 경우 인증 실패)</li>
             <li>localhost에서 테스트 시 <code>localhost</code>도 도메인에 추가 필요</li>
