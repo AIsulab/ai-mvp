@@ -73,6 +73,22 @@ export function AuthProvider({ children }) {
     if (error) throw error;
   }, []);
 
+  // ─── 소셜 로그인 (OAuth) ──────────────────────────────────────────────────
+  const signInWithOAuth = useCallback(async (provider) => {
+    if (!isSupabaseConfigured) {
+      // Supabase 미설정 시 데모 모드로 진입
+      enterGuestMode();
+      return { demo: true };
+    }
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`,
+      },
+    });
+    if (error) throw error;
+  }, [enterGuestMode]);
+
   // ─── 로그아웃 ──────────────────────────────────────────────────────────────
   const signOut = useCallback(async () => {
     if (isSupabaseConfigured) {
@@ -97,7 +113,7 @@ export function AuthProvider({ children }) {
   return (
     <AuthContext.Provider value={{
       user, loading, isGuest, isAuthenticated,
-      signIn, signUp, signOut, enterGuestMode,
+      signIn, signUp, signOut, signInWithOAuth, enterGuestMode,
       isSupabaseConfigured,
     }}>
       {children}
