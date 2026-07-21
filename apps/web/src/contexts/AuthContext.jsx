@@ -21,18 +21,9 @@ export function AuthProvider({ children }) {
   // ─── Supabase 세션 초기화 ───────────────────────────────────────────────────
   useEffect(() => {
     if (!isSupabaseConfigured) {
-      // Supabase 미설정 — 로컬스토리지에서 유저 및 게스트 상태 복원
-      const savedUserJson = localStorage.getItem(USER_KEY);
-      if (savedUserJson) {
-        try {
-          setUser(JSON.parse(savedUserJson));
-        } catch {
-          localStorage.removeItem(USER_KEY);
-        }
-      } else {
-        const guest = localStorage.getItem(GUEST_KEY) === "true";
-        setIsGuest(guest);
-      }
+      // Supabase 미설정 시에는 이메일 로그인 상태를 로컬에 저장하지 않습니다.
+      const guest = localStorage.getItem(GUEST_KEY) === "true";
+      setIsGuest(guest);
       setLoading(false);
       return;
     }
@@ -61,7 +52,6 @@ export function AuthProvider({ children }) {
       // Supabase 미연동 시: 지정 관리자 계정 가상 매칭
       if (email === "fosum@kakao.com" && password === "!Js77077057") {
         const mockUser = { email: "fosum@kakao.com", id: "admin-fosum" };
-        localStorage.setItem(USER_KEY, JSON.stringify(mockUser));
         localStorage.removeItem(GUEST_KEY);
         setUser(mockUser);
         setIsGuest(false);
