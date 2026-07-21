@@ -29,11 +29,11 @@ export default function StoreList({ stores, loading }) {
     );
   }
 
-  if (!stores || stores.length === 0) {
+  if (!Array.isArray(stores) || stores.length === 0) {
     return (
       <div className="text-center py-8">
         <MapPin size={24} className="text-gray-300 dark:text-gray-600 mx-auto mb-2" />
-        <p className="text-xs text-gray-400">주변 상가 데이터를 불러올 수 없습니다.</p>
+        <p className="text-xs text-gray-400">주변 상가 데이터를 아직 불러오지 못했습니다.</p>
       </div>
     );
   }

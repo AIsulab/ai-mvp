@@ -78,7 +78,7 @@ export default function StoreInfoForm({ storeInfo, setStoreInfo, onAnalyze, isAn
             onChange={e => setStoreInfo({ ...storeInfo, name: e.target.value })}
             onFocus={() => setFocused('name')}
             onBlur={() => setFocused(null)}
-            placeholder="예: 전주 한옥마을 파전집"
+            placeholder="예: 불초밥"
             className={`${inputClass('name')} placeholder-gray-300`}
           />
         </div>
@@ -94,7 +94,7 @@ export default function StoreInfoForm({ storeInfo, setStoreInfo, onAnalyze, isAn
             onChange={e => setStoreInfo({ ...storeInfo, menu: e.target.value })}
             onFocus={() => setFocused('menu')}
             onBlur={() => setFocused(null)}
-            placeholder="예: 파전, 막걸리, 냉면"
+            placeholder="예: 불초밥, 연어초밥, 육회비빔밥, 모듬초밥"
             className={`${inputClass('menu')} placeholder-gray-300`}
           />
         </div>

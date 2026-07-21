@@ -14,8 +14,8 @@ import MarketingHeatmap from "./components/MarketingHeatmap";
 export default function DashboardPage() {
   const [storeInfo, setStoreInfo] = useState({
     type: "일식/초밥",
-    name: "불초밥",
-    menu: "불초밥, 연어초밥, 육회비빔밥, 모듬초밥",
+    name: "",
+    menu: "",
     region: "전북 전주시 덕진구",
   });
 

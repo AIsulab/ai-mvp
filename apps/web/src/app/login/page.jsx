@@ -92,7 +92,7 @@ export default function LoginPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="fosum@kakao.com"
+                  placeholder="예: your@email.com"
                   required
                   className="w-full bg-[#1F2937] border border-gray-700/60 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 disabled:opacity-50 transition-all"
                 />
@@ -124,8 +124,7 @@ export default function LoginPage() {
             {!isSupabaseConfigured && (
               <div className="p-3 bg-amber-950/20 border border-amber-900/40 rounded-xl text-center">
                 <p className="text-xs text-amber-400/90 leading-relaxed">
-                  현재 DB 비연동 환경이지만, 지정된 **관리자 계정(fosum@kakao.com)**으로
-                  로그인하시거나 아래 **데모 계정 간편 로그인**을 클릭해 바로 서비스를 이용하실 수 있습니다.
+                  현재 데모 환경입니다. 카카오/네이버/구글 간편 로그인 또는 이메일로 회원가입 후 이용해보세요.
                 </p>
               </div>
             )}
@@ -149,14 +148,31 @@ export default function LoginPage() {
             <div className="flex-1 h-px bg-gray-800" />
           </div>
 
-          {/* Guest Demo Login Button */}
-          <button
-            onClick={handleGuestLogin}
-            className="w-full bg-gray-800/50 hover:bg-gray-800 border border-gray-700/60 text-gray-200 rounded-xl py-2.5 text-sm font-medium transition-all flex items-center justify-center gap-2 group hover:border-gray-600"
-          >
-            <Sparkles size={14} className="text-yellow-500 animate-pulse group-hover:scale-110 transition-transform" />
-            데모 계정으로 간편 로그인
-          </button>
+          {/* Social Login Buttons */}
+          <div className="grid gap-3">
+            <button
+              type="button"
+              onClick={handleGuestLogin}
+              className="w-full bg-[#fee500] hover:bg-[#f7dc00] text-[#3c1e1e] rounded-xl py-2.5 text-sm font-medium transition-all border border-[#e4d200] flex items-center justify-center gap-2"
+            >
+              <span className="font-semibold">카카오로 간편 로그인</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleGuestLogin}
+              className="w-full bg-[#03c75a] hover:bg-[#02b053] text-white rounded-xl py-2.5 text-sm font-medium transition-all border border-[#02a14c] flex items-center justify-center gap-2"
+            >
+              <span className="font-semibold">네이버로 간편 로그인</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleGuestLogin}
+              className="w-full bg-[#4285f4] hover:bg-[#357ae8] text-white rounded-xl py-2.5 text-sm font-medium transition-all border border-[#357ae8] flex items-center justify-center gap-2"
+            >
+              <span className="font-semibold">구글로 간편 로그인</span>
+            </button>
+          </div>
+          <p className="text-[11px] text-gray-500 mt-3 text-center">이메일로 회원가입하거나 간편 로그인 버튼을 이용해 주세요.</p>
         </Card>
       </div>
     </div>

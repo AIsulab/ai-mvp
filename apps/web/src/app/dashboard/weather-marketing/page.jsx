@@ -9,7 +9,7 @@ import SuccessToast, { useSuccessToast } from "../../../components/SuccessToast"
 
 export default function WeatherMarketingPage() {
   const [businessType, setBusinessType] = useState("일식/초밥");
-  const [menuOrProduct, setMenuOrProduct] = useState("불초밥, 연어초밥, 육회비빔밥");
+  const [menuOrProduct, setMenuOrProduct] = useState("");
   const [tone, setTone] = useState(tones[0]);
   const [generated, setGenerated] = useState([]);
   const [streaming, setStreaming] = useState("");
@@ -159,7 +159,7 @@ export default function WeatherMarketingPage() {
         <h2 className="text-[15px] font-semibold text-[#111827] dark:text-white mb-3">내 가게 정보 입력</h2>
         <div className="space-y-3 md:space-y-4">
           <PillSelector label="업종 선택" options={businessTypes} value={businessType} onChange={setBusinessType} />
-          <Input label="오늘의 메뉴 또는 상품" value={menuOrProduct} onChange={(e) => setMenuOrProduct(e.target.value)} placeholder="예: 육개장, 아메리카노, 여름 한정 팥빙수..." />
+          <Input label="오늘의 메뉴 또는 상품" value={menuOrProduct} onChange={(e) => setMenuOrProduct(e.target.value)} placeholder="예: 불초밥, 연어초밥, 육회비빔밥, 모듬초밥" />
           <PillSelector label="문구 톤 선택" options={tones} value={tone} onChange={setTone} />
         </div>
         {error && (
